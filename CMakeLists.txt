@@ -28,3 +28,5 @@ target_include_directories(MediaRemoteAdapter
 
 install(TARGETS MediaRemoteAdapter FRAMEWORK DESTINATION .
         PUBLIC_HEADER DESTINATION MediaRemoteAdapter.framework/Headers)
+
+# TODO make debounce optional and configurable with CMake
