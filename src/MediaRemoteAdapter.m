@@ -1,5 +1,7 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #import <AppKit/AppKit.h>
 #import <CoreFoundation/CoreFoundation.h>
@@ -407,12 +409,22 @@ void appForNotification(NSNotification *notification,
 }
 
 + (void)stop {
-    // not yet implemented
+    if (_runLoop) {
+        CFRunLoopStop(_runLoop);
+        _runLoop = NULL;
+    }
 }
 
 @end
 
+static void handleSignal(int signal) {
+    if (signal == SIGTERM) {
+        [MediaRemoteAdapter stop];
+    }
+}
+
 __attribute__((constructor)) static void init() {
+    signal(SIGTERM, handleSignal);
     _mediaRemote = [[MediaRemote alloc] init];
     if (!_mediaRemote) {
         fail(@"Failed to initialize MediaRemote Framework");
@@ -424,5 +436,5 @@ __attribute__((constructor)) static void init() {
 }
 
 __attribute__((destructor)) static void teardown() {
-    // not yet implemented
+    [MediaRemoteAdapter stop];
 }
