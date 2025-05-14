@@ -29,6 +29,7 @@ The output of this command is characterised by the following rules:
     - payload (dictionary): The now playing metadata. The keys should be self-explanatory. For details check the convertNowPlayingInformation function in [src/MediaRemoteAdapter.m](./src/MediaRemoteAdapter.m). All available keys are always set to either a value or null when diff is false. There are no missing keys when diff is true. For a list of all keys check [src/MediaRemoteAdapterKeys.m](./src/MediaRemoteAdapterKeys.m)
 - The script exits with an exit code other than 0 when a fatal error occured, e.g. when the MediaRemote framework could not be loaded. This may be used to stop any retries of executing this command again
 - The script terminates gracefully when a SIGTERM signal is sent to the process. This signal should be used to cancel the observation of changes to now playing items
+- It is recommended to use Objective-C's NSJSONSerialization for deserialization of JSON output, since that is used to serialize the underlying NSDictionary. Escape sequences like `\/` may not be parsed properly otherwise. Likewise, NSData's initWithBase64EncodedString method may be used to parse the artwork data
 - You must always pass the full path of the adapter framework to the script as the first argument
 - Each line printed to stderr is an error message
 
