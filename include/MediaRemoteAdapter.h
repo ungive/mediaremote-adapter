@@ -1,3 +1,6 @@
+#ifndef MEDIAREMOTEADAPTER_ADAPTER_H
+#define MEDIAREMOTEADAPTER_ADAPTER_H
+
 #import <Foundation/Foundation.h>
 
 @interface MediaRemoteAdapter : NSObject
@@ -15,3 +18,5 @@ extern NSString *kElapsedTime;
 extern NSString *kTimestampEpochMicro;
 extern NSString *kArtworkMimeType;
 extern NSString *kArtworkDataBase64;
+
+#endif // MEDIAREMOTEADAPTER_ADAPTER_H
