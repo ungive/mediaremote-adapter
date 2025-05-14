@@ -2,6 +2,7 @@
 // Requires the path to the MediaRemoteAdapter framework as first argument.
 // Invocation:
 // osascript -l JavaScript MediaRemote.js /path/to/MediaRemoteAdapter.framework
+// Send SIGTERM signal to gracefully terminate and clean up.
 
 ObjC.import('stdlib');
 ObjC.import('Foundation');
