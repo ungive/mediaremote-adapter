@@ -299,6 +299,8 @@ void appForNotification(NSNotification *notification,
       requestAll();
     };
 
+    // FIXME Is this foolproof? This continues and registers observers
+    // which might intervene with the initial three requests.
     requestAll();
 
     NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
@@ -427,3 +429,11 @@ __attribute__((constructor)) static void init() {
 __attribute__((destructor)) static void teardown() {
     [MediaRemoteAdapter stop];
 }
+
+// FIXME Fix "peculiar media" (title is updated later than artist). Example:
+/*
+35.558Z Thirteen by Big Star on Camping Songs
+36.091Z Good Vibrations (Remastered 2001) by Big Star on Camping Songs
+36.204Z Good Vibrations (Remastered 2001) by Big Star on Camping Songs (+image)
+36.624Z Good Vibrations (Remastered 2001) by The Beach Boys on Camping Songs
+*/
