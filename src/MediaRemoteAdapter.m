@@ -32,6 +32,16 @@ static MediaRemote *_mediaRemote = NULL;
 static CFRunLoopRef _runLoop = NULL;
 static dispatch_queue_t _queue;
 
+static void printOut(NSString *message) {
+    fprintf(stdout, "%s\n", [message UTF8String]);
+    fflush(stdout);
+}
+
+static void printErr(NSString *message) {
+    fprintf(stderr, "%s\n", [message UTF8String]);
+    fflush(stderr);
+}
+
 static NSString *serializeJsonSafe(id any) {
     NSError *error;
     NSData *serialized = [NSJSONSerialization dataWithJSONObject:any
@@ -44,22 +54,10 @@ static NSString *serializeJsonSafe(id any) {
                                  encoding:NSUTF8StringEncoding];
 }
 
-static NSString *serializeErrorMessage(NSString *message, BOOL fatal) {
-    return serializeJsonSafe(@{
-        @"type" : @"error",
-        @"message" : message,
-        @"fatal" : @(fatal),
-    });
-}
-
 static NSString *formatError(NSError *error) {
     return
         [NSString stringWithFormat:@"%@ (%@:%ld)", [error localizedDescription],
                                    [error domain], (long)[error code]];
-}
-
-static NSString *serializeError(NSError *error, BOOL fatal) {
-    return serializeErrorMessage(formatError(error), fatal);
 }
 
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
@@ -73,10 +71,9 @@ static NSString *serializeData(NSDictionary *data, BOOL diff) {
                                                          options:0
                                                            error:&error];
     if (!serialized) {
-        return serializeErrorMessage(
-            [NSString stringWithFormat:@"Failed for serialize data: %@",
-                                       formatError(error)],
-            false);
+        printErr([NSString stringWithFormat:@"Failed for serialize data: %@",
+                                            formatError(error)]);
+        return nil;
     }
     return [[NSString alloc] initWithData:serialized
                                  encoding:NSUTF8StringEncoding];
@@ -152,11 +149,6 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
     return [diff copy];
 }
 
-static void print(NSString *message) {
-    fprintf(stdout, "%s\n", [message UTF8String]);
-    fflush(stdout);
-}
-
 static NSDictionary *previousData = nil;
 
 static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
@@ -186,17 +178,15 @@ static void printData(NSDictionary *data) {
     } else {
         serialized = serializeData(data, false);
     }
-    previousData = [data copy];
-    print(serialized);
-}
-
-static void printErrorMessage(NSString *message) {
-    print(serializeErrorMessage(message, false));
+    if (serialized != nil) {
+        previousData = [data copy];
+        printOut(serialized);
+    }
 }
 
 static void fail(NSString *message) {
-    print(serializeErrorMessage(message, true));
-    exit(-1);
+    printErr(message);
+    exit(1);
 }
 
 void appForPID(int pid, void (^block)(NSRunningApplication *)) {
@@ -206,14 +196,14 @@ void appForPID(int pid, void (^block)(NSRunningApplication *)) {
     NSRunningApplication *process =
         [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     if (process == nil) {
-        printErrorMessage(
+        printErr(
             [NSString stringWithFormat:@"Failed to determine bundle identifier "
                                        @"for process with PID %d",
                                        pid]);
         return;
     }
     if (process.bundleIdentifier == nil) {
-        printErrorMessage([NSString
+        printErr([NSString
             stringWithFormat:
                 @"The bundle identifier for process with PID %d is nil", pid]);
         return;

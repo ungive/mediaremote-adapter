@@ -6,12 +6,13 @@
 ObjC.import('stdlib');
 ObjC.import('Foundation');
 
+function printErr(message) {
+    $.NSFileHandle.fileHandleWithStandardError.writeData(
+        $(message).dataUsingEncoding($.NSUTF8StringEncoding));
+}
+
 function fatal(message) {
-    console.log(JSON.stringify({
-        'type': 'error',
-        'message': message,
-        'fatal': true,
-    }));
+    printErr(message);
     $.exit(1);
 }
 
