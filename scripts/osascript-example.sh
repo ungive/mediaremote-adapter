@@ -1,2 +1,2 @@
 #!/bin/bash
-osascript -l JavaScript MediaRemote.js "$(realpath ..)/build/MediaRemoteAdapter.framework"
+osascript -l JavaScript MediaRemoteAdapter.js "$(realpath ..)/build/MediaRemoteAdapter.framework"
