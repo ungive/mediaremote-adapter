@@ -232,6 +232,8 @@ void appForNotification(NSNotification *notification,
 
 + (void)loop {
 
+    // TODO make debouncing optional and configurable
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block Debounce *debounce = [[Debounce alloc] initWithDelay:DEBOUNCE_DELAY
                                                            queue:_queue];
