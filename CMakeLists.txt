@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(MediaRemoteAdapter LANGUAGES OBJC)
 
-set(SOURCES src/MediaRemoteAdapter.m src/MediaRemote.m src/Debounce.m)
+set(SOURCES src/MediaRemoteAdapter.m src/MediaRemoteAdapterKeys.m
+            src/MediaRemote.m src/Debounce.m)
 set(HEADERS include/MediaRemoteAdapter.h)
 
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
