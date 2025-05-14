@@ -152,7 +152,10 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
     return [diff copy];
 }
 
-static void print(NSString *message) { printf("%s\n", [message UTF8String]); }
+static void print(NSString *message) {
+    fprintf(stdout, "%s\n", [message UTF8String]);
+    fflush(stdout);
+}
 
 static NSDictionary *previousData = nil;
 
