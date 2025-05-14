@@ -14,9 +14,9 @@ NSString *kPlaying = @"playing";
 NSString *kTitle = @"title";
 NSString *kArtist = @"artist";
 NSString *kAlbum = @"album";
-NSString *kDuration = @"duration";
-NSString *kElapsedTime = @"elapsedTime";
-NSString *kTimestampEpochMicro = @"timestampEpochMicro";
+NSString *kDurationMicros = @"durationMicros";
+NSString *kElapsedTimeMicros = @"elapsedTimeMicros";
+NSString *kTimestampEpochMicros = @"timestampEpochMicros";
 NSString *kArtworkMimeType = @"artworkMimeType";
 NSString *kArtworkDataBase64 = @"artworkDataBase64";
 
@@ -103,9 +103,24 @@ convertNowPlayingInformation(NSDictionary *information) {
     setKey(kTitle, kMRMediaRemoteNowPlayingInfoTitle);
     setKey(kArtist, kMRMediaRemoteNowPlayingInfoArtist);
     setKey(kAlbum, kMRMediaRemoteNowPlayingInfoAlbum);
-    setKey(kDuration, kMRMediaRemoteNowPlayingInfoDuration);
-    setKey(kElapsedTime, kMRMediaRemoteNowPlayingInfoElapsedTime);
-    setValue(kTimestampEpochMicro, ^id {
+    setValue(kDurationMicros, ^id {
+      id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
+      if (duration != nil) {
+          NSTimeInterval durationMicros = [duration doubleValue] * 1000 * 1000;
+          return @(floor(durationMicros));
+      }
+      return nil;
+    });
+    setValue(kElapsedTimeMicros, ^id {
+      id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+      if (elapsedTime != nil) {
+          NSTimeInterval elapsedTimeMicros =
+              [elapsedTime doubleValue] * 1000 * 1000;
+          return @(floor(elapsedTimeMicros));
+      }
+      return nil;
+    });
+    setValue(kTimestampEpochMicros, ^id {
       NSDate *timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
       if (timestamp != nil) {
           NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
