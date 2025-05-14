@@ -15,7 +15,6 @@ function fatal(message) {
     $.exit(1);
 }
 
-ObjC.import('Foundation');
 const args = ObjC.unwrap($.NSProcessInfo.processInfo.arguments);
 const userArgs = args.slice(4);
 if (userArgs.length != 1) {
