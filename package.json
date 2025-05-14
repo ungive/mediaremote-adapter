@@ -1,0 +1,15 @@
+{
+    "name": "js-obfuscation-minification",
+    "version": "1.0.0",
+    "description": "A simple script to obfuscate and minify JavaScript files",
+    "private": true,
+    "scripts": {
+        "minify": "javascript-obfuscator scripts/MediaRemoteAdapter.js --output scripts/MediaRemoteAdapter.min.js && uglifyjs scripts/MediaRemoteAdapter.min.js --comments false -o scripts/MediaRemoteAdapter.min.js"
+    },
+    "devDependencies": {
+        "javascript-obfuscator": "^4.1.1",
+        "uglify-js": "^3.14.0"
+    },
+    "author": "",
+    "license": "ISC"
+}
