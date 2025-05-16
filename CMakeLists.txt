@@ -6,7 +6,7 @@ set(SOURCES src/MediaRemoteAdapter.m src/MediaRemoteAdapterKeys.m
             src/MediaRemote.m src/Debounce.m)
 set(HEADERS include/MediaRemoteAdapter.h)
 
-set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
 
 add_library(MediaRemoteAdapter SHARED ${SOURCES})
 
