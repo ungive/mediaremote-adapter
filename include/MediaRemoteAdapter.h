@@ -3,12 +3,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MediaRemoteAdapter : NSObject
-
-+ (void)loop;
-+ (void)stop;
-
-@end
+extern void loop();
+extern void stop();
 
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;

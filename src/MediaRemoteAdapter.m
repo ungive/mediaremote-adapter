@@ -15,7 +15,7 @@ static const double INDEFINITELY = 1e10;
 static const double DEBOUNCE_DELAY = 0.1; // seconds
 
 // These keys identify a now playing item uniquely.
-NSArray<NSString *> *identifyingItemKeys(void) {
+static NSArray<NSString *> *identifyingItemKeys(void) {
     return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
 }
 
@@ -195,7 +195,7 @@ static void fail(NSString *message) {
     exit(1);
 }
 
-void appForPID(int pid, void (^block)(NSRunningApplication *)) {
+static void appForPID(int pid, void (^block)(NSRunningApplication *)) {
     if (pid <= 0) {
         return;
     }
@@ -217,8 +217,8 @@ void appForPID(int pid, void (^block)(NSRunningApplication *)) {
     block(process);
 }
 
-void appForNotification(NSNotification *notification,
-                        void (^block)(NSRunningApplication *)) {
+static void appForNotification(NSNotification *notification,
+                               void (^block)(NSRunningApplication *)) {
     NSDictionary *userInfo = notification.userInfo;
     id pidValue = userInfo[kMRMediaRemoteNowPlayingApplicationPIDUserInfoKey];
     if (pidValue == nil) {
@@ -228,9 +228,7 @@ void appForNotification(NSNotification *notification,
     appForPID(pid, block);
 };
 
-@implementation MediaRemoteAdapter
-
-+ (void)loop {
+extern void loop() {
 
     // TODO make debouncing optional and configurable
 
@@ -401,18 +399,16 @@ void appForNotification(NSNotification *notification,
         removeObserver:app_termination_observer];
 }
 
-+ (void)stop {
+extern void stop() {
     if (_runLoop) {
         CFRunLoopStop(_runLoop);
         _runLoop = NULL;
     }
 }
 
-@end
-
 static void handleSignal(int signal) {
     if (signal == SIGTERM) {
-        [MediaRemoteAdapter stop];
+        stop();
     }
 }
 
@@ -428,9 +424,7 @@ __attribute__((constructor)) static void init() {
                                    DISPATCH_QUEUE_SERIAL);
 }
 
-__attribute__((destructor)) static void teardown() {
-    [MediaRemoteAdapter stop];
-}
+__attribute__((destructor)) static void teardown() { stop(); }
 
 // FIXME Fix "peculiar media" (title is updated later than artist). Example:
 /*
