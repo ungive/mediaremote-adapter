@@ -27,6 +27,13 @@ target_include_directories(MediaRemoteAdapter
 target_include_directories(MediaRemoteAdapter
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+add_custom_command(
+    TARGET MediaRemoteAdapter
+    POST_BUILD
+    COMMAND codesign --force --deep --sign -
+            $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
+    COMMENT "Ad-hoc signing MediaRemoteAdapter.framework")
+
 install(TARGETS MediaRemoteAdapter FRAMEWORK DESTINATION .
         PUBLIC_HEADER DESTINATION MediaRemoteAdapter.framework/Headers)
 
