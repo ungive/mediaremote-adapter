@@ -239,6 +239,7 @@ extern void loop() {
     void (^handle)() = ^{
       if (liveData[kBundleIdentifier] != nil && liveData[kPlaying] != nil &&
           liveData[kTitle] != nil) {
+          NSLog(@"getNowPlayingApplicationIsPlaying = %@", liveData[kPlaying]);
           printData(liveData);
       }
     };
@@ -254,6 +255,7 @@ extern void loop() {
 
     void (^requestNowPlayingApplicationIsPlaying)() = ^{
       _mediaRemote.getNowPlayingApplicationIsPlaying(_queue, ^(bool isPlaying) {
+        NSLog(@"getNowPlayingApplicationIsPlaying = %d", isPlaying);
         liveData[kPlaying] = @(isPlaying);
         handle();
       });
@@ -329,6 +331,9 @@ extern void loop() {
                           liveData[kBundleIdentifier] =
                               process.bundleIdentifier;
                           liveData[kPlaying] = @([isPlayingValue boolValue]);
+                          NSLog(@"kMRMediaRemoteNowPlayingApplication"
+                                @"IsPlayingDidChangeNotification = %d",
+                                [isPlayingValue boolValue]);
                           if (liveData[kTitle] == nil) {
                               requestNowPlayingInfo();
                           }
