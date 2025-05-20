@@ -34,7 +34,4 @@ add_custom_command(
             $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
     COMMENT "Ad-hoc signing MediaRemoteAdapter.framework")
 
-install(TARGETS MediaRemoteAdapter FRAMEWORK DESTINATION .
-        PUBLIC_HEADER DESTINATION MediaRemoteAdapter.framework/Headers)
-
 # TODO make debounce optional and configurable with CMake
