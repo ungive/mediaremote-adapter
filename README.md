@@ -1,23 +1,24 @@
-# mediaremote-osascript
+# mediaremote-adapter
 
 Get now playing information with the MediaRemote framework
 on macOS 15.4 and newer.
 
-This works by using the `/usr/bin/osascript` binary,
-which is entitled to use the MediaRemote framework,
+This works by using system binary &ndash; `/usr/bin/perl` in this case &ndash;
+which is entitled to use the MediaRemote framework
 and dynamically loading a custom helper framework
-which prints real-time updates to stdout.
-How to make use of this project:
+which prints real-time updates to the standard output.
+
+## Usage
 
 ```
-$ git clone https://github.com/ungive/mediaremote-osascript.git
-$ cd mediaremote-osascript
+$ git clone https://github.com/ungive/mediaremote-adapter.git
+$ cd mediaremote-adapter
 $ mkdir build && cd build
 $ cmake ..
 $ cmake --build .
 $ cd ..
 $ FRAMEWORK_PATH=$(realpath ./build/MediaRemoteAdapter.framework)
-$ /usr/bin/osascript -l JavaScript ./scripts/MediaRemoteAdapter.js "$FRAMEWORK_PATH"
+$ /usr/bin/perl ./scripts/MediaRemoteAdapter.pl "$FRAMEWORK_PATH"
 ```
 
 The output of this command is characterised by the following rules:
