@@ -610,7 +610,8 @@ extern void loop() {
                     id bundleIdentifier =
                         userInfo[@"NSApplicationBundleIdentifier"];
                     if (bundleIdentifier != nil &&
-                        liveData[kBundleIdentifier] == bundleIdentifier) {
+                        [bundleIdentifier
+                            isEqual:liveData[kBundleIdentifier]]) {
                         // Refresh all data, since the application terminated.
                         refreshAll();
                     }
