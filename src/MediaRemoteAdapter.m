@@ -495,9 +495,6 @@ extern void loop() {
 
     void (^requestNowPlayingInfo)() = ^{
       _mediaRemote.getNowPlayingInfo(_queue, ^(NSDictionary *information) {
-        if (information == nil) {
-            return;
-        }
         NSMutableDictionary *converted =
             convertNowPlayingInformation(information);
         // Transfer anything over from the existing live data.
