@@ -3,7 +3,15 @@
 
 #import <Foundation/Foundation.h>
 
+// Tests whether the process is entitled to use the MediaRemote framework.
+// Prints "1" to stdout when it is entitled and "0" otherwise.
+extern void test();
+
+// Streams MediaRemote now playing updates to stdout.
+// Exits when the process receives a SIGTERM signal.
 extern void loop();
+
+// Stops the any active calls to loop().
 extern void stop();
 
 extern NSString *kBundleIdentifier;
