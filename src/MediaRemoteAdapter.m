@@ -474,6 +474,10 @@ extern void loop() {
 
     void (^requestNowPlayingApplicationPID)() = ^{
       _mediaRemote.getNowPlayingApplicationPID(_queue, ^(int pid) {
+        if (pid == 0) {
+            printData([NSMutableDictionary dictionary]);
+            return;
+        }
         appForPID(pid, ^(NSRunningApplication *process) {
           liveData[kBundleIdentifier] = process.bundleIdentifier;
           handle();
