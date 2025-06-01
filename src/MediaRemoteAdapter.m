@@ -345,6 +345,7 @@ static bool isProcessEntitledForMediaRemote(NSString *bundleIdentifier,
     return false;
 }
 
+// FIXME This does not appear to work on all platforms, needs debugging.
 extern void test() {
     // Get the current process's PID.
     __block const int pid = [[NSProcessInfo processInfo] processIdentifier];
