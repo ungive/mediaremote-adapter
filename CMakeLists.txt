@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
-
 project(MediaRemoteAdapter LANGUAGES OBJC)
+
+option(MEDIAREMOTEADAPTER_FRAMEWORK_NAME
+       "The output name of the adapter framework" "MediaRemoteAdapter")
 
 set(SOURCES src/MediaRemoteAdapter.m src/MediaRemoteAdapterKeys.m
             src/MediaRemote.m src/Debounce.m)
@@ -14,10 +16,14 @@ set_target_properties(
     MediaRemoteAdapter
     PROPERTIES FRAMEWORK TRUE
                FRAMEWORK_VERSION A
-               MACOSX_FRAMEWORK_IDENTIFIER com.example.MediaRemoteAdapter
+               MACOSX_FRAMEWORK_IDENTIFIER
+               "com.example.${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}"
                MACOSX_FRAMEWORK_SHORT_VERSION_STRING 0.1
                MACOSX_FRAMEWORK_BUNDLE_VERSION 0.1.0
-               PUBLIC_HEADER "${HEADERS}")
+               MACOSX_FRAMEWORK_BUNDLE_NAME
+               "${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}"
+               PUBLIC_HEADER "${HEADERS}"
+               OUTPUT_NAME "${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}")
 
 target_link_libraries(MediaRemoteAdapter "-framework Foundation"
                       "-framework AppKit" "-framework JavaScriptCore")
@@ -32,6 +38,6 @@ add_custom_command(
     POST_BUILD
     COMMAND codesign --force --deep --sign -
             $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
-    COMMENT "Ad-hoc signing MediaRemoteAdapter.framework")
+    COMMENT "Ad-hoc signing ${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework")
 
 # TODO make debounce optional and configurable with CMake
