@@ -2,11 +2,16 @@ use strict;
 use warnings;
 use DynaLoader;
 use File::Spec;
+use File::Basename;
 
 die "Framework path not provided" unless @ARGV >= 1 && @ARGV <= 2;
 
 my $framework_path = $ARGV[0];
-my $framework = File::Spec->catfile($framework_path, 'MediaRemoteAdapter');
+my $framework_basename = File::Basename::basename($framework_path);
+die "Provided path is not a framework: $framework_path\n"
+  unless $framework_basename =~ s/\.framework$//;
+
+my $framework = File::Spec->catfile($framework_path, $framework_basename);
 die "Framework not found at $framework\n" unless -e $framework;
 
 my $handle = DynaLoader::dl_load_file($framework, 0)

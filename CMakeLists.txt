@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(MediaRemoteAdapter LANGUAGES OBJC)
 
-option(MEDIAREMOTEADAPTER_FRAMEWORK_NAME
-       "The output name of the adapter framework" "MediaRemoteAdapter")
+set(MEDIAREMOTEADAPTER_FRAMEWORK_NAME "MediaRemoteAdapter"
+    CACHE STRING "The output name of the adapter framework")
 
 set(SOURCES src/MediaRemoteAdapter.m src/MediaRemoteAdapterKeys.m
             src/MediaRemote.m src/Debounce.m)
