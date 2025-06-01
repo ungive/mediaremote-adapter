@@ -14,7 +14,7 @@
                         queue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
-        _delay = delay;
+        _delay = MAX(0.0, delay);
         _queue = queue ?: dispatch_get_main_queue();
     }
     return self;

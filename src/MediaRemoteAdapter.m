@@ -14,8 +14,11 @@
 #import "MediaRemote.h"
 #import "MediaRemoteAdapter.h"
 
+#ifndef DEBOUNCE_DELAY_MILLIS
+#define DEBOUNCE_DELAY_MILLIS 0
+#endif
+
 static const double INDEFINITELY = 1e10;
-static const double DEBOUNCE_DELAY = 0.1; // seconds
 
 // These keys identify a now playing item uniquely.
 static NSArray<NSString *> *identifyingItemKeys(void) {
@@ -459,11 +462,18 @@ extern void test() {
 
 extern void loop() {
 
-    // TODO make debouncing optional and configurable
+    static const int debounce_delay_millis = (DEBOUNCE_DELAY_MILLIS);
+#ifndef NDEBUG
+    if (debounce_delay_millis > 0) {
+        NSLog(@"Using a debounce delay of %d milliseconds",
+              debounce_delay_millis);
+    }
+#endif // !NDEBUG
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-    __block Debounce *debounce = [[Debounce alloc] initWithDelay:DEBOUNCE_DELAY
-                                                           queue:_queue];
+    __block Debounce *debounce =
+        [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
+                                  queue:_queue];
 
     void (^handle)() = ^{
       if (liveData[kBundleIdentifier] != nil && liveData[kPlaying] != nil &&
