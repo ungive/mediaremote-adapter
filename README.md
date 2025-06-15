@@ -1,7 +1,7 @@
 # mediaremote-adapter
 
 Get now playing information with the MediaRemote framework
-on macOS 15.4 and newer.
+on all macOS versions, including 15.4 and newer.
 
 This works by using system binary &ndash; `/usr/bin/perl` in this case &ndash;
 which is entitled to use the MediaRemote framework
