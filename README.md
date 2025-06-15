@@ -1,12 +1,29 @@
-# mediaremote-adapter
+# MediaRemote Adapter
 
-Get now playing information with the MediaRemote framework
+Get now playing information using the MediaRemote framework
 on all macOS versions, including 15.4 and newer.
 
 This works by using a system binary &ndash; `/usr/bin/perl` in this case &ndash;
 which is entitled to use the MediaRemote framework
-and by dynamically loading a custom helper framework,
-which prints real-time updates to the standard output.
+and by dynamically loading a custom helper framework
+that prints real-time updates to the standard output.
+
+## Features
+
+- Minimal and simple API:
+  - Bundle the MediaRemoteAdapter.framework with your app
+  - Execute the provided perl script using `NSTask` and
+  - Consume simple JSON and base64 encoded data
+    that is streamed to the standard output
+    (use `NSJSONSerialization` and `NSData`'s
+    `initWithBase64EncodedString` for decoding)
+- Full metadata support for now playing items
+- Real-time updates to changes of now playing information
+- Extensibility to support more MediaRemote features in the future
+  (contributions welcome)
+- Pure Objective-C and Perl, no external dependencies
+- Optional debounce delay to prevent bursts of small updates
+  (the default is 100ms)
 
 ## Usage
 
@@ -47,6 +64,15 @@ Here is an example of what the output may look like:
 
 The artwork data is shortened for brevity.
 
+## Motivation
+
+This project was created due to the MediaRemote framework
+being completely non-functional when being loaded directly from within an app,
+starting with macOS 15.4 (see the numerous issues linked below).
+
+The aim is to provide a tool (and perhaps soon a full library)
+that serves as a fully functional alternative to using MediaRemote directly.
+
 ## Contributing
 
 This project aims to be a universal drop-in replacement
@@ -57,6 +83,10 @@ any help to improve this project is greatly appreciated!
 You can find things to work on in the list of TODOs below,
 in open issues and in the TODO and FIXME comments
 in the project's source files.
+
+I do not primarily develop for Mac,
+so if you see any bad practices in my Objective-C code,
+please do not hesitate to point them out.
 
 ### TODOs
 
@@ -70,3 +100,20 @@ in the project's source files.
   having mixed metadata from both songs, e.g. "song C by artist B"
   (artist is updated too late)
 - Solve FIXMEs and implement other TODOs that are located in source files
+
+## Useful links
+
+- Issues regarding MediaRemote breaking in macOS 15.4
+  - https://github.com/vincentneo/LosslessSwitcher/issues/161
+  - https://github.com/aviwad/LyricFever/issues/94
+  - https://github.com/TheBoredTeam/boring.notch/issues/417
+  - https://community.folivora.ai/t/now-playing-is-no-longer-working-on-macos-15-4/42802/11
+  - https://github.com/ungive/discord-music-presence/issues/165
+  - https://github.com/ungive/discord-music-presence/issues/245
+- Getting now playing information using `osascript` and `MRNowPlayingRequest`.
+  Note that this is unable to load the song artwork
+  and it is impossible to get real-time updates with this solution.
+  It is much simpler to implement though
+  - https://github.com/EinTim23/PlayerLink/commit/9821b6a294873f975852f06419a0baf2fe404800
+  - https://github.com/fastfetch-cli/fastfetch/commit/1557f0c5564a8288604824e55db47508f65e82c9
+  - https://gist.github.com/SKaplanOfficial/f9f5bdd6455436203d0d318c078358de
