@@ -117,3 +117,10 @@ please do not hesitate to point them out.
   - https://github.com/EinTim23/PlayerLink/commit/9821b6a294873f975852f06419a0baf2fe404800
   - https://github.com/fastfetch-cli/fastfetch/commit/1557f0c5564a8288604824e55db47508f65e82c9
   - https://gist.github.com/SKaplanOfficial/f9f5bdd6455436203d0d318c078358de
+
+## License
+
+This file is licensed under the BSD 3-Clause License.
+See [LICENSE](./LICENSE) for details.
+
+Copyright (c) 2025 Jonas van den Berg
