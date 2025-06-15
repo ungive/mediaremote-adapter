@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Jonas van den Berg
+// This file is licensed under the BSD 3-Clause License.
+
 #include <errno.h>
 #include <signal.h>
 #include <stdarg.h>
