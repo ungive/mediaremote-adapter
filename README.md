@@ -21,7 +21,7 @@ that prints real-time updates to the standard output.
 - Real-time updates to changes of now playing information
 - Extensibility to support more MediaRemote features in the future
   (contributions welcome)
-- Pure Objective-C and Perl, no external dependencies
+- Pure Objective-C and Perl (shipped with macoS), no external dependencies
 - Optional debounce delay to prevent bursts of small updates
   (the default is 100ms)
 
