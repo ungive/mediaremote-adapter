@@ -3,9 +3,9 @@
 Get now playing information with the MediaRemote framework
 on all macOS versions, including 15.4 and newer.
 
-This works by using system binary &ndash; `/usr/bin/perl` in this case &ndash;
+This works by using a system binary &ndash; `/usr/bin/perl` in this case &ndash;
 which is entitled to use the MediaRemote framework
-and dynamically loading a custom helper framework
+and by dynamically loading a custom helper framework,
 which prints real-time updates to the standard output.
 
 ## Usage
@@ -46,3 +46,27 @@ Here is an example of what the output may look like:
 ```
 
 The artwork data is shortened for brevity.
+
+## Contributing
+
+This project aims to be a universal drop-in replacement
+for directly using the MediaRemote framework on Mac.
+
+If you have the time to contribute, you are more than welcome to do so,
+any help to improve this project is greatly appreciated!
+You can find things to work on in the list of TODOs below,
+in open issues and in the TODO and FIXME comments
+in the project's source files.
+
+### TODOs
+
+- Objective-C code to launch and manage execution of the adapter script
+  and parse its output according to the rules described above
+- Example project on how to use the adapter framework and script
+  and instructions on how to bundle it with your app
+- This library currently does not handle "peculiar media",
+  which is reported media that is in a transition state
+  from e.g. "song A by artist B" to "song C by artist D"
+  having mixed metadata from both songs, e.g. "song C by artist B"
+  (artist is updated too late)
+- Solve FIXMEs and implement other TODOs that are located in source files
