@@ -64,6 +64,13 @@ Here is an example of what the output may look like:
 
 The artwork data is shortened for brevity.
 
+## Projects that use this library
+
+- [Music Presence](https://musicpresence.app) is a cross-platform desktop application
+  for showing what you are listening to in your Discord status.
+  It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
+  to detect media from all media players again.
+
 ## Motivation
 
 This project was created due to the MediaRemote framework
