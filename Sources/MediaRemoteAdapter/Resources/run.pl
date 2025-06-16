@@ -16,16 +16,11 @@ $| = 1;
 # a command. It's designed to be called by a parent process that provides
 # the full path to the dylib.
 
-print STDERR "[Perl] Script started.\n";
-
 my $usage = "Usage: $0 <path_to_dylib> <loop|play|pause|...>";
 die $usage unless @ARGV >= 2;
 
 my $dylib_path = shift @ARGV;
 my $command = shift @ARGV;
-
-print STDERR "[Perl] Dylib Path: $dylib_path\n";
-print STDERR "[Perl] Command: $command\n";
 
 unless (-e $dylib_path) {
     die "Dynamic library not found at $dylib_path\n";
@@ -70,34 +65,25 @@ install_xsub("set_time_from_env", $libref);
 
 # 4. Call the bootstrap function to initialize the C code.
 bootstrap();
-print STDERR "[Perl] Bootstrap called.\n";
 
 # 5. Execute the requested command by calling the newly installed subroutine.
 if ($command eq 'loop') {
-    print STDERR "[Perl] Entering loop...\n";
     loop();
 } elsif ($command eq 'play') {
-    print STDERR "[Perl] Sending play command...\n";
     play();
 } elsif ($command eq 'pause') {
-    print STDERR "[Perl] Sending pause command...\n";
     pause_command();
 } elsif ($command eq 'toggle_play_pause') {
-    print STDERR "[Perl] Sending toggle_play_pause command...\n";
     toggle_play_pause();
 } elsif ($command eq 'next_track') {
-    print STDERR "[Perl] Sending next_track command...\n";
     next_track();
 } elsif ($command eq 'previous_track') {
-    print STDERR "[Perl] Sending previous_track command...\n";
     previous_track();
 } elsif ($command eq 'stop') {
-    print STDERR "[Perl] Sending stop command...\n";
     stop_command();
 } elsif ($command eq 'set_time') {
     my $time = $ARGV[0];
     die "Missing time argument for set_time\n" unless defined $time;
-    print STDERR "[Perl] Setting time to $time...\n";
     $ENV{'MEDIAREMOTE_SET_TIME'} = $time;
     set_time_from_env();
 } else {
@@ -108,6 +94,4 @@ if ($command eq 'loop') {
 # by the system before this script exits and the pipe closes.
 if ($command ne 'loop') {
     select(undef, undef, undef, 0.1); # Sleep for 100ms
-}
-
-print STDERR "[Perl] Command '$command' executed. Exiting.\n"; 
+} 

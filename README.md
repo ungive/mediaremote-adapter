@@ -1,20 +1,21 @@
 # MediaRemoteAdapter
 
-A Swift package that allows macOS applications to control media playback and receive track information by bridging through the system's entitled Perl interpreter. It serves as a workaround for the `MediaRemote.framework` restrictions introduced in macOS 15.4.
+A Swift package for macOS that provides a robust, modern interface for controlling media playback and receiving track information, designed to work around the sandboxing and entitlement restrictions of the private `MediaRemote.framework`.
 
 ## How It Works
 
-This package is composed of two main targets:
-1.  **`MediaRemoteAdapter` (Swift):** A public Swift module that provides a simple `MediaController` class. Your application interacts exclusively with this class.
-2.  **`CIMediaRemote` (Objective-C):** An internal C-language module containing the Objective-C code that makes the actual calls to the private `MediaRemote.framework` APIs.
+This package uses a unique architecture to gain the necessary permissions for media control:
 
-The `MediaController` does **not** call the Objective-C code directly. Instead, it executes a bundled Perl script (`run.pl`) which is signed by Apple and has the necessary entitlements to access the MediaRemote service. This script dynamically loads the compiled `CIMediaRemote` library (`.dylib`) and acts as a sandboxed bridge, passing commands in and streaming track data out.
+1.  **Swift `MediaController`:** The public API you interact with in your app. It's a simple, modern Swift class.
+2.  **Objective-C Bridge:** An internal library containing the code that calls the private `MediaRemote.framework` functions.
+3.  **Perl Interpreter:** The `MediaController` does not call the Objective-C code directly. Instead, it executes a bundled Perl script using the system's `/usr/bin/perl`, which has the necessary entitlements to access the media service.
+4.  **Dynamic Loading:** At runtime, the Perl script dynamically loads the compiled Objective-C library, acting as a sandboxed bridge. It passes commands in from your app and streams track data back out over a pipe.
 
-This architecture provides the permissions of the original workaround with the safety and convenience of a modern, source-based Swift Package.
+This approach provides the power of the private framework with the safety and convenience of a modern Swift Package.
 
 ## Installation
 
-You can add `MediaRemoteAdapter` to your project as a Swift Package dependency.
+You can add `MediaRemoteAdapter` to your project using the Swift Package Manager.
 
 1.  In Xcode, open your project and navigate to **File > Add Packages...**
 2.  Enter the repository URL: `https://github.com/ejbills/mediaremote-adapter.git`
@@ -22,23 +23,38 @@ You can add `MediaRemoteAdapter` to your project as a Swift Package dependency.
 
 ### Important: Embedding the Framework
 
-After adding the package, you must ensure the framework is correctly embedded and signed in your application target.
+After adding the package, you must ensure the framework is correctly embedded and signed.
 
 1.  In the Project Navigator, select your project, then select your main application target.
 2.  Go to the **General** tab.
 3.  Find the **"Frameworks, Libraries, and Embedded Content"** section.
-4.  The `MediaRemoteAdapter.framework` should be listed.
-5.  Change its setting from "Do Not Embed" to **"Embed & Sign"**.
+4.  `MediaRemoteAdapter.framework` should be listed. Change its setting from "Do Not Embed" to **"Embed & Sign"**.
 
-This step is crucial. It ensures the framework is copied into your app and signed with the same developer identity, which is required by macOS.
+This crucial step copies the framework into your app and signs it with your developer identity, as required by macOS.
 
 ## Usage
 
-Here is a basic example of how to use `MediaController`.
+Here is a basic example of how to use `MediaController`. For a complete, working example, see the `DockDoor` project.
 
 ```swift
 import MediaRemoteAdapter
 import Foundation
+
+// It's recommended to create a Codable struct to represent the track data.
+struct TrackInfo: Codable {
+    let payload: Payload
+    
+    struct Payload: Codable {
+        let title: String?
+        let artist: String?
+        let album: String?
+        let isPlaying: Bool?
+        let durationMicros: Double?
+        let elapsedTimeMicros: Double?
+        let applicationName: String?
+    }
+}
+
 
 class YourAppController {
     let mediaController = MediaController()
@@ -46,41 +62,35 @@ class YourAppController {
     init() {
         // Handle incoming track data
         mediaController.onTrackInfoReceived = { jsonData in
-            // The data is raw JSON from the Perl script.
-            // You'll need to decode it.
-            print("Received track data: \(String(data: jsonData, encoding: .utf8) ?? "-")")
-
-            // Example of decoding (you should define a proper Codable struct)
-            if let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] {
-                print("Payload: \(json["payload"] ?? [:])")
+            do {
+                let trackInfo = try JSONDecoder().decode(TrackInfo.self, from: jsonData)
+                print("Now Playing: \(trackInfo.payload.title ?? "N/A") - Playing: \(trackInfo.payload.isPlaying ?? false)")
+            } catch {
+                print("Failed to decode track info: \(error)")
             }
         }
 
         // Handle listener termination
         mediaController.onListenerTerminated = {
-            print("Listener process was terminated.")
+            print("MediaRemoteAdapter listener process was terminated.")
         }
     }
 
     func setupAndStart() {
-        // Start listening for media events in the background
+        // Start listening for media events in the background.
         mediaController.startListening()
     }
 
-    func playMusic() {
-        mediaController.play()
-    }
-
-    func pauseMusic() {
-        mediaController.pause()
-    }
-
-    func nextTrack() {
-        mediaController.nextTrack()
-    }
-
-    func stopListening() {
-        mediaController.stopListening()
+    // All playback commands are asynchronous.
+    func play() { mediaController.play() }
+    func pause() { mediaController.pause() }
+    func togglePlayPause() { mediaController.togglePlayPause() }
+    func nextTrack() { mediaController.nextTrack() }
+    func previousTrack() { mediaController.previousTrack() }
+    func stop() { mediaController.stop() }
+    
+    func seek(to seconds: Double) {
+        mediaController.setTime(seconds: seconds)
     }
 }
 ```
@@ -91,10 +101,10 @@ class YourAppController {
 Initializes a new controller.
 
 ### `var onTrackInfoReceived: ((Data) -> Void)?`
-A closure that is called with raw JSON `Data` whenever new track information is available.
+A closure that is called with a raw JSON `Data` object whenever new track information is available. The data is a complete snapshot of the current state.
 
 ### `var onListenerTerminated: (() -> Void)?`
-A closure that is called if the background listener process terminates unexpectedly.
+A closure that is called if the background listener process terminates unexpectedly. You may want to restart it here.
 
 ### `startListening()`
 Spawns the background Perl process to begin listening for media events.
@@ -103,7 +113,7 @@ Spawns the background Perl process to begin listening for media events.
 Terminates the background listener process.
 
 ### Playback Commands
-These functions send a command to the background process and then exit. They are asynchronous and run on a global dispatch queue.
+These functions send an asynchronous command to the background process.
 - `play()`
 - `pause()`
 - `togglePlayPause()`

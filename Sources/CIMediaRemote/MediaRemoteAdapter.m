@@ -188,20 +188,16 @@ static void appForNotification(NSNotification *notification,
 
 // C function implementations to be called from Perl
 void bootstrap(void) {
-    NSLog(@"[ObjC] bootstrap() called.");
     _queue = dispatch_queue_create("mediaremote-adapter", DISPATCH_QUEUE_SERIAL);
 }
 
 void loop(void) {
-    NSLog(@"[ObjC] loop() called. Setting up run loop and notifications.");
     _runLoop = CFRunLoopGetCurrent();
 
     MRMediaRemoteRegisterForNowPlayingNotifications(
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 
     void (^handler)(NSNotification *) = ^(NSNotification *notification) {
-      NSLog(@"[ObjC] Received notification. Debouncing for 100ms.");
-
       // If there's an existing block scheduled, cancel it.
       if (_debounce_block) {
           dispatch_block_cancel(_debounce_block);
@@ -209,26 +205,22 @@ void loop(void) {
 
       // Create a new block to be executed after the delay.
       _debounce_block = dispatch_block_create(0, ^{
-          NSLog(@"[ObjC] Debounced block executing. Getting now playing info.");
           MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(CFDictionaryRef information) {
               NSDictionary *nowPlayingInfo = (__bridge NSDictionary *)information;
 
               // If there's no information, or the dictionary is empty, do nothing.
               if (nowPlayingInfo == nil || [nowPlayingInfo count] == 0) {
-                  NSLog(@"[ObjC] Now playing info is nil or empty. Ignoring.");
                   return;
               }
 
               // Also ignore if there's no title, or the title is an empty string.
               id title = nowPlayingInfo[(NSString *)kMRMediaRemoteNowPlayingInfoTitle];
               if (title == nil || title == [NSNull null] || ([title isKindOfClass:[NSString class]] && [(NSString *)title length] == 0)) {
-                  NSLog(@"[ObjC] Now playing info is missing a valid title. Ignoring.");
                   return;
               }
               
               // Now that we have valid track info, get the playing state.
               MRMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_get_main_queue(), ^(Boolean isPlaying) {
-                  NSLog(@"[ObjC] Got isPlaying status: %d", isPlaying);
                   NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
                   [data setObject:@(isPlaying) forKey:(NSString *)kIsPlaying];
 
@@ -251,50 +243,39 @@ void loop(void) {
                      queue:nil
                 usingBlock:handler];
 
-    NSLog(@"[ObjC] Entering CFRunLoopRun()...");
     CFRunLoopRun();
-    NSLog(@"[ObjC] CFRunLoopRun() exited."); // This should not happen in normal operation
 }
 
 void play(void) {
-    NSLog(@"[ObjC] play() called.");
     MRMediaRemoteSendCommand(kMRPlay, nil);
 }
 
 void pause_command(void) {
-    NSLog(@"[ObjC] pause_command() called.");
     MRMediaRemoteSendCommand(kMRPause, nil);
 }
 
 void toggle_play_pause(void) {
-    NSLog(@"[ObjC] toggle_play_pause() called.");
     MRMediaRemoteSendCommand(kMRTogglePlayPause, nil);
 }
 
 void next_track(void) {
-    NSLog(@"[ObjC] next_track() called.");
     MRMediaRemoteSendCommand(kMRNextTrack, nil);
 }
 
 void previous_track(void) {
-    NSLog(@"[ObjC] previous_track() called.");
     MRMediaRemoteSendCommand(kMRPreviousTrack, nil);
 }
 
 void stop_command(void) {
-    NSLog(@"[ObjC] stop_command() called.");
     MRMediaRemoteSendCommand(kMRStop, nil);
 }
 
 void set_time_from_env(void) {
-    NSLog(@"[ObjC] set_time_from_env() called.");
     const char *timeStr = getenv("MEDIAREMOTE_SET_TIME");
     if (timeStr == NULL) {
-        NSLog(@"[ObjC] MEDIAREMOTE_SET_TIME environment variable not set.");
         return;
     }
     
     double time = atof(timeStr);
-    NSLog(@"[ObjC] Calling MRMediaRemoteSetElapsedTime with %f", time);
     MRMediaRemoteSetElapsedTime(time);
 } 
