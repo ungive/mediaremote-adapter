@@ -195,26 +195,33 @@ static void appForNotification(NSNotification *notification,
 
 // C function implementations to be called from Perl
 void bootstrap(void) {
+    NSLog(@"[ObjC] bootstrap() called.");
     _queue = dispatch_queue_create("mediaremote-adapter", DISPATCH_QUEUE_SERIAL);
 }
 
 void loop(void) {
+    NSLog(@"[ObjC] loop() called. Setting up run loop and notifications.");
     _runLoop = CFRunLoopGetCurrent();
 
     MRMediaRemoteRegisterForNowPlayingNotifications(
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 
     void (^handler)(NSNotification *) = ^(NSNotification *notification) {
+      NSLog(@"[ObjC] Received kMRMediaRemoteNowPlayingInfoDidChangeNotification.");
       dispatch_async(_queue, ^{
           MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(CFDictionaryRef information) {
+              NSLog(@"[ObjC] MRMediaRemoteGetNowPlayingInfo completion handler fired.");
               NSDictionary *nowPlayingInfo = (__bridge NSDictionary *)information;
               if (nowPlayingInfo != nil) {
+                  NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
                   NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
                   appForNotification(notification, ^(NSRunningApplication *process) {
                       data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
                       data[(NSString *)kApplicationName] = process.localizedName;
                   });
                   printData(data);
+              } else {
+                  NSLog(@"[ObjC] Now playing info is nil.");
               }
           });
       });
@@ -226,29 +233,37 @@ void loop(void) {
                      queue:nil
                 usingBlock:handler];
 
+    NSLog(@"[ObjC] Entering CFRunLoopRun()...");
     CFRunLoopRun();
+    NSLog(@"[ObjC] CFRunLoopRun() exited."); // This should not happen in normal operation
 }
 
 void play(void) {
+    NSLog(@"[ObjC] play() called.");
     MRMediaRemoteSendCommand(kMRPlay, nil);
 }
 
 void pause_command(void) {
+    NSLog(@"[ObjC] pause_command() called.");
     MRMediaRemoteSendCommand(kMRPause, nil);
 }
 
 void toggle_play_pause(void) {
+    NSLog(@"[ObjC] toggle_play_pause() called.");
     MRMediaRemoteSendCommand(kMRTogglePlayPause, nil);
 }
 
 void next_track(void) {
+    NSLog(@"[ObjC] next_track() called.");
     MRMediaRemoteSendCommand(kMRNextTrack, nil);
 }
 
 void previous_track(void) {
+    NSLog(@"[ObjC] previous_track() called.");
     MRMediaRemoteSendCommand(kMRPreviousTrack, nil);
 }
 
 void stop_command(void) {
+    NSLog(@"[ObjC] stop_command() called.");
     MRMediaRemoteSendCommand(kMRStop, nil);
 } 

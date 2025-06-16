@@ -7,15 +7,25 @@ use strict;
 use warnings;
 use DynaLoader;
 
+# --- Autoflush STDOUT ---
+# This is critical. It prevents Perl from buffering output and ensures
+# that data is sent to the parent Swift process immediately.
+$| = 1;
+
 # This script dynamically loads the MediaRemoteAdapter dylib and executes
 # a command. It's designed to be called by a parent process that provides
 # the full path to the dylib.
+
+print STDERR "[Perl] Script started.\n";
 
 my $usage = "Usage: $0 <path_to_dylib> <loop|play|pause|...>";
 die $usage unless @ARGV >= 2;
 
 my $dylib_path = shift @ARGV;
 my $command = shift @ARGV;
+
+print STDERR "[Perl] Dylib Path: $dylib_path\n";
+print STDERR "[Perl] Command: $command\n";
 
 unless (-e $dylib_path) {
     die "Dynamic library not found at $dylib_path\n";
@@ -59,22 +69,32 @@ install_xsub("stop_command", $libref);
 
 # 4. Call the bootstrap function to initialize the C code.
 bootstrap();
+print STDERR "[Perl] Bootstrap called.\n";
 
 # 5. Execute the requested command by calling the newly installed subroutine.
 if ($command eq 'loop') {
+    print STDERR "[Perl] Entering loop...\n";
     loop();
 } elsif ($command eq 'play') {
+    print STDERR "[Perl] Sending play command...\n";
     play();
 } elsif ($command eq 'pause') {
+    print STDERR "[Perl] Sending pause command...\n";
     pause_command();
 } elsif ($command eq 'toggle_play_pause') {
+    print STDERR "[Perl] Sending toggle_play_pause command...\n";
     toggle_play_pause();
 } elsif ($command eq 'next_track') {
+    print STDERR "[Perl] Sending next_track command...\n";
     next_track();
 } elsif ($command eq 'previous_track') {
+    print STDERR "[Perl] Sending previous_track command...\n";
     previous_track();
 } elsif ($command eq 'stop') {
+    print STDERR "[Perl] Sending stop command...\n";
     stop_command();
 } else {
     die "Unknown command: $command\n";
-} 
+}
+
+print STDERR "[Perl] Command '$command' executed. Exiting.\n"; 
