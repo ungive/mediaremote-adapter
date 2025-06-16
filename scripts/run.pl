@@ -8,6 +8,7 @@ use warnings;
 use DynaLoader;
 use File::Spec;
 use File::Basename;
+use Cwd 'abs_path';
 
 # This script dynamically loads the MediaRemoteAdapter.framework and executes
 # a function within it. It can either start the persistent `loop` to get
@@ -28,7 +29,7 @@ my $usage = "Usage: $0 /path/to/framework [command] [args...]\n" .
             "Valid commands: loop, play, pause, toggle, next, prev, stop, set_time <seconds>\n";
 die $usage unless @ARGV >= 1;
 
-my $framework_path = shift @ARGV;
+my $framework_path = abs_path(shift @ARGV);
 my $command_name   = shift @ARGV // 'loop'; # Default to 'loop'
 
 my $framework_basename = File::Basename::basename($framework_path);
