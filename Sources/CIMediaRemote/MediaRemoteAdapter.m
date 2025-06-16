@@ -62,11 +62,8 @@ static NSString *serializeData(NSDictionary *data, BOOL diff) {
 }
 
 static NSMutableDictionary *
-convertNowPlayingInformation(NSDictionary *information, BOOL isPlaying) {
+convertNowPlayingInformation(NSDictionary *information) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
-
-    // Set the isPlaying status from the notification userInfo.
-    [data setObject:@(isPlaying) forKey:(NSString *)kIsPlaying];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
       id value = [NSNull null];
@@ -228,22 +225,19 @@ void loop(void) {
                   NSLog(@"[ObjC] Now playing info is missing a valid title. Ignoring.");
                   return;
               }
+              
+              // Now that we have valid track info, get the playing state.
+              MRMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_get_main_queue(), ^(Boolean isPlaying) {
+                  NSLog(@"[ObjC] Got isPlaying status: %d", isPlaying);
+                  NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
+                  [data setObject:@(isPlaying) forKey:(NSString *)kIsPlaying];
 
-              NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
-
-              // Extract the isPlaying status from the notification.
-              BOOL isPlaying = NO;
-              id isPlayingValue = notification.userInfo[(NSString *)kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
-              if (isPlayingValue != nil && [isPlayingValue isKindOfClass:[NSNumber class]]) {
-                  isPlaying = [isPlayingValue boolValue];
-              }
-
-              NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo, isPlaying);
-              appForNotification(notification, ^(NSRunningApplication *process) {
-                  data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
-                  data[(NSString *)kApplicationName] = process.localizedName;
+                  appForNotification(notification, ^(NSRunningApplication *process) {
+                      data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
+                      data[(NSString *)kApplicationName] = process.localizedName;
+                  });
+                  printData(data);
               });
-              printData(data);
           });
       });
       
