@@ -6,6 +6,11 @@ import os
 import re
 
 
+STATIC_BADGES = """
+![](https://img.shields.io/github/stars/ungive/mediaremote-adapter?style=flat&label=stars&logo=github&labelColor=444&color=DAAA3F&cacheSeconds=3600)
+"""
+
+
 def get_output(command):
     result = subprocess.run(
         command,
@@ -26,7 +31,7 @@ def generate_badges():
     encoded_date = urllib.parse.quote(date_output)
     badge1 = f"![](https://img.shields.io/static/v1?label=macOS&message={encoded_system_version}&labelColor=444&color=blue)"
     badge2 = f"![](https://img.shields.io/static/v1?label=last%20tested&message={encoded_date}&labelColor=444&color)"
-    return f"{badge1}\n{badge2}"
+    return f"{STATIC_BADGES.strip()}\n{badge1}\n{badge2}"
 
 
 def update_readme(script_dir, new_badges):
