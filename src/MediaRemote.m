@@ -1,8 +1,28 @@
 #include <Foundation/Foundation.h>
+#import <dlfcn.h>
 
 #include "MediaRemote.h"
 
-NSString *kMRMediaRemoteNowPlayingInfoDidChangeNotification = @"kMRMediaRemoteNowPlayingInfoDidChangeNotification";
+#define MR_FRAMEWORK_PATH                                                      \
+    "/System/Library/PrivateFrameworks/MediaRemote.framework/MediaRemote"
+
+// Function names
+CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications =
+    CFSTR("MRMediaRemoteRegisterForNowPlayingNotifications");
+CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications =
+    CFSTR("MRMediaRemoteUnregisterForNowPlayingNotifications");
+CFStringRef MRMediaRemoteGetNowPlayingApplicationPID =
+    CFSTR("MRMediaRemoteGetNowPlayingApplicationPID");
+CFStringRef MRMediaRemoteGetNowPlayingInfo =
+    CFSTR("MRMediaRemoteGetNowPlayingInfo");
+CFStringRef MRMediaRemoteGetNowPlayingApplicationIsPlaying =
+    CFSTR("MRMediaRemoteGetNowPlayingApplicationIsPlaying");
+CFStringRef MRMediaRemoteSendCommand = CFSTR("MRMediaRemoteSendCommand");
+CFStringRef MRMediaRemoteSetElapsedTime = CFSTR("MRMediaRemoteSetElapsedTime");
+
+// Notification names
+NSString *kMRMediaRemoteNowPlayingInfoDidChangeNotification =
+    @"kMRMediaRemoteNowPlayingInfoDidChangeNotification";
 NSString *kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification = @"kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification";
 NSString *kMRMediaRemotePickableRoutesDidChangeNotification = @"kMRMediaRemotePickableRoutesDidChangeNotification";
 NSString *kMRMediaRemoteNowPlayingApplicationDidChangeNotification = @"kMRMediaRemoteNowPlayingApplicationDidChangeNotification";
@@ -53,37 +73,39 @@ NSString *kMRMediaRemoteOptionStationHash = @"kMRMediaRemoteOptionStationHash";
 NSString *kMRMediaRemoteRouteDescriptionUserInfoKey = @"kMRMediaRemoteRouteDescriptionUserInfoKey";
 NSString *kMRMediaRemoteRouteStatusUserInfoKey = @"kMRMediaRemoteRouteStatusUserInfoKey";
 
-CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications = CFSTR("MRMediaRemoteRegisterForNowPlayingNotifications");
-CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications = CFSTR("MRMediaRemoteUnregisterForNowPlayingNotifications");
-CFStringRef MRMediaRemoteGetNowPlayingApplicationPID = CFSTR("MRMediaRemoteGetNowPlayingApplicationPID");
-CFStringRef MRMediaRemoteGetNowPlayingInfo = CFSTR("MRMediaRemoteGetNowPlayingInfo");
-CFStringRef MRMediaRemoteGetNowPlayingApplicationIsPlaying = CFSTR("MRMediaRemoteGetNowPlayingApplicationIsPlaying");
-
 NSString *kMRNowPlayingClientUserInfoKey = @"kMRNowPlayingClientUserInfoKey";
 
 static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFrameworks/MediaRemote.framework";
 
 @implementation MediaRemote
-@synthesize registerForNowPlayingNotifications;
-@synthesize unregisterForNowPlayingNotifications;
-@synthesize getNowPlayingApplicationPID;
-@synthesize getNowPlayingInfo;
-@synthesize getNowPlayingApplicationIsPlaying;
--(id)init
-{
-    if (!(self = [super init])) {
-        return nil;
+
+@synthesize registerForNowPlayingNotifications = _registerForNowPlayingNotifications;
+@synthesize unregisterForNowPlayingNotifications = _unregisterForNowPlayingNotifications;
+@synthesize getNowPlayingApplicationPID = _getNowPlayingApplicationPID;
+@synthesize getNowPlayingInfo = _getNowPlayingInfo;
+@synthesize getNowPlayingApplicationIsPlaying = _getNowPlayingApplicationIsPlaying;
+@synthesize sendCommand = _sendCommand;
+@synthesize setElapsedTime = _setElapsedTime;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        void *mediaRemoteFramework = dlopen(MR_FRAMEWORK_PATH, RTLD_LAZY);
+        if (mediaRemoteFramework) {
+            _registerForNowPlayingNotifications = dlsym(
+                mediaRemoteFramework, "MRMediaRemoteRegisterForNowPlayingNotifications");
+            _unregisterForNowPlayingNotifications = dlsym(
+                mediaRemoteFramework, "MRMediaRemoteUnregisterForNowPlayingNotifications");
+            _getNowPlayingApplicationPID = dlsym(
+                mediaRemoteFramework, "MRMediaRemoteGetNowPlayingApplicationPID");
+            _getNowPlayingInfo =
+                dlsym(mediaRemoteFramework, "MRMediaRemoteGetNowPlayingInfo");
+            _getNowPlayingApplicationIsPlaying = dlsym(
+                mediaRemoteFramework, "MRMediaRemoteGetNowPlayingApplicationIsPlaying");
+            _sendCommand = dlsym(mediaRemoteFramework, "MRMediaRemoteSendCommand");
+            _setElapsedTime = dlsym(mediaRemoteFramework, "MRMediaRemoteSetElapsedTime");
+        }
     }
-    CFURLRef bundleURL = (__bridge CFURLRef)[NSURL fileURLWithPath:MediaRemoteFrameworkBundleURL];
-    CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
-    if (!bundle) {
-        return nil;
-    }
-    registerForNowPlayingNotifications = (MRMediaRemoteRegisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteRegisterForNowPlayingNotifications);
-    unregisterForNowPlayingNotifications = (MRMediaRemoteUnregisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteUnregisterForNowPlayingNotifications);
-    getNowPlayingApplicationPID = (MRMediaRemoteGetNowPlayingApplicationPID_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationPID);
-    getNowPlayingInfo = (MRMediaRemoteGetNowPlayingInfo_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfo);
-    getNowPlayingApplicationIsPlaying = (MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationIsPlaying);
     return self;
 }
 @end
