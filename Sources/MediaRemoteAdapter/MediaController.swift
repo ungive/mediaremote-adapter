@@ -17,12 +17,28 @@ public class MediaController {
     public init() {}
 
     private var dylibPath: String? {
-        guard let frameworksPath = Bundle.main.privateFrameworksURL else {
-            assertionFailure("Could not determine frameworks path.")
-            return nil
+        let bundle = Bundle(for: MediaController.self)
+
+        // Scenarios:
+        // 1. App Store: .../YourApp.app/Contents/Frameworks/MediaRemoteAdapter.framework
+        //    We need to go up one level to find libCIMediaRemote.dylib
+        let frameworksURL = bundle.bundleURL.deletingLastPathComponent()
+        let dylibURL = frameworksURL.appendingPathComponent("libCIMediaRemote.dylib")
+        if FileManager.default.fileExists(atPath: dylibURL.path) {
+            return dylibURL.path
         }
-        let dylib = frameworksPath.appendingPathComponent("libCIMediaRemote.dylib")
-        return dylib.path
+
+        // 2. Xcode Debug Build / SPM local package
+        //    The dylib might be a direct sibling in the build products dir.
+        //    e.g. .../Debug/MediaRemoteAdapter.framework & .../Debug/libCIMediaRemote.dylib
+        let buildProductsURL = bundle.bundleURL
+        let siblingDylibURL = buildProductsURL.deletingLastPathComponent().appendingPathComponent("libCIMediaRemote.dylib")
+        if FileManager.default.fileExists(atPath: siblingDylibURL.path) {
+            return siblingDylibURL.path
+        }
+
+        assertionFailure("Could not locate libCIMediaRemote.dylib. Ensure it is embedded in your application target.")
+        return nil
     }
 
     @discardableResult

@@ -10,6 +10,10 @@ let package = Package(
         .library(
             name: "MediaRemoteAdapter",
             targets: ["MediaRemoteAdapter"]),
+        .library(
+            name: "CIMediaRemote",
+            type: .dynamic,
+            targets: ["CIMediaRemote"])
     ],
     dependencies: [],
     targets: [
