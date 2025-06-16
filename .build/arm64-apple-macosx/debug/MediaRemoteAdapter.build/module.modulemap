@@ -1,4 +1,0 @@
-module MediaRemoteAdapter {
-    header "/Users/ethanbills/Documents/Github/mediaremote-adapter/.build/arm64-apple-macosx/debug/MediaRemoteAdapter.build/MediaRemoteAdapter-Swift.h"
-    requires objc
-}
