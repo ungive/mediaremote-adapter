@@ -25,26 +25,32 @@ unless (-e $dylib_path) {
     die "Dynamic library not found at $dylib_path\n";
 }
 
-bootstrap MediaRemoteAdapter $dylib_path;
+# DynaLoader may need to find the mangled C symbol (_bootstrap)
+# We add both to the list of symbols to try.
+my @bootstrap_symbols = ("bootstrap", "_bootstrap");
+DynaLoader::bootstrap_inherit($dylib_path, \@bootstrap_symbols);
+
+# Call bootstrap once loaded
+bootstrap();
 
 if (not defined $command) {
     die "A command is required.\n$usage\n";
 }
 
 if ($command eq 'loop') {
-    MediaRemoteAdapter::loop();
+    loop();
 } elsif ($command eq 'play') {
-    MediaRemoteAdapter::play();
+    play();
 } elsif ($command eq 'pause') {
-    MediaRemoteAdapter::pause_command();
+    pause_command();
 } elsif ($command eq 'toggle_play_pause') {
-    MediaRemoteAdapter::toggle_play_pause();
+    toggle_play_pause();
 } elsif ($command eq 'next_track') {
-    MediaRemoteAdapter::next_track();
+    next_track();
 } elsif ($command eq 'previous_track') {
-    MediaRemoteAdapter::previous_track();
+    previous_track();
 } elsif ($command eq 'stop') {
-    MediaRemoteAdapter::stop_command();
+    stop_command();
 } else {
     die "Unknown command: $command\n";
 } 
