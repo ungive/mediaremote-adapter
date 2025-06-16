@@ -16,15 +16,27 @@ public class MediaController {
 
     public init() {}
 
+    private var dylibPath: String? {
+        guard let frameworksPath = Bundle.main.privateFrameworksURL else {
+            assertionFailure("Could not determine frameworks path.")
+            return nil
+        }
+        let dylib = frameworksPath.appendingPathComponent("libCIMediaRemote.dylib")
+        return dylib.path
+    }
+
     @discardableResult
     private func runPerlCommand(arguments: [String]) -> (output: String?, error: String?, terminationStatus: Int32) {
         guard let scriptPath = perlScriptPath else {
             return (nil, "Perl script not found.", -1)
         }
+        guard let dylibPath = dylibPath else {
+            return (nil, "Dynamic library path not found.", -1)
+        }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
-        process.arguments = [scriptPath] + arguments
+        process.arguments = [scriptPath, dylibPath] + arguments
 
         let outputPipe = Pipe()
         process.standardOutput = outputPipe
@@ -57,10 +69,13 @@ public class MediaController {
         guard let scriptPath = perlScriptPath else {
             return
         }
+        guard let dylibPath = dylibPath else {
+            return
+        }
 
         listeningProcess = Process()
         listeningProcess?.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
-        listeningProcess?.arguments = [scriptPath, "loop"]
+        listeningProcess?.arguments = [scriptPath, dylibPath, "loop"]
 
         let outputPipe = Pipe()
         listeningProcess?.standardOutput = outputPipe
