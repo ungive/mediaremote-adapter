@@ -20,6 +20,7 @@
 static CFRunLoopRef _runLoop = NULL;
 static dispatch_queue_t _queue;
 static NSDictionary *previousData = nil;
+static dispatch_block_t _debounce_block = NULL;
 
 // These keys identify a now playing item uniquely.
 static NSArray<NSString *> *identifyingItemKeys(void) {
@@ -207,10 +208,17 @@ void loop(void) {
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 
     void (^handler)(NSNotification *) = ^(NSNotification *notification) {
-      NSLog(@"[ObjC] Received kMRMediaRemoteNowPlayingInfoDidChangeNotification.");
-      dispatch_async(_queue, ^{
+      NSLog(@"[ObjC] Received notification. Debouncing for 100ms.");
+
+      // If there's an existing block scheduled, cancel it.
+      if (_debounce_block) {
+          dispatch_block_cancel(_debounce_block);
+      }
+
+      // Create a new block to be executed after the delay.
+      _debounce_block = dispatch_block_create(0, ^{
+          NSLog(@"[ObjC] Debounced block executing. Getting now playing info.");
           MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(CFDictionaryRef information) {
-              NSLog(@"[ObjC] MRMediaRemoteGetNowPlayingInfo completion handler fired.");
               NSDictionary *nowPlayingInfo = (__bridge NSDictionary *)information;
               if (nowPlayingInfo != nil) {
                   NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
@@ -225,6 +233,9 @@ void loop(void) {
               }
           });
       });
+      
+      // Schedule the new block to run after a 100ms delay.
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), _queue, _debounce_block);
     };
     
     [[NSNotificationCenter defaultCenter]

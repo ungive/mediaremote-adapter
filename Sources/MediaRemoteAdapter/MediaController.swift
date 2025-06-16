@@ -11,6 +11,7 @@ public class MediaController {
     }
 
     private var listeningProcess: Process?
+    private var dataBuffer = Data()
     public var onTrackInfoReceived: ((Data) -> Void)?
     public var onListenerTerminated: (() -> Void)?
 
@@ -81,14 +82,25 @@ public class MediaController {
         listeningProcess?.standardOutput = outputPipe
 
         outputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
-            let data = fileHandle.availableData
-            // Process data line by line
-            if let string = String(data: data, encoding: .utf8) {
-                let lines = string.split(whereSeparator: \.isNewline)
-                for line in lines {
-                    if let lineData = line.data(using: .utf8) {
-                         self?.onTrackInfoReceived?(lineData)
-                    }
+            guard let self = self else { return }
+
+            let incomingData = fileHandle.availableData
+            if incomingData.isEmpty {
+                // This can happen when the process terminates.
+                return
+            }
+
+            self.dataBuffer.append(incomingData)
+            
+            // Process all complete lines in the buffer.
+            while let range = self.dataBuffer.firstRange(of: "\n".data(using: .utf8)!) {
+                let lineData = self.dataBuffer.subdata(in: 0..<range.lowerBound)
+                
+                // Remove the line and the newline character from the buffer.
+                self.dataBuffer.removeSubrange(0..<range.upperBound)
+                
+                if !lineData.isEmpty {
+                    self.onTrackInfoReceived?(lineData)
                 }
             }
         }
