@@ -66,6 +66,7 @@ install_xsub("toggle_play_pause", $libref);
 install_xsub("next_track", $libref);
 install_xsub("previous_track", $libref);
 install_xsub("stop_command", $libref);
+install_xsub("set_time_from_env", $libref);
 
 # 4. Call the bootstrap function to initialize the C code.
 bootstrap();
@@ -93,6 +94,12 @@ if ($command eq 'loop') {
 } elsif ($command eq 'stop') {
     print STDERR "[Perl] Sending stop command...\n";
     stop_command();
+} elsif ($command eq 'set_time') {
+    my $time = $ARGV[0];
+    die "Missing time argument for set_time\n" unless defined $time;
+    print STDERR "[Perl] Setting time to $time...\n";
+    $ENV{'MEDIAREMOTE_SET_TIME'} = $time;
+    set_time_from_env();
 } else {
     die "Unknown command: $command\n";
 }

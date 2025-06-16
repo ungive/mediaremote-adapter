@@ -62,8 +62,11 @@ static NSString *serializeData(NSDictionary *data, BOOL diff) {
 }
 
 static NSMutableDictionary *
-convertNowPlayingInformation(NSDictionary *information) {
+convertNowPlayingInformation(NSDictionary *information, BOOL isPlaying) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
+
+    // Set the isPlaying status from the notification userInfo.
+    [data setObject:@(isPlaying) forKey:(NSString *)kIsPlaying];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
       id value = [NSNull null];
@@ -130,14 +133,6 @@ convertNowPlayingInformation(NSDictionary *information) {
           return [artworkDataValue base64EncodedStringWithOptions:0];
       }
       return nil;
-    });
-    setValue((NSString *)kIsPlaying, ^id {
-        // Use the raw string value to avoid a linker error.
-        id playbackRate = information[@"MRMediaRemoteNowPlayingInfoPlaybackRate"];
-        if (playbackRate != nil && [playbackRate isKindOfClass:[NSNumber class]]) {
-            return @([playbackRate doubleValue] > 0.0);
-        }
-        return @(NO); // Default to not playing
     });
 
     return data;
@@ -235,7 +230,15 @@ void loop(void) {
               }
 
               NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
-              NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
+
+              // Extract the isPlaying status from the notification.
+              BOOL isPlaying = NO;
+              id isPlayingValue = notification.userInfo[(NSString *)kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
+              if (isPlayingValue != nil && [isPlayingValue isKindOfClass:[NSNumber class]]) {
+                  isPlaying = [isPlayingValue boolValue];
+              }
+
+              NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo, isPlaying);
               appForNotification(notification, ^(NSRunningApplication *process) {
                   data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
                   data[(NSString *)kApplicationName] = process.localizedName;
@@ -287,4 +290,17 @@ void previous_track(void) {
 void stop_command(void) {
     NSLog(@"[ObjC] stop_command() called.");
     MRMediaRemoteSendCommand(kMRStop, nil);
+}
+
+void set_time_from_env(void) {
+    NSLog(@"[ObjC] set_time_from_env() called.");
+    const char *timeStr = getenv("MEDIAREMOTE_SET_TIME");
+    if (timeStr == NULL) {
+        NSLog(@"[ObjC] MEDIAREMOTE_SET_TIME environment variable not set.");
+        return;
+    }
+    
+    double time = atof(timeStr);
+    NSLog(@"[ObjC] Calling MRMediaRemoteSetElapsedTime with %f", time);
+    MRMediaRemoteSetElapsedTime(time);
 } 
