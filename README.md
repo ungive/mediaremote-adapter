@@ -17,11 +17,20 @@ This architecture provides the permissions of the original workaround with the s
 You can add `MediaRemoteAdapter` to your project as a Swift Package dependency.
 
 1.  In Xcode, open your project and navigate to **File > Add Packages...**
-2.  Select **Add Local...**
-3.  Navigate to the root directory of this project and click **Add Package**.
-4.  Choose the `MediaRemoteAdapter` product and add it to your application's target.
+2.  Enter the repository URL: `https://github.com/ejbills/mediaremote-adapter.git`
+3.  Choose the `MediaRemoteAdapter` product and add it to your application's target.
 
-Xcode will automatically compile the Objective-C code and bundle the Perl script with your application.
+### Important: Embedding the Framework
+
+After adding the package, you must ensure the framework is correctly embedded and signed in your application target.
+
+1.  In the Project Navigator, select your project, then select your main application target.
+2.  Go to the **General** tab.
+3.  Find the **"Frameworks, Libraries, and Embedded Content"** section.
+4.  The `MediaRemoteAdapter.framework` should be listed.
+5.  Change its setting from "Do Not Embed" to **"Embed & Sign"**.
+
+This step is crucial. It ensures the framework is copied into your app and signed with the same developer identity, which is required by macOS.
 
 ## Usage
 
