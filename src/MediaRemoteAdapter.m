@@ -657,6 +657,24 @@ __attribute__((constructor)) static void init() {
 
 __attribute__((destructor)) static void teardown() { stop(); }
 
+// --- Command Functions ---
+
+void send_command(int command) {
+    if (_mediaRemote.sendCommand != NULL) {
+        _mediaRemote.sendCommand(command, NULL);
+    } else {
+        printErr(@"sendCommand function is not available.");
+    }
+}
+
+void set_time(double seconds) {
+    if (_mediaRemote.setElapsedTime != NULL) {
+        _mediaRemote.setElapsedTime(seconds);
+    } else {
+        printErr(@"setElapsedTime function is not available.");
+    }
+}
+
 // FIXME Fix "peculiar media" (title is updated later than artist). Example:
 /*
 35.558Z Thirteen by Big Star on Camping Songs

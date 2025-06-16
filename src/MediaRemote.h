@@ -3,91 +3,63 @@
 
 #include <Foundation/Foundation.h>
 
-#pragma mark Notifications
+#pragma mark - Notifications
 
 extern NSString *kMRMediaRemoteNowPlayingInfoDidChangeNotification;
-extern NSString *kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification;
-extern NSString *kMRMediaRemotePickableRoutesDidChangeNotification;
-extern NSString *kMRMediaRemoteNowPlayingApplicationDidChangeNotification;
 extern NSString *kMRMediaRemoteNowPlayingApplicationIsPlayingDidChangeNotification;
-extern NSString *kMRMediaRemoteRouteStatusDidChangeNotification;
 
-#pragma mark Keys
+#pragma mark - Keys
 
 extern NSString *kMRMediaRemoteNowPlayingApplicationPIDUserInfoKey;
 extern NSString *kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey;
-extern NSString *kMRMediaRemoteNowPlayingInfoAlbum;
+extern NSString *kMRMediaRemoteNowPlayingInfoTitle;
 extern NSString *kMRMediaRemoteNowPlayingInfoArtist;
-extern NSString *kMRMediaRemoteNowPlayingInfoArtworkData;
-extern NSString *kMRMediaRemoteNowPlayingInfoArtworkMIMEType;
-extern NSString *kMRMediaRemoteNowPlayingInfoChapterNumber;
-extern NSString *kMRMediaRemoteNowPlayingInfoComposer;
+extern NSString *kMRMediaRemoteNowPlayingInfoAlbum;
+extern NSString *kMRMediaRemoteNowPlayingInfoGenre;
 extern NSString *kMRMediaRemoteNowPlayingInfoDuration;
 extern NSString *kMRMediaRemoteNowPlayingInfoElapsedTime;
-extern NSString *kMRMediaRemoteNowPlayingInfoGenre;
-extern NSString *kMRMediaRemoteNowPlayingInfoIsAdvertisement;
-extern NSString *kMRMediaRemoteNowPlayingInfoIsBanned;
-extern NSString *kMRMediaRemoteNowPlayingInfoIsInWishList;
-extern NSString *kMRMediaRemoteNowPlayingInfoIsLiked;
-extern NSString *kMRMediaRemoteNowPlayingInfoIsMusicApp;
-extern NSString *kMRMediaRemoteNowPlayingInfoPlaybackRate;
-extern NSString *kMRMediaRemoteNowPlayingInfoProhibitsSkip;
-extern NSString *kMRMediaRemoteNowPlayingInfoQueueIndex;
-extern NSString *kMRMediaRemoteNowPlayingInfoRadioStationIdentifier;
-extern NSString *kMRMediaRemoteNowPlayingInfoRepeatMode;
-extern NSString *kMRMediaRemoteNowPlayingInfoShuffleMode;
-extern NSString *kMRMediaRemoteNowPlayingInfoStartTime;
-extern NSString *kMRMediaRemoteNowPlayingInfoSupportsFastForward15Seconds;
-extern NSString *kMRMediaRemoteNowPlayingInfoSupportsIsBanned;
-extern NSString *kMRMediaRemoteNowPlayingInfoSupportsIsLiked;
-extern NSString *kMRMediaRemoteNowPlayingInfoSupportsRewind15Seconds;
+extern NSString *kMRMediaRemoteNowPlayingInfoArtworkData;
+extern NSString *kMRMediaRemoteNowPlayingInfoArtworkMIMEType;
 extern NSString *kMRMediaRemoteNowPlayingInfoTimestamp;
-extern NSString *kMRMediaRemoteNowPlayingInfoTitle;
-extern NSString *kMRMediaRemoteNowPlayingInfoTotalChapterCount;
-extern NSString *kMRMediaRemoteNowPlayingInfoTotalDiscCount;
-extern NSString *kMRMediaRemoteNowPlayingInfoTotalQueueCount;
-extern NSString *kMRMediaRemoteNowPlayingInfoTotalTrackCount;
-extern NSString *kMRMediaRemoteNowPlayingInfoTrackNumber;
-extern NSString *kMRMediaRemoteNowPlayingInfoUniqueIdentifier;
-extern NSString *kMRMediaRemoteNowPlayingInfoRadioStationHash;
-extern NSString *kMRMediaRemoteOptionMediaType;
-extern NSString *kMRMediaRemoteOptionSourceID;
-extern NSString *kMRMediaRemoteOptionTrackID;
-extern NSString *kMRMediaRemoteOptionStationID;
-extern NSString *kMRMediaRemoteOptionStationHash;
-extern NSString *kMRMediaRemoteRouteDescriptionUserInfoKey;
-extern NSString *kMRMediaRemoteRouteStatusUserInfoKey;
 
-#pragma mark API
+#pragma mark - API Function Names
 
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationPID;
 extern CFStringRef MRMediaRemoteGetNowPlayingInfo;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationIsPlaying;
+extern CFStringRef MRMediaRemoteSendCommand;
+extern CFStringRef MRMediaRemoteSetElapsedTime;
 
-typedef void (*MRMediaRemoteRegisterForNowPlayingNotifications_t)(dispatch_queue_t queue);
-typedef void (*MRMediaRemoteUnregisterForNowPlayingNotifications_t)();
+#pragma mark - API Types
 
+// Callbacks
 typedef void (^MRMediaRemoteGetNowPlayingInfoCompletion_t)(NSDictionary *information);
 typedef void (^MRMediaRemoteGetNowPlayingApplicationPIDCompletion_t)(int PID);
 typedef void (^MRMediaRemoteGetNowPlayingApplicationIsPlayingCompletion_t)(bool isPlaying);
 
+// Function Signatures
+typedef void (*MRMediaRemoteRegisterForNowPlayingNotifications_t)(dispatch_queue_t queue);
+typedef void (*MRMediaRemoteUnregisterForNowPlayingNotifications_t)();
 typedef void (*MRMediaRemoteGetNowPlayingApplicationPID_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationPIDCompletion_t completion);
 typedef void (*MRMediaRemoteGetNowPlayingInfo_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoCompletion_t completion);
 typedef void (*MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationIsPlayingCompletion_t completion);
 
-#pragma mark Miscellaneous
+// Command Types
+typedef enum {
+    kMRTogglePlayPause = 1,
+    kMRPlay = 4,
+    kMRPause = 5,
+    kMRStop = 6,
+    kMRNextTrack = 8,
+    kMRPreviousTrack = 9,
+} MRMediaRemoteCommand;
 
-extern NSString *kMRNowPlayingClientUserInfoKey;
+typedef void (*MRMediaRemoteSendCommand_t)(MRMediaRemoteCommand command, id options);
+typedef void (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
 
-// Accessed with the kMRNowPlayingClientUserInfoKey
-// on the userInfo dictionary of an NSNotification.
-@interface MRClient : NSObject {}
--(NSString *)parentApplicationBundleIdentifier;
--(NSString *)bundleIdentifier;
--(NSString *)displayName;
-@end
+#pragma mark - Main Interface
 
 @interface MediaRemote : NSObject
 // Observers
@@ -97,6 +69,9 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationPID_t getNowPlayingApplicationPID;
 @property(readonly) MRMediaRemoteGetNowPlayingInfo_t getNowPlayingInfo;
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationIsPlaying_t getNowPlayingApplicationIsPlaying;
+// Commands
+@property(readonly) MRMediaRemoteSendCommand_t sendCommand;
+@property(readonly) MRMediaRemoteSetElapsedTime_t setElapsedTime;
 // Constructor
 -(id)init;
 @end

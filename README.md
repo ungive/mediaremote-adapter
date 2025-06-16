@@ -200,6 +200,28 @@ class ContentViewModel: ObservableObject {
 }
 ```
 
+## Command Control
+
+Beyond listening for updates, you can now send playback commands. The script takes an optional command argument after the framework path.
+
+**Base command structure:**
+```bash
+/usr/bin/perl ./scripts/run.pl /path/to/framework.framework [command]
+```
+
+### Supported Commands
+
+| Command    | Description                               | Example                                                                          |
+| :--------- | :---------------------------------------- | :------------------------------------------------------------------------------- |
+| `loop`     | (Default) Listens for media changes and prints JSON updates indefinitely. | `.../run.pl .../framework`                                                       |
+| `play`     | Sends the play command.                   | `.../run.pl .../framework play`                                                  |
+| `pause`    | Sends the pause command.                  | `.../run.pl .../framework pause`                                                 |
+| `toggle`   | Toggles between play and pause.           | `.../run.pl .../framework toggle`                                                |
+| `next`     | Skips to the next track.                  | `.../run.pl .../framework next`                                                  |
+| `prev`     | Goes to the previous track.               | `.../run.pl .../framework prev`                                                  |
+| `stop`     | Stops playback.                           | `.../run.pl .../framework stop`                                                  |
+| `set_time` | Seeks to a specific time in the track.    | `.../run.pl .../framework set_time 60` (jumps to 60 seconds) |
+
 ## Projects that use this library
 
 - [Music Presence](https://musicpresence.app) is a cross-platform desktop application
