@@ -53,7 +53,7 @@ build() {
     cd "$PROJECT_ROOT"
 
     # Get the absolute path to the built framework
-    FRAMEWORK_PATH=$(realpath "$PROJECT_ROOT/$BUILD_DIR/src/MediaRemoteAdapter.framework")
+    FRAMEWORK_PATH=$(realpath "$PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework")
 
     echo ""
     echo "✅ Build successful!"

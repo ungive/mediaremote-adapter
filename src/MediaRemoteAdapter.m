@@ -15,6 +15,7 @@
 
 #import "MediaRemote.h"
 #import "MediaRemoteAdapter.h"
+#import "MediaRemoteAdapterKeys.h"
 
 static const double INDEFINITELY = 1e10;
 
@@ -121,18 +122,18 @@ convertNowPlayingInformation(NSDictionary *information) {
       return nil;
     });
     setValue(kElapsedTimeMicros, ^id {
-      id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
-      if (elapsedTime != nil) {
+      id elapsedTimeValue = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+      if (elapsedTimeValue != nil) {
           NSTimeInterval elapsedTimeMicros =
-              [elapsedTime doubleValue] * 1000 * 1000;
+              [elapsedTimeValue doubleValue] * 1000 * 1000;
           return @(floor(elapsedTimeMicros));
       }
       return nil;
     });
     setValue(kTimestampEpochMicros, ^id {
-      NSDate *timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
-      if (timestamp != nil) {
-          NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
+      NSDate *timestampValue = information[kMRMediaRemoteNowPlayingInfoTimestamp];
+      if (timestampValue != nil) {
+          NSTimeInterval timestampEpoch = [timestampValue timeIntervalSince1970];
           NSTimeInterval timestampEpochMicro = timestampEpoch * 1000 * 1000;
           return @(floor(timestampEpochMicro));
       }
@@ -140,10 +141,10 @@ convertNowPlayingInformation(NSDictionary *information) {
     });
     setKey(kArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
     setValue(kArtworkDataBase64, ^id {
-      NSData *artworkData =
+      NSData *artworkDataValue =
           information[kMRMediaRemoteNowPlayingInfoArtworkData];
-      if (artworkData != nil) {
-          return [artworkData base64EncodedStringWithOptions:0];
+      if (artworkDataValue != nil) {
+          return [artworkDataValue base64EncodedStringWithOptions:0];
       }
       return nil;
     });
