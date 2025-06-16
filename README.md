@@ -33,72 +33,87 @@ that prints real-time updates to stdout.
 
 ## Features
 
-- Minimal and simple API:
-  - Bundle the MediaRemoteAdapter.framework with your app
-  - Execute the provided perl script using e.g. `NSTask`
-  - Then consume simple JSON and base64 encoded data
-    that is streamed to the standard output.
-    You can use `NSJSONSerialization` and `NSData`'s
-    `initWithBase64EncodedString` for decoding
-- Full metadata support for now playing items
-- Real-time updates to changes of now playing information
-- Pure Objective-C and Perl (shipped with macOS), no external dependencies
-- Extensibility to support more MediaRemote features in the future
-  (contributions welcome)
-- Optional debounce delay to prevent bursts of small updates
-  (the default is 100ms)
+- Minimal and simple C API:
+  - `loop()`: Starts monitoring for media changes on a background thread.
+  - `stop_media_remote_loop()`: Stops the monitoring loop.
+  - `register_media_data_callback()`: Registers a C function pointer to receive data.
+- Real-time updates delivered via a callback with a JSON payload.
+- Full metadata support for now playing items, including artwork.
+- Pure Objective-C, no external dependencies.
+- Extensibility to support more MediaRemote features in the future (contributions welcome).
+- Optional debounce delay to prevent bursts of small updates (the default is 100ms).
+
+## Building
+
+A helper script is provided to automate the build process.
+
+```bash
+# Build the framework (default action)
+./build.sh
+
+# Clean the build directory
+./build.sh clean
+```
+
+The compiled `MediaRemoteAdapter.framework` will be located in the `build/src/` directory.
 
 ## Usage
 
+1.  Link `MediaRemoteAdapter.framework` in your application.
+2.  Import the public header: `#import <MediaRemoteAdapter/MediaRemoteAdapter.h>`
+3.  Implement a callback function to receive the data.
+4.  Register your callback and start the loop.
+
+The data is delivered as a C-string containing a JSON dictionary with the following keys:
+
+- `type` (string): Always `"data"`.
+- `diff` (boolean): If `true`, the `payload` only contains keys for values that have changed since the last full payload.
+- `payload` (dictionary): The now playing metadata. For a list of all possible keys, see `src/MediaRemoteAdapterKeys.m`.
+
+### Example (Objective-C)
+
+```objective-c
+#import <Foundation/Foundation.h>
+#import <MediaRemoteAdapter/MediaRemoteAdapter.h>
+
+// C callback function to handle incoming data
+void handle_media_data(const char* json_string) {
+    NSString *jsonString = [NSString stringWithUTF8String:json_string];
+    NSLog(@"Received data: %@", jsonString);
+    
+    // It is recommended to use NSJSONSerialization to parse the data
+    // NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    // NSError *error = nil;
+    // NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+}
+
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        NSLog(@"Registering callback and starting media loop...");
+
+        // Register the callback function
+        register_media_data_callback(handle_media_data);
+
+        // Start the media observer loop
+        loop();
+
+        // Keep the application running to receive updates
+        [[NSRunLoop currentRunLoop] run];
+    }
+    return 0;
+}
 ```
-$ git clone https://github.com/ungive/mediaremote-adapter.git
-$ cd mediaremote-adapter
-$ mkdir build && cd build
-$ cmake ..
-$ cmake --build .
-$ cd ..
-$ FRAMEWORK_PATH=$(realpath ./build/MediaRemoteAdapter.framework)
-$ /usr/bin/perl ./scripts/MediaRemoteAdapter.pl "$FRAMEWORK_PATH"
-```
-
-The output of this command is characterised by the following rules:
-
-- The script runs indefinitely until the process is terminated with a signal
-- Each line printed to stdout contains a single JSON dictionary with the following keys:
-    - `type` (string): Always "data". There are no other types at the moment
-    - `diff` (boolean): Whether to update the previous non-diff payload. When this value is true, only the keys for updated values are set in the payload. Other keys should retain the value of the data payloads before this one
-    - `payload` (dictionary): The now playing metadata. The keys should be self-explanatory. For details check the `convertNowPlayingInformation` function in [src/MediaRemoteAdapter.m](./src/MediaRemoteAdapter.m). All available keys are always set to either a value or null when diff is false or no keys are set at all when no media player is reporting now playing information. There are may be missing keys when diff is true, but at least one keys is always set. For a list of all keys check [src/MediaRemoteAdapterKeys.m](./src/MediaRemoteAdapterKeys.m)
-- The script exits with an exit code other than 0 when a fatal error occured, e.g. when the MediaRemote framework could not be loaded. This may be used to stop any retries of executing this command again
-- The script terminates gracefully when a `SIGTERM` signal is sent to the process. This signal should be used to cancel the observation of changes to now playing items
-- It is recommended to use Objective-C's `NSJSONSerialization` for deserialization of JSON output, since that is used to serialize the underlying `NSDictionary`. Escape sequences like `\/` may not be parsed properly otherwise. Likewise, `NSData`'s `initWithBase64EncodedString` method may be used to parse the base64-encoded artwork data
-- You must always pass the full path of the adapter framework to the script as the first argument
-- The second optional argument is the function to execute (`loop` by default)
-- Each line printed to stderr is an error message
-
-Here is an example of what the output may look like:
-
-```
-{"type":"data","diff":false,"payload":{"artist":"Sara Rikas","timestampEpochMicros":1747256447190675,"title":"Cigarety","bundleIdentifier":"com.tidal.desktop","elapsedTimeMicros":0,"playing":false,"album":"Ja, Sára","artworkMimeType":"image\/jpeg","durationMicros":281346077,"artworkDataBase64":null}}
-{"type":"data","diff":true,"payload":{"artworkDataBase64":"\/9j\/4AAQSkZJRgABAQAAS..."}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260249656367,"elapsedTimeMicros":75372614}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260311282554,"elapsedTimeMicros":0,"durationMicros":281000000}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260312118660,"playing":true,"durationMicros":281346077}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260324723482,"elapsedTimeMicros":12772000,"playing":false}}
-```
-
-The artwork data is shortened for brevity.
 
 ## Why this works
 
 According to the findings by [@My-Iris](https://github.com/Mx-Iris) in
 [this comment](https://github.com/aviwad/LyricFever/issues/94#issuecomment-2746155419)
-processes with a bundle identifier starting with `com.apple.`
-are granted permission to access the MediaRemote framework.
-The Perl platform binary `/usr/bin/perl`
-is reported as having the bundle identifier `com.apple.perl` (or a variation).
+a process must have a bundle identifier starting with `com.apple.` to be granted permission to access the MediaRemote framework.
+
+This framework does **not** solve that problem on its own. It is a library that must be loaded and used by a host process that possesses the required entitlement (e.g., by running a script with `/usr/bin/perl`, which has the `com.apple.perl` identifier).
 
 You can confirm this by streaming log messages using the Console.app
-whilst running the script:
+whilst running your entitled host process:
 
 `default	14:44:55.871495+0200	mediaremoted	Adding client <MRDMediaRemoteClient 0x15820b1a0, bundleIdentifier = com.apple.perl5, pid = 86889>`
 
@@ -135,19 +150,6 @@ in the project's source files.
 I do not primarily develop for Mac,
 so if you see any bad practices in my Objective-C code,
 please do not hesitate to point them out.
-
-### TODO's
-
-- Objective-C code to launch and manage execution of the adapter script
-  and parse its output according to the rules described above
-- Example project on how to use the adapter framework and script
-  and instructions on how to bundle it with your app
-- This library currently does not handle "peculiar media",
-  which is reported media that is in a transition state
-  from e.g. "song A by artist B" to "song C by artist D"
-  having mixed metadata from both songs, e.g. "song C by artist B"
-  (artist is updated too late)
-- Solve FIXMEs and implement other TODOs that are located in source files
 
 ## Useful links
 
