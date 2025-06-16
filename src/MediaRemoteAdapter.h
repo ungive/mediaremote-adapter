@@ -7,7 +7,12 @@ extern void stop(void);
 extern void test(void);
 
 // Playback Commands
-extern void send_command(int command);
-extern void set_time(double seconds);
+extern void play(void);
+extern void pause_command(void);
+extern void toggle_play_pause(void);
+extern void next_track(void);
+extern void previous_track(void);
+extern void stop_command(void);
+extern void set_time_from_env(void);
 
 #endif /* MediaRemoteAdapter_h */ 

@@ -4,7 +4,8 @@
 #import "MediaRemoteAdapterKeys.h"
 
 NSString *kBundleIdentifier = @"bundleIdentifier";
-NSString *kPlaying = @"playing";
+NSString *kName = @"name";
+NSString *kIsPlaying = @"isPlaying";
 NSString *kTitle = @"title";
 NSString *kArtist = @"artist";
 NSString *kAlbum = @"album";

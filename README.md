@@ -1,43 +1,172 @@
-# MediaRemote Adapter: Access "Now Playing" Info on macOS Sonoma 15.4+
+# MediaRemote Adapter
 
-> **@Apple**&ensp;*Before breaking this,
-> please consider giving Mac users the option
-> to share actively playing media with the apps they use
-> and to control media playback.
-> Perhaps by introducing a new entitlement
-> that can be granted to apps by users in the system settings.
-> There are
-> [many](https://musicpresence.app)
-> [use](https://folivora.ai)
-> [cases](https://lyricfever.com)
-> [for](https://theboring.name)
-> [this](https://github.com/kirtan-shah/nowplaying-cli).*
-
-> **@Developers**&ensp;*Please **star**
-> this repository to show Apple that we care.*
-
----
-
-<!-- BADGES BEGIN -->
-![](https://img.shields.io/static/v1?label=macOS&message=macOS%2026.0%20%2825A5279m%29&labelColor=444&color=blue)
-![](https://img.shields.io/static/v1?label=last%20tested&message=Mon%20Jun%2016%2016%3A43%3A24%20CEST%202025&labelColor=444&color)
-<!-- BADGES END -->
+A workaround for applications that use the private `MediaRemote.framework` on macOS and are affected by the permission changes introduced in macOS 15.4 (Sonoma). This project provides a helper framework and an entitled Perl script to regain control over media playback.
 
 ## The Problem
 
-Since **macOS Sonoma 15.4**, Apple has restricted access to the private `MediaRemote.framework`. Previously, applications could use functions like `MRMediaRemoteGetNowPlayingInfo()` to get metadata about the currently playing song, track, or video.
+As of macOS 15.4, applications without a specific entitlement (`com.apple.private.mediaremote.send-commands` or `com.apple.private.mediaremote.receive-reminders`) can no longer send playback commands or receive media metadata. This breaks many third-party applications that provide custom media controls or display track information.
 
-Now, calling these functions from a standard application simply returns no data or fails silently. This is because access now requires a special entitlement that is only granted to Apple's own processes. This change broke numerous applications that relied on this functionality for features like Discord Rich Presence, menu bar widgets, and more.
+This project offers a solution by leveraging a pre-entitled host process: the system's own Perl interpreter, which possesses the necessary entitlements because it is signed by Apple.
 
-## The Solution
+## How It Works
 
-This project provides a workaround by leveraging a loophole in the new restrictions: processes with a bundle identifier starting with `com.apple.` are still granted the necessary entitlement.
+The core of this workaround is a Perl script (`scripts/run.pl`) that dynamically loads our custom-built `MediaRemoteAdapter.framework`. The framework acts as a bridge, exposing two main functionalities managed through the entitled Perl process:
 
-This repository contains two key components:
-1.  **A pre-compiled Objective-C framework** (`MediaRemoteAdapter.framework`) that does the work of calling the `MediaRemote` APIs.
-2.  **A Perl script** (`scripts/run.pl`) that acts as a trusted host process. Because the system's Perl interpreter has the bundle ID `com.apple.perl`, it is granted the entitlement. The script dynamically loads our framework into its own memory space, allowing the framework's code to run with the necessary permissions.
+1.  **Listening for Media Info:** When run in `loop` mode, it registers for notifications from the MediaRemote service and streams any changes (track, artist, playback state, etc.) as JSON objects to `stdout`.
+2.  **Sending Playback Commands:** The script can be called with commands like `play`, `pause`, or `next`. It loads the framework, sends the single command, and then exits.
 
-Your application launches this Perl script as a background helper tool and reads the JSON data it prints to standard output.
+This creates a simple, effective, and bidirectional communication channel between your application and the private MediaRemote framework.
+
+## How to Build
+
+A convenience script is provided. From the root of the project, simply run:
+
+```bash
+./build.sh
+```
+
+This will produce the `MediaRemoteAdapter.framework` inside the `build/` directory.
+
+## How to Use
+
+The framework is controlled via the `scripts/run.pl` Perl script. You must always provide the path to the built framework as the first argument.
+
+### Listening for Media Information
+
+To start listening for media changes, run the script with the `loop` command. It will run indefinitely, printing JSON objects to `stdout` whenever media information changes.
+
+```bash
+/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework loop
+```
+
+### Sending Playback Commands
+
+To send a command, simply provide the command name as the second argument. 
+
+| Command              | Description                               |
+| -------------------- | ----------------------------------------- |
+| `play`               | Starts playback.                          |
+| `pause`              | Pauses playback.                          |
+| `toggle`             | Toggles between play and pause.           |
+| `next`               | Skips to the next track.                  |
+| `prev`               | Skips to the previous track.              |
+| `stop`               | Stops playback.                           |
+| `set_time <seconds>` | Seeks to a specific time in the track.    |
+
+**Examples:**
+
+```bash
+# Pause the music
+/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework pause
+
+# Skip to the next track
+/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework next
+
+# Seek to the 60-second mark of the current track
+/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework set_time 60
+```
+
+## Integrating with a Swift Application
+
+Here is a complete example of how you could integrate this into a Swift application.
+
+**Important:** You must bundle the `MediaRemoteAdapter.framework` and the `run.pl` script with your application and ensure the paths are resolved correctly at runtime.
+
+```swift
+import Foundation
+
+class MediaController {
+
+    private var process: Process?
+    private let frameworkPath: String
+    private let scriptPath: String
+
+    init?() {
+        // Ensure the framework and script are bundled with your app.
+        guard let frameworkPath = Bundle.main.path(forResource: "MediaRemoteAdapter", ofType: "framework"),
+              let scriptPath = Bundle.main.path(forResource: "run", ofType: "pl") else {
+            assertionFailure("MediaRemoteAdapter.framework or run.pl not found in app bundle.")
+            return nil
+        }
+        self.frameworkPath = frameworkPath
+        self.scriptPath = scriptPath
+        
+        startMonitoring()
+    }
+
+    func startMonitoring() {
+        process = Process()
+        process?.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+        process?.arguments = [scriptPath, frameworkPath, "loop"]
+
+        let pipe = Pipe()
+        process?.standardOutput = pipe
+        
+        let fileHandle = pipe.fileHandleForReading
+        fileHandle.readabilityHandler = { handle in
+            let data = handle.availableData
+            if let output = String(data: data, encoding: .utf8) {
+                // Each JSON object is printed on a new line
+                let lines = output.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: .newlines)
+                for line in lines where !line.isEmpty {
+                    self.parseMediaInfo(jsonString: line)
+                }
+            }
+        }
+        
+        do {
+            try process?.run()
+        } catch {
+            print("Failed to launch monitoring process: \(error.localizedDescription)")
+        }
+    }
+    
+    private func parseMediaInfo(jsonString: String) {
+        guard let data = jsonString.data(using: .utf8) else { return }
+        do {
+            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                // Now you have a dictionary with media info.
+                // You can update your UI from here.
+                DispatchQueue.main.async {
+                    print("Received Media Info: \(json)")
+                    // e.g., if let payload = json["payload"] as? [String: Any],
+                    // let title = payload["title"] as? String { ... }
+                }
+            }
+        } catch {
+            print("Failed to parse JSON: \(error.localizedDescription)")
+        }
+    }
+
+    func sendCommand(_ command: String, args: [String] = []) {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+        task.arguments = [scriptPath, frameworkPath, command] + args
+        
+        do {
+            try task.run()
+            task.waitUntilExit()
+            // You could check task.terminationStatus if needed.
+        } catch {
+            print("Failed to send command '\(command)': \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Public Controls
+
+    func play() { sendCommand("play") }
+    func pause() { sendCommand("pause") }
+    func togglePlayPause() { sendCommand("toggle") }
+    func nextTrack() { sendCommand("next") }
+    func previousTrack() { sendCommand("prev") }
+    func stop() { sendCommand("stop") }
+    func seek(to seconds: Double) { sendCommand("set_time", args: [String(seconds)]) }
+}
+```
+
+## License
+
+This project is licensed under the **BSD 3-Clause License**. See the `LICENSE` file for details.
 
 ## Features
 
@@ -253,10 +382,3 @@ any help to improve this project is greatly appreciated!
 Thank you [@My-Iris](https://github.com/Mx-Iris)
 for providing insight into the changes made since macOS 15.4:
 [aviwad/LyricFever#94](https://github.com/aviwad/LyricFever/issues/94#issuecomment-2746155419)
-
-## License
-
-This file is licensed under the BSD 3-Clause License.
-See [LICENSE](./LICENSE) for details.
-
-Copyright (c) 2025 Jonas van den Berg

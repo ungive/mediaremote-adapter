@@ -14,19 +14,24 @@ use Cwd 'abs_path';
 # a function within it. It can either start the persistent `loop` to get
 # media info, or send a single playback command and exit.
 
-# --- Configuration: Map string commands to the C enum values ---
-my %COMMAND_MAP = (
-    "toggle" => 1, # kMRTogglePlayPause
-    "play"   => 4, # kMRPlay
-    "pause"  => 5, # kMRPause
-    "stop"   => 6, # kMRStop
-    "next"   => 8, # kMRNextTrack
-    "prev"   => 9, # kMRPreviousTrack
+# --- Configuration: Map string commands to the C function name ---
+my %COMMAND_FUNC_MAP = (
+    "play"   => "play",
+    "pause"  => "pause_command",
+    "toggle" => "toggle_play_pause",
+    "stop"   => "stop_command",
+    "next"   => "next_track",
+    "prev"   => "previous_track",
 );
 
 # --- Argument Parsing ---
-my $usage = "Usage: $0 /path/to/framework [command] [args...]\n" .
-            "Valid commands: loop, play, pause, toggle, next, prev, stop, set_time <seconds>\n";
+my $usage = "Usage: $0 /path/to/framework <command> [args...]\n\n" .
+            "Commands:\n" .
+            "  loop                      - Listen for media info changes and print JSON to stdout.\n" .
+            "  play, pause, toggle,      - Control playback.\n" .
+            "  next, prev, stop\n" .
+            "  set_time <seconds>        - Seek to a specific time in the track.\n";
+
 die $usage unless @ARGV >= 1;
 
 my $framework_path = abs_path(shift @ARGV);
@@ -62,17 +67,18 @@ sub execute_c_function {
 if ($command_name eq 'loop') {
     execute_c_function('loop');
 }
-elsif (exists $COMMAND_MAP{$command_name}) {
-    my $command_id = $COMMAND_MAP{$command_name};
-    execute_c_function('send_command', $command_id);
+elsif (exists $COMMAND_FUNC_MAP{$command_name}) {
+    my $func_name = $COMMAND_FUNC_MAP{$command_name};
+    execute_c_function($func_name);
     print "Sent command: $command_name\n";
 }
 elsif ($command_name eq 'set_time') {
     my $time = shift @ARGV;
     die "Usage: ... set_time <seconds>\n" unless defined $time && $time =~ /^[0-9]+(\.[0-9]+)?$/;
-    execute_c_function('set_time', $time);
+    $ENV{'MEDIAREMOTE_SET_TIME'} = $time;
+    execute_c_function('set_time_from_env');
     print "Sent command: set_time to $time seconds\n";
 }
 else {
-    die "Unknown command '$command_name'.\n$usage";
+    die "Unknown command '$command_name'.\n\n$usage";
 } 

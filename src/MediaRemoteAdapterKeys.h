@@ -7,7 +7,8 @@
 #import <Foundation/Foundation.h>
 
 extern NSString *kBundleIdentifier;
-extern NSString *kPlaying;
+extern NSString *kName;
+extern NSString *kIsPlaying;
 extern NSString *kTitle;
 extern NSString *kArtist;
 extern NSString *kAlbum;
