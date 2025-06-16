@@ -21,28 +21,60 @@ unless (-e $dylib_path) {
     die "Dynamic library not found at $dylib_path\n";
 }
 
-# Use a temporary package name for DynaLoader
-package Temp::Loader;
-our @ISA = qw(DynaLoader);
-bootstrap Temp::Loader $dylib_path;
+# --- Manual DynaLoader Invocation ---
 
-# Now we can call the C functions directly
-package main;
+# 1. Load the library file directly.
+my $libref = DynaLoader::dl_load_file($dylib_path)
+    or die "Can't load '$dylib_path': " . DynaLoader::dl_error();
 
+# 2. Find and install each C function as a Perl subroutine.
+# This avoids any high-level magic and gives us direct control.
+sub install_xsub {
+    my ($perl_name, $lib) = @_;
+    # C functions are usually prefixed with an underscore by the compiler.
+    my $c_name = "_" . $perl_name;
+
+    my $symref = DynaLoader::dl_find_symbol($lib, $c_name);
+    
+    # If the mangled name isn't found, try the plain name as a fallback.
+    unless ($symref) {
+        $symref = DynaLoader::dl_find_symbol($lib, $perl_name);
+    }
+
+    die "Can't find symbol '$perl_name' or '$c_name' in '$dylib_path'" unless $symref;
+    
+    # Install the C function into the main:: namespace so we can call it.
+    DynaLoader::dl_install_xsub("main::" . $perl_name, $symref);
+}
+
+# 3. Install all the functions we need from the library.
+install_xsub("bootstrap", $libref);
+install_xsub("loop", $libref);
+install_xsub("play", $libref);
+install_xsub("pause_command", $libref);
+install_xsub("toggle_play_pause", $libref);
+install_xsub("next_track", $libref);
+install_xsub("previous_track", $libref);
+install_xsub("stop_command", $libref);
+
+# 4. Call the bootstrap function to initialize the C code.
+bootstrap();
+
+# 5. Execute the requested command by calling the newly installed subroutine.
 if ($command eq 'loop') {
-    Temp::Loader::loop();
+    loop();
 } elsif ($command eq 'play') {
-    Temp::Loader::play();
+    play();
 } elsif ($command eq 'pause') {
-    Temp::Loader::pause_command();
+    pause_command();
 } elsif ($command eq 'toggle_play_pause') {
-    Temp::Loader::toggle_play_pause();
+    toggle_play_pause();
 } elsif ($command eq 'next_track') {
-    Temp::Loader::next_track();
+    next_track();
 } elsif ($command eq 'previous_track') {
-    Temp::Loader::previous_track();
+    previous_track();
 } elsif ($command eq 'stop') {
-    Temp::Loader::stop_command();
+    stop_command();
 } else {
     die "Unknown command: $command\n";
 } 
