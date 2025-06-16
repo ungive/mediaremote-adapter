@@ -112,8 +112,11 @@ This project was created due to the MediaRemote framework
 being completely non-functional when being loaded directly from within an app,
 starting with macOS 15.4 (see the numerous issues linked below).
 
-The aim is to provide a tool (and perhaps soon a full library)
-that serves as a fully functional alternative to using MediaRemote directly.
+The aim of this project is to provide a tool (and perhaps soon a full library)
+that serves as a fully functional alternative to using MediaRemote directly
+and perhaps to inspire Apple to give us a public API
+to read now playing information and control media playback on the device
+(see the note at the top of this file).
 
 ## Contributing
 
