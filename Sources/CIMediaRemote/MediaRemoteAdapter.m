@@ -132,13 +132,6 @@ convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
-    setValue((NSString *)kIsPlaying, ^id {
-        id playbackRate = information[(NSString *)kMRMediaRemoteNowPlayingInfoPlaybackRate];
-        if (playbackRate != nil) {
-            return @([playbackRate doubleValue] > 0.0);
-        }
-        return @(NO); // Default to not playing if rate isn't available
-    });
 
     return data;
 }

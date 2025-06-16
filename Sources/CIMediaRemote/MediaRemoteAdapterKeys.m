@@ -5,7 +5,6 @@
 
 NSString *const kBundleIdentifier = @"bundleIdentifier";
 NSString *const kName = @"name";
-NSString *const kIsPlaying = @"isPlaying";
 NSString *const kTitle = @"title";
 NSString *const kArtist = @"artist";
 NSString *const kAlbum = @"album";
