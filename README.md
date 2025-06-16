@@ -1,3 +1,17 @@
+> **@Apple**&ensp;*Before breaking this,
+> please consider giving Mac users the option
+> to share actively playing media with the apps they use
+> and to control media playback.
+> Perhaps by introducing a new entitlement
+> that can be granted to apps by users in the system settings.
+> There are
+> [many](https://musicpresence.app)
+> [use](https://folivora.ai)
+> [cases](https://lyricfever.com)
+> [for](https://theboring.name)
+> [this](https://github.com/kirtan-shah/nowplaying-cli).*
+
+---
 
 <!-- ![](https://img.shields.io/badge/macOS-26-blue?labelColor=444) -->
 
