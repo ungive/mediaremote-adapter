@@ -16,7 +16,10 @@
 
 ---
 
-<!-- ![](https://img.shields.io/badge/macOS-26-blue?labelColor=444) -->
+<!-- BADGES BEGIN -->
+![](https://img.shields.io/static/v1?label=macOS&message=macOS%2014.7.6%20%2823H626%29&labelColor=444&color=blue)
+![](https://img.shields.io/static/v1?label=last%20tested&message=Mon%20Jun%2016%2016%3A40%3A25%20CEST%202025&labelColor=444&color)
+<!-- BADGES END -->
 
 # MediaRemote Adapter
 
