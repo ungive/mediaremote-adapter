@@ -82,10 +82,14 @@ public class MediaController {
 
         outputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
             let data = fileHandle.availableData
-            if data.isEmpty {
-                outputPipe.fileHandleForReading.readabilityHandler = nil
-            } else {
-                self?.onTrackInfoReceived?(data)
+            // Process data line by line
+            if let string = String(data: data, encoding: .utf8) {
+                let lines = string.split(whereSeparator: \.isNewline)
+                for line in lines {
+                    if let lineData = line.data(using: .utf8) {
+                         self?.onTrackInfoReceived?(lineData)
+                    }
+                }
             }
         }
 

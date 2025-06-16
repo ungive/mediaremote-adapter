@@ -97,4 +97,10 @@ if ($command eq 'loop') {
     die "Unknown command: $command\n";
 }
 
+# For single commands, add a tiny sleep. This gives the command time to be processed
+# by the system before this script exits and the pipe closes.
+if ($command ne 'loop') {
+    select(undef, undef, undef, 0.1); # Sleep for 100ms
+}
+
 print STDERR "[Perl] Command '$command' executed. Exiting.\n"; 
