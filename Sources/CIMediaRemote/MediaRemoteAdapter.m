@@ -132,6 +132,13 @@ convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
+    setValue((NSString *)kIsPlaying, ^id {
+        id playbackRate = information[(NSString *)kMRMediaRemoteNowPlayingInfoPlaybackRate];
+        if (playbackRate != nil) {
+            return @([playbackRate doubleValue] > 0.0);
+        }
+        return @(NO); // Default to not playing if rate isn't available
+    });
 
     return data;
 }
@@ -222,9 +229,15 @@ void loop(void) {
               NSDictionary *nowPlayingInfo = (__bridge NSDictionary *)information;
 
               // If there's no information, or the dictionary is empty, do nothing.
-              // This prevents wiping the UI with an empty state.
               if (nowPlayingInfo == nil || [nowPlayingInfo count] == 0) {
                   NSLog(@"[ObjC] Now playing info is nil or empty. Ignoring.");
+                  return;
+              }
+              
+              // Also ignore if there's no title, as it's not a valid track state.
+              id title = nowPlayingInfo[(NSString *)kMRMediaRemoteNowPlayingInfoTitle];
+              if (title == nil || title == [NSNull null]) {
+                  NSLog(@"[ObjC] Now playing info is missing a title. Ignoring.");
                   return;
               }
 
