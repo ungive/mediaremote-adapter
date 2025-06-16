@@ -54,11 +54,10 @@ build() {
 
     echo ""
     echo "✅ Build successful!"
-    echo "   Framework: $PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework"
-    echo "   Test Harness: $PROJECT_ROOT/$BUILD_DIR/test/TestHarness"
+    echo "   Framework is located at: $PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework"
     echo ""
-    echo "To run the test harness, execute:"
-    echo "   /usr/bin/perl $PROJECT_ROOT/test/run_test.pl $PROJECT_ROOT/$BUILD_DIR/test/TestHarness"
+    echo "To get media info, run:"
+    echo "   /usr/bin/perl $PROJECT_ROOT/scripts/run.pl $PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework"
 }
 
 # --- Main Script Logic ---

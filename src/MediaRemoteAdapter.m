@@ -19,17 +19,19 @@
 
 static const double INDEFINITELY = 1e10;
 
-// Callback function pointer that will be set by the host application.
-static void (*g_swift_data_handler_callback)(const char* json_string) = NULL;
-
 // These keys identify a now playing item uniquely.
 static NSArray<NSString *> *identifyingItemKeys(void) {
     return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
 }
 
 static MediaRemote *_mediaRemote = NULL;
-static CFRunLoopRef g_background_run_loop = NULL;
+static CFRunLoopRef _runLoop = NULL;
 static dispatch_queue_t _queue;
+
+static void printOut(NSString *message) {
+    fprintf(stdout, "%s\n", [message UTF8String]);
+    fflush(stdout);
+}
 
 static void printErr(NSString *message) {
     fprintf(stderr, "%s\n", [message UTF8String]);
@@ -205,11 +207,7 @@ static void printData(NSDictionary *data) {
     }
     if (serialized != nil) {
         previousData = [data copy];
-        if (g_swift_data_handler_callback != NULL) {
-            g_swift_data_handler_callback([serialized UTF8String]);
-        } else {
-            printErr(@"MediaRemoteAdapter: Data handler callback is NULL. Dropping data.");
-        }
+        printOut(serialized);
     }
 }
 
@@ -461,211 +459,187 @@ extern void test() {
     exit(0);
 }
 
-// Public C function to register the callback.
-extern void register_media_data_callback(void (*callback)(const char* json_string)) {
-    printErr(@"MediaRemoteAdapter: Registering data handler callback.");
-    g_swift_data_handler_callback = callback;
-}
-
 extern void loop() {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @autoreleasepool {
-            g_background_run_loop = CFRunLoopGetCurrent();
+    __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
 
-            __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
+    void (^handle)() = ^{
+      if (liveData[kBundleIdentifier] != nil && liveData[kPlaying] != nil &&
+          liveData[kTitle] != nil) {
+          printData(liveData);
+      }
+    };
 
-            void (^handle)() = ^{
-              if (liveData[kBundleIdentifier] != nil && liveData[kPlaying] != nil &&
-                  liveData[kTitle] != nil) {
-                  // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
-                  // liveData[kPlaying]);
-                  printData(liveData);
-              }
-            };
-
-            void (^requestNowPlayingApplicationPID)() = ^{
-              _mediaRemote.getNowPlayingApplicationPID(_queue, ^(int pid) {
-                if (pid == 0) {
-                    printData([NSMutableDictionary dictionary]);
-                    return;
-                }
-                appForPID(pid, ^(NSRunningApplication *process) {
-                  liveData[kBundleIdentifier] = process.bundleIdentifier;
-                  handle();
-                });
-              });
-            };
-
-            void (^requestNowPlayingApplicationIsPlaying)() = ^{
-              _mediaRemote.getNowPlayingApplicationIsPlaying(_queue, ^(bool isPlaying) {
-                // NSLog(@"getNowPlayingApplicationIsPlaying = %d", isPlaying);
-                liveData[kPlaying] = @(isPlaying);
-                handle();
-              });
-            };
-
-            void (^requestNowPlayingInfo)() = ^{
-              _mediaRemote.getNowPlayingInfo(_queue, ^(NSDictionary *information) {
-                NSMutableDictionary *converted =
-                    convertNowPlayingInformation(information);
-                // Transfer anything over from the existing live data.
-                if (liveData[kBundleIdentifier] != nil) {
-                    converted[kBundleIdentifier] = liveData[kBundleIdentifier];
-                }
-                if (liveData[kPlaying] != nil) {
-                    converted[kPlaying] = liveData[kPlaying];
-                }
-                // Use the old artwork data, since often the MediaRemote framework
-                // unloads the artwork and then loads it again shortly after.
-                // Only do this when the items have the same identity.
-                if (isSameItemIdentity(liveData, converted) &&
-                    liveData[kArtworkDataBase64] != nil &&
-                    liveData[kArtworkDataBase64] != [NSNull null] &&
-                    converted[kArtworkDataBase64] == [NSNull null]) {
-                    converted[kArtworkDataBase64] = liveData[kArtworkDataBase64];
-                }
-                [liveData addEntriesFromDictionary:converted];
-                handle();
-              });
-            };
-
-            void (^requestAll)() = ^{
-              requestNowPlayingApplicationPID();
-              requestNowPlayingApplicationIsPlaying();
-              requestNowPlayingInfo();
-            };
-
-            void (^resetAll)() = ^{
-              [liveData removeAllObjects];
-            };
-
-            void (^refreshAll)() = ^{
-              resetAll();
-              requestAll();
-            };
-
-            // FIXME Is this foolproof? This continues and registers observers
-            // which might intervene with the initial three requests.
-            requestAll();
-
-            NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
-            NSNotificationCenter *shared_workscape_notification_center =
-                [[NSWorkspace sharedWorkspace] notificationCenter];
-
-            id is_playing_change_observer = [default_center
-                addObserverForName:
-                    kMRMediaRemoteNowPlayingApplicationIsPlayingDidChangeNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *notification) {
-                          dispatch_async(_queue, ^() {
-                            appForNotification(notification, ^(
-                                                   NSRunningApplication *process) {
-                              id isPlayingValue =
-                                  notification.userInfo
-                                      [kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
-                              if (isPlayingValue != nil) {
-                                  if (liveData[kBundleIdentifier] != nil &&
-                                      ![liveData[kBundleIdentifier]
-                                          isEqual:process.bundleIdentifier]) {
-                                      // This is a different process, reset all data.
-                                      resetAll();
-                                  }
-                                  liveData[kBundleIdentifier] =
-                                      process.bundleIdentifier;
-                                  liveData[kPlaying] = @([isPlayingValue boolValue]);
-                                  // NSLog(@"kMRMediaRemoteNowPlayingApplication"
-                                  //       @"IsPlayingDidChangeNotification = %d",
-                                  //       [isPlayingValue boolValue]);
-                                  if (liveData[kTitle] == nil) {
-                                      requestNowPlayingInfo();
-                                  }
-                              }
-                            });
-                          });
-                        }];
-
-            id info_change_observer = [default_center
-                addObserverForName:kMRMediaRemoteNowPlayingInfoDidChangeNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *notification) {
-                          dispatch_async(_queue, ^() {
-                            appForNotification(
-                                notification, ^(NSRunningApplication *process) {
-                                  if (liveData[kBundleIdentifier] != nil &&
-                                      ![liveData[kBundleIdentifier]
-                                          isEqual:process.bundleIdentifier]) {
-                                      // This is a different process, reset all data.
-                                      resetAll();
-                                  }
-                                  if (liveData[kBundleIdentifier] == nil) {
-                                      requestNowPlayingApplicationPID();
-                                  }
-                                  if (liveData[kPlaying] == nil) {
-                                      requestNowPlayingApplicationIsPlaying();
-                                  }
-                                  requestNowPlayingInfo();
-                                });
-                          });
-                        }];
-
-            // Register notifications for when applications are closed.
-            id app_termination_observer = [shared_workscape_notification_center
-                addObserverForName:NSWorkspaceDidTerminateApplicationNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *notification) {
-                          dispatch_async(_queue, ^() {
-                            NSDictionary *userInfo = [notification userInfo];
-                            id bundleIdentifier =
-                                userInfo[@"NSApplicationBundleIdentifier"];
-                            if (bundleIdentifier != nil &&
-                                [bundleIdentifier
-                                    isEqual:liveData[kBundleIdentifier]]) {
-                                // Refresh all data, since the application terminated.
-                                refreshAll();
-                            }
-                          });
-                        }];
-
-            _mediaRemote.registerForNowPlayingNotifications(_queue);
-
-            // A little bit of a hack, but since CFRunLoopRun() returns without work,
-            // we need to create a timer that ensures it doesn't exit and just idles.
-            CFRunLoopTimerRef timer = CFRunLoopTimerCreate(
-                kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + INDEFINITELY, 0, 0, 0,
-                NULL, NULL);
-            CFRunLoopAddTimer(g_background_run_loop, timer, kCFRunLoopCommonModes);
-            
-            printErr(@"MediaRemoteAdapter: Starting background run loop.");
-            CFRunLoopRun();
-            printErr(@"MediaRemoteAdapter: Background run loop stopped.");
-
-            _mediaRemote.unregisterForNowPlayingNotifications();
-
-            [default_center removeObserver:is_playing_change_observer];
-            [default_center removeObserver:info_change_observer];
-            [shared_workscape_notification_center
-                removeObserver:app_termination_observer];
-            
-            CFRunLoopRemoveTimer(g_background_run_loop, timer, kCFRunLoopCommonModes);
-            CFRelease(timer);
+    void (^requestNowPlayingApplicationPID)() = ^{
+      _mediaRemote.getNowPlayingApplicationPID(_queue, ^(int pid) {
+        if (pid == 0) {
+            printData([NSMutableDictionary dictionary]);
+            return;
         }
-    });
+        appForPID(pid, ^(NSRunningApplication *process) {
+          liveData[kBundleIdentifier] = process.bundleIdentifier;
+          handle();
+        });
+      });
+    };
+
+    void (^requestNowPlayingApplicationIsPlaying)() = ^{
+      _mediaRemote.getNowPlayingApplicationIsPlaying(_queue, ^(bool isPlaying) {
+        liveData[kPlaying] = @(isPlaying);
+        handle();
+      });
+    };
+
+    void (^requestNowPlayingInfo)() = ^{
+      _mediaRemote.getNowPlayingInfo(_queue, ^(NSDictionary *information) {
+        NSMutableDictionary *converted =
+            convertNowPlayingInformation(information);
+        // Transfer anything over from the existing live data.
+        if (liveData[kBundleIdentifier] != nil) {
+            converted[kBundleIdentifier] = liveData[kBundleIdentifier];
+        }
+        if (liveData[kPlaying] != nil) {
+            converted[kPlaying] = liveData[kPlaying];
+        }
+        // Use the old artwork data, since often the MediaRemote framework
+        // unloads the artwork and then loads it again shortly after.
+        // Only do this when the items have the same identity.
+        if (isSameItemIdentity(liveData, converted) &&
+            liveData[kArtworkDataBase64] != nil &&
+            liveData[kArtworkDataBase64] != [NSNull null] &&
+            converted[kArtworkDataBase64] == [NSNull null]) {
+            converted[kArtworkDataBase64] = liveData[kArtworkDataBase64];
+        }
+        [liveData addEntriesFromDictionary:converted];
+        handle();
+      });
+    };
+
+    void (^requestAll)() = ^{
+      requestNowPlayingApplicationPID();
+      requestNowPlayingApplicationIsPlaying();
+      requestNowPlayingInfo();
+    };
+
+    void (^resetAll)() = ^{
+      [liveData removeAllObjects];
+    };
+
+    void (^refreshAll)() = ^{
+      resetAll();
+      requestAll();
+    };
+
+    // FIXME Is this foolproof? This continues and registers observers
+    // which might intervene with the initial three requests.
+    requestAll();
+
+    NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
+    NSNotificationCenter *shared_workscape_notification_center =
+        [[NSWorkspace sharedWorkspace] notificationCenter];
+
+    id is_playing_change_observer = [default_center
+        addObserverForName:
+            kMRMediaRemoteNowPlayingApplicationIsPlayingDidChangeNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                  dispatch_async(_queue, ^() {
+                    appForNotification(notification, ^(
+                                           NSRunningApplication *process) {
+                      id isPlayingValue =
+                          notification.userInfo
+                              [kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
+                      if (isPlayingValue != nil) {
+                          if (liveData[kBundleIdentifier] != nil &&
+                              ![liveData[kBundleIdentifier]
+                                  isEqual:process.bundleIdentifier]) {
+                              // This is a different process, reset all data.
+                              resetAll();
+                          }
+                          liveData[kBundleIdentifier] =
+                              process.bundleIdentifier;
+                          liveData[kPlaying] = @([isPlayingValue boolValue]);
+                          if (liveData[kTitle] == nil) {
+                              requestNowPlayingInfo();
+                          }
+                      }
+                    });
+                  });
+                }];
+
+    id info_change_observer = [default_center
+        addObserverForName:kMRMediaRemoteNowPlayingInfoDidChangeNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                  dispatch_async(_queue, ^() {
+                    appForNotification(
+                        notification, ^(NSRunningApplication *process) {
+                          if (liveData[kBundleIdentifier] != nil &&
+                              ![liveData[kBundleIdentifier]
+                                  isEqual:process.bundleIdentifier]) {
+                              // This is a different process, reset all data.
+                              resetAll();
+                          }
+                          if (liveData[kBundleIdentifier] == nil) {
+                              requestNowPlayingApplicationPID();
+                          }
+                          if (liveData[kPlaying] == nil) {
+                              requestNowPlayingApplicationIsPlaying();
+                          }
+                          requestNowPlayingInfo();
+                        });
+                  });
+                }];
+
+    // Register notifications for when applications are closed.
+    id app_termination_observer = [shared_workscape_notification_center
+        addObserverForName:NSWorkspaceDidTerminateApplicationNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                  dispatch_async(_queue, ^() {
+                    NSDictionary *userInfo = [notification userInfo];
+                    id bundleIdentifier =
+                        userInfo[@"NSApplicationBundleIdentifier"];
+                    if (bundleIdentifier != nil &&
+                        [bundleIdentifier
+                            isEqual:liveData[kBundleIdentifier]]) {
+                        // Refresh all data, since the application terminated.
+                        refreshAll();
+                    }
+                  });
+                }];
+
+    _mediaRemote.registerForNowPlayingNotifications(_queue);
+
+    // A little bit of a hack, but since CFRunLoopRun() returns without work,
+    // we need to create a timer that ensures it doesn't exit and just idles.
+    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(
+        kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + INDEFINITELY, 0, 0, 0,
+        NULL, NULL);
+    CFRunLoopAddTimer(_runLoop, timer, kCFRunLoopCommonModes);
+    CFRunLoopRunResult result =
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, INDEFINITELY, FALSE);
+
+    _mediaRemote.unregisterForNowPlayingNotifications();
+
+    [default_center removeObserver:is_playing_change_observer];
+    [default_center removeObserver:info_change_observer];
+    [shared_workscape_notification_center
+        removeObserver:app_termination_observer];
 }
 
-extern void stop_media_remote_loop() {
-    if (g_background_run_loop) {
-        CFRunLoopStop(g_background_run_loop);
-        g_background_run_loop = NULL;
-        printErr(@"MediaRemoteAdapter: Requested run loop stop.");
+extern void stop() {
+    if (_runLoop) {
+        CFRunLoopStop(_runLoop);
+        _runLoop = NULL;
     }
 }
 
 static void handleSignal(int signal) {
     if (signal == SIGTERM) {
-        stop_media_remote_loop();
+        stop();
     }
 }
 
@@ -676,11 +650,12 @@ __attribute__((constructor)) static void init() {
         fail(@"Failed to initialize MediaRemote Framework");
         return;
     }
+    _runLoop = CFRunLoopGetCurrent();
     _queue = dispatch_queue_create("mediaremote.mediaobserver",
                                    DISPATCH_QUEUE_SERIAL);
 }
 
-__attribute__((destructor)) static void teardown() { stop_media_remote_loop(); }
+__attribute__((destructor)) static void teardown() { stop(); }
 
 // FIXME Fix "peculiar media" (title is updated later than artist). Example:
 /*
