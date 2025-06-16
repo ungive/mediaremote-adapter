@@ -9,11 +9,8 @@ let package = Package(
     products: [
         .library(
             name: "MediaRemoteAdapter",
-            targets: ["MediaRemoteAdapter"]),
-        .library(
-            name: "CIMediaRemote",
             type: .dynamic,
-            targets: ["CIMediaRemote"])
+            targets: ["MediaRemoteAdapter"]),
     ],
     dependencies: [],
     targets: [

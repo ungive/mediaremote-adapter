@@ -4,3 +4,4 @@ notes
 node_modules
 package-lock.json
 CMakePresets.json
+.build

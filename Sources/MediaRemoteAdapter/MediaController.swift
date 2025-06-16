@@ -16,29 +16,13 @@ public class MediaController {
 
     public init() {}
 
-    private var dylibPath: String? {
+    private var libraryPath: String? {
         let bundle = Bundle(for: MediaController.self)
-
-        // Scenarios:
-        // 1. App Store: .../YourApp.app/Contents/Frameworks/MediaRemoteAdapter.framework
-        //    We need to go up one level to find libCIMediaRemote.dylib
-        let frameworksURL = bundle.bundleURL.deletingLastPathComponent()
-        let dylibURL = frameworksURL.appendingPathComponent("libCIMediaRemote.dylib")
-        if FileManager.default.fileExists(atPath: dylibURL.path) {
-            return dylibURL.path
+        guard let path = bundle.executablePath else {
+            assertionFailure("Could not locate the executable path for the MediaRemoteAdapter framework.")
+            return nil
         }
-
-        // 2. Xcode Debug Build / SPM local package
-        //    The dylib might be a direct sibling in the build products dir.
-        //    e.g. .../Debug/MediaRemoteAdapter.framework & .../Debug/libCIMediaRemote.dylib
-        let buildProductsURL = bundle.bundleURL
-        let siblingDylibURL = buildProductsURL.deletingLastPathComponent().appendingPathComponent("libCIMediaRemote.dylib")
-        if FileManager.default.fileExists(atPath: siblingDylibURL.path) {
-            return siblingDylibURL.path
-        }
-
-        assertionFailure("Could not locate libCIMediaRemote.dylib. Ensure it is embedded in your application target.")
-        return nil
+        return path
     }
 
     @discardableResult
@@ -46,13 +30,13 @@ public class MediaController {
         guard let scriptPath = perlScriptPath else {
             return (nil, "Perl script not found.", -1)
         }
-        guard let dylibPath = dylibPath else {
+        guard let libraryPath = libraryPath else {
             return (nil, "Dynamic library path not found.", -1)
         }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
-        process.arguments = [scriptPath, dylibPath] + arguments
+        process.arguments = [scriptPath, libraryPath] + arguments
 
         let outputPipe = Pipe()
         process.standardOutput = outputPipe
@@ -85,13 +69,13 @@ public class MediaController {
         guard let scriptPath = perlScriptPath else {
             return
         }
-        guard let dylibPath = dylibPath else {
+        guard let libraryPath = libraryPath else {
             return
         }
 
         listeningProcess = Process()
         listeningProcess?.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
-        listeningProcess?.arguments = [scriptPath, dylibPath, "loop"]
+        listeningProcess?.arguments = [scriptPath, libraryPath, "loop"]
 
         let outputPipe = Pipe()
         listeningProcess?.standardOutput = outputPipe
