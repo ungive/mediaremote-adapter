@@ -6,16 +6,12 @@
 use strict;
 use warnings;
 use DynaLoader;
-use File::Spec;
-use File::Basename;
-use Cwd 'abs_path';
-use FindBin;
 
 # This script dynamically loads the MediaRemoteAdapter dylib and executes
 # a command. It's designed to be called by a parent process that provides
 # the full path to the dylib.
 
-my $usage = "Usage: $0 <path_to_dylib> <loop|play|pause|...|set_time TIME>";
+my $usage = "Usage: $0 <path_to_dylib> <loop|play|pause|...>";
 die $usage unless @ARGV >= 2;
 
 my $dylib_path = shift @ARGV;
@@ -25,32 +21,28 @@ unless (-e $dylib_path) {
     die "Dynamic library not found at $dylib_path\n";
 }
 
-# DynaLoader may need to find the mangled C symbol (_bootstrap)
-# We add both to the list of symbols to try.
-my @bootstrap_symbols = ("bootstrap", "_bootstrap");
-DynaLoader::bootstrap_inherit($dylib_path, \@bootstrap_symbols);
+# Use a temporary package name for DynaLoader
+package Temp::Loader;
+our @ISA = qw(DynaLoader);
+bootstrap Temp::Loader $dylib_path;
 
-# Call bootstrap once loaded
-bootstrap();
-
-if (not defined $command) {
-    die "A command is required.\n$usage\n";
-}
+# Now we can call the C functions directly
+package main;
 
 if ($command eq 'loop') {
-    loop();
+    Temp::Loader::loop();
 } elsif ($command eq 'play') {
-    play();
+    Temp::Loader::play();
 } elsif ($command eq 'pause') {
-    pause_command();
+    Temp::Loader::pause_command();
 } elsif ($command eq 'toggle_play_pause') {
-    toggle_play_pause();
+    Temp::Loader::toggle_play_pause();
 } elsif ($command eq 'next_track') {
-    next_track();
+    Temp::Loader::next_track();
 } elsif ($command eq 'previous_track') {
-    previous_track();
+    Temp::Loader::previous_track();
 } elsif ($command eq 'stop') {
-    stop_command();
+    Temp::Loader::stop_command();
 } else {
     die "Unknown command: $command\n";
 } 
