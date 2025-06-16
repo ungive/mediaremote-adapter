@@ -1,67 +1,108 @@
-# MediaRemote Adapter
+# MediaRemoteAdapter
 
-A workaround for applications that use the private `MediaRemote.framework` on macOS and are affected by the permission changes introduced in macOS 15.4 (Sonoma). This project provides a helper framework and an entitled Perl script to regain control over media playback.
-
-## The Problem
-
-As of macOS 15.4, applications without a specific entitlement (`com.apple.private.mediaremote.send-commands` or `com.apple.private.mediaremote.receive-reminders`) can no longer send playback commands or receive media metadata. This breaks many third-party applications that provide custom media controls or display track information.
-
-This project offers a solution by leveraging a pre-entitled host process: the system's own Perl interpreter, which possesses the necessary entitlements because it is signed by Apple.
+A Swift package that allows macOS applications to control media playback and receive track information by bridging through the system's entitled Perl interpreter. It serves as a workaround for the `MediaRemote.framework` restrictions introduced in macOS 15.4.
 
 ## How It Works
 
-The core of this workaround is a Perl script (`scripts/run.pl`) that dynamically loads our custom-built `MediaRemoteAdapter.framework`. The framework acts as a bridge, exposing two main functionalities managed through the entitled Perl process:
+This package is composed of two main targets:
+1.  **`MediaRemoteAdapter` (Swift):** A public Swift module that provides a simple `MediaController` class. Your application interacts exclusively with this class.
+2.  **`CIMediaRemote` (Objective-C):** An internal C-language module containing the Objective-C code that makes the actual calls to the private `MediaRemote.framework` APIs.
 
-1.  **Listening for Media Info:** When run in `loop` mode, it registers for notifications from the MediaRemote service and streams any changes (track, artist, playback state, etc.) as JSON objects to `stdout`.
-2.  **Sending Playback Commands:** The script can be called with commands like `play`, `pause`, or `next`. It loads the framework, sends the single command, and then exits.
+The `MediaController` does **not** call the Objective-C code directly. Instead, it executes a bundled Perl script (`run.pl`) which is signed by Apple and has the necessary entitlements to access the MediaRemote service. This script dynamically loads the compiled `CIMediaRemote` library (`.dylib`) and acts as a sandboxed bridge, passing commands in and streaming track data out.
 
-This creates a simple, effective, and bidirectional communication channel between your application and the private MediaRemote framework.
+This architecture provides the permissions of the original workaround with the safety and convenience of a modern, source-based Swift Package.
 
-## How to Build
+## Installation
 
-A convenience script is provided. From the root of the project, simply run:
+You can add `MediaRemoteAdapter` to your project as a Swift Package dependency.
 
-```bash
-./build.sh
+1.  In Xcode, open your project and navigate to **File > Add Packages...**
+2.  Select **Add Local...**
+3.  Navigate to the root directory of this project and click **Add Package**.
+4.  Choose the `MediaRemoteAdapter` product and add it to your application's target.
+
+Xcode will automatically compile the Objective-C code and bundle the Perl script with your application.
+
+## Usage
+
+Here is a basic example of how to use `MediaController`.
+
+```swift
+import MediaRemoteAdapter
+import Foundation
+
+class YourAppController {
+    let mediaController = MediaController()
+
+    init() {
+        // Handle incoming track data
+        mediaController.onTrackInfoReceived = { jsonData in
+            // The data is raw JSON from the Perl script.
+            // You'll need to decode it.
+            print("Received track data: \(String(data: jsonData, encoding: .utf8) ?? "-")")
+
+            // Example of decoding (you should define a proper Codable struct)
+            if let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] {
+                print("Payload: \(json["payload"] ?? [:])")
+            }
+        }
+
+        // Handle listener termination
+        mediaController.onListenerTerminated = {
+            print("Listener process was terminated.")
+        }
+    }
+
+    func setupAndStart() {
+        // Start listening for media events in the background
+        mediaController.startListening()
+    }
+
+    func playMusic() {
+        mediaController.play()
+    }
+
+    func pauseMusic() {
+        mediaController.pause()
+    }
+
+    func nextTrack() {
+        mediaController.nextTrack()
+    }
+
+    func stopListening() {
+        mediaController.stopListening()
+    }
+}
 ```
 
-This will produce the `MediaRemoteAdapter.framework` inside the `build/` directory.
+## API Overview
 
-## How to Use
+### `MediaController()`
+Initializes a new controller.
 
-The framework is controlled via the `scripts/run.pl` Perl script. You must always provide the path to the built framework as the first argument.
+### `var onTrackInfoReceived: ((Data) -> Void)?`
+A closure that is called with raw JSON `Data` whenever new track information is available.
 
-### Listening for Media Information
+### `var onListenerTerminated: (() -> Void)?`
+A closure that is called if the background listener process terminates unexpectedly.
 
-To start listening for media changes, run the script with the `loop` command. It will run indefinitely, printing JSON objects to `stdout` whenever media information changes.
+### `startListening()`
+Spawns the background Perl process to begin listening for media events.
 
-```bash
-/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework loop
-```
+### `stopListening()`
+Terminates the background listener process.
 
-### Sending Playback Commands
+### Playback Commands
+These functions send a command to the background process and then exit. They are asynchronous and run on a global dispatch queue.
+- `play()`
+- `pause()`
+- `togglePlayPause()`
+- `nextTrack()`
+- `previousTrack()`
+- `stop()`
+- `setTime(seconds: Double)`
 
-To send a command, simply provide the command name as the second argument. 
+## License
 
-| Command              | Description                               |
-| -------------------- | ----------------------------------------- |
-| `play`               | Starts playback.                          |
-| `pause`              | Pauses playback.                          |
-| `toggle`             | Toggles between play and pause.           |
-| `next`               | Skips to the next track.                  |
-| `prev`               | Skips to the previous track.              |
-| `stop`               | Stops playback.                           |
-| `set_time <seconds>` | Seeks to a specific time in the track.    |
-
-**Examples:**
-
-```bash
-# Pause the music
-/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework pause
-
-# Skip to the next track
-/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework next
-
-# Seek to the 60-second mark of the current track
-/usr/bin/perl ./scripts/run.pl ./build/MediaRemoteAdapter.framework set_time 60
-```
+This project is licensed under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.

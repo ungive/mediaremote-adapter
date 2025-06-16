@@ -1,0 +1,4 @@
+module CIMediaRemote {
+    umbrella "/Users/ethanbills/Documents/Github/mediaremote-adapter/Sources/CIMediaRemote/include"
+    export *
+}
