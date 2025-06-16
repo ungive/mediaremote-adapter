@@ -11,6 +11,9 @@
 > [for](https://theboring.name)
 > [this](https://github.com/kirtan-shah/nowplaying-cli).*
 
+> **@Developers**&ensp;*Please **star**
+> this repository to show Apple that we care.*
+
 ---
 
 <!-- ![](https://img.shields.io/badge/macOS-26-blue?labelColor=444) -->
