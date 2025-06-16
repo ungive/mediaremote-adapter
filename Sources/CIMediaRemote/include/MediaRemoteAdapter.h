@@ -1,21 +1,29 @@
+//
+//  MediaRemoteAdapter.h
+//
+//  Copyright © 2024 Ethan Bills. All rights reserved.
+//
+
 #ifndef MediaRemoteAdapter_h
 #define MediaRemoteAdapter_h
 
-#import "MediaRemote.h"
-#import "MediaRemoteAdapterKeys.h"
+#import <Foundation/Foundation.h>
 
-// The C functions that are exposed to the caller.
-extern void loop(void);
-extern void stop(void);
-extern void test(void);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// Playback Commands
-extern void play(void);
-extern void pause_command(void);
-extern void toggle_play_pause(void);
-extern void next_track(void);
-extern void previous_track(void);
-extern void stop_command(void);
-extern void set_time_from_env(void);
+void bootstrap(void);
+void loop(void);
+void play(void);
+void pause_command(void);
+void toggle_play_pause(void);
+void next_track(void);
+void previous_track(void);
+void stop_command(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MediaRemoteAdapter_h */ 

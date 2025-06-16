@@ -144,10 +144,4 @@ public class MediaController {
             self.runPerlCommand(arguments: ["stop"])
         }
     }
-
-    public func setTime(seconds: Double) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.runPerlCommand(arguments: ["set_time", String(seconds)])
-        }
-    }
 } 

@@ -1,21 +1,22 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
+#import <Foundation/Foundation.h>
+
 #ifndef MediaRemoteAdapterKeys_h
 #define MediaRemoteAdapterKeys_h
 
-#import <Foundation/Foundation.h>
-
-extern NSString *kBundleIdentifier;
-extern NSString *kName;
-extern NSString *kIsPlaying;
-extern NSString *kTitle;
-extern NSString *kArtist;
-extern NSString *kAlbum;
-extern NSString *kDurationMicros;
-extern NSString *kElapsedTimeMicros;
-extern NSString *kTimestampEpochMicros;
-extern NSString *kArtworkMimeType;
-extern NSString *kArtworkDataBase64;
+extern NSString *const kTitle;
+extern NSString *const kName;
+extern NSString *const kIsPlaying;
+extern NSString *const kArtist;
+extern NSString *const kAlbum;
+extern NSString *const kDurationMicros;
+extern NSString *const kElapsedTimeMicros;
+extern NSString *const kTimestampEpochMicros;
+extern NSString *const kArtworkMimeType;
+extern NSString *const kArtworkDataBase64;
+extern NSString *const kBundleIdentifier;
+extern NSString *const kApplicationName;
 
 #endif /* MediaRemoteAdapterKeys_h */ 

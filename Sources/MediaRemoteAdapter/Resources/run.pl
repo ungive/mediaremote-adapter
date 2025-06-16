@@ -45,11 +45,6 @@ if ($command eq 'loop') {
     MediaRemoteAdapter::previous_track();
 } elsif ($command eq 'stop') {
     MediaRemoteAdapter::stop_command();
-} elsif ($command eq 'set_time') {
-    my $time = $ARGV[0];
-    die "Missing time argument for set_time\n" unless defined $time;
-    $ENV{'MEDIAREMOTE_SET_TIME'} = $time;
-    MediaRemoteAdapter::set_time_from_env();
 } else {
     die "Unknown command: $command\n";
 } 

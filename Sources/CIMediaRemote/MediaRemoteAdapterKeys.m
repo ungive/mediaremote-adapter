@@ -3,14 +3,15 @@
 
 #import "MediaRemoteAdapterKeys.h"
 
-NSString *kBundleIdentifier = @"bundleIdentifier";
-NSString *kName = @"name";
-NSString *kIsPlaying = @"isPlaying";
-NSString *kTitle = @"title";
-NSString *kArtist = @"artist";
-NSString *kAlbum = @"album";
-NSString *kDurationMicros = @"durationMicros";
-NSString *kElapsedTimeMicros = @"elapsedTimeMicros";
-NSString *kTimestampEpochMicros = @"timestampEpochMicros";
-NSString *kArtworkMimeType = @"artworkMimeType";
-NSString *kArtworkDataBase64 = @"artworkDataBase64";
+NSString *const kBundleIdentifier = @"bundleIdentifier";
+NSString *const kName = @"name";
+NSString *const kIsPlaying = @"isPlaying";
+NSString *const kTitle = @"title";
+NSString *const kArtist = @"artist";
+NSString *const kAlbum = @"album";
+NSString *const kDurationMicros = @"durationMicros";
+NSString *const kElapsedTimeMicros = @"elapsedTimeMicros";
+NSString *const kTimestampEpochMicros = @"timestampEpochMicros";
+NSString *const kArtworkMimeType = @"artworkMimeType";
+NSString *const kArtworkDataBase64 = @"artworkDataBase64";
+NSString *const kApplicationName = @"applicationName";
