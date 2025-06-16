@@ -19,7 +19,6 @@
 
 static CFRunLoopRef _runLoop = NULL;
 static dispatch_queue_t _queue;
-static NSDictionary *previousData = nil;
 static dispatch_block_t _debounce_block = NULL;
 
 // These keys identify a now playing item uniquely.
@@ -161,17 +160,10 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     return true;
 }
 
+// Always sends the full data payload. No more diffing.
 static void printData(NSDictionary *data) {
-    NSString *serialized = nil;
-    if (previousData != nil && isSameItemIdentity(previousData, data)) {
-        NSDictionary *diff = createDiff(previousData, data);
-        if ([diff count] == 0) return;
-        serialized = serializeData(diff, true);
-    } else {
-        serialized = serializeData(data, false);
-    }
+    NSString *serialized = serializeData(data, false);
     if (serialized != nil) {
-        previousData = [data copy];
         printOut(serialized);
     }
 }
@@ -226,11 +218,11 @@ void loop(void) {
                   NSLog(@"[ObjC] Now playing info is nil or empty. Ignoring.");
                   return;
               }
-              
-              // Also ignore if there's no title, as it's not a valid track state.
+
+              // Also ignore if there's no title, or the title is an empty string.
               id title = nowPlayingInfo[(NSString *)kMRMediaRemoteNowPlayingInfoTitle];
-              if (title == nil || title == [NSNull null]) {
-                  NSLog(@"[ObjC] Now playing info is missing a title. Ignoring.");
+              if (title == nil || title == [NSNull null] || ([title isKindOfClass:[NSString class]] && [(NSString *)title length] == 0)) {
+                  NSLog(@"[ObjC] Now playing info is missing a valid title. Ignoring.");
                   return;
               }
 
