@@ -1,27 +1,30 @@
+
+<!-- ![](https://img.shields.io/badge/macOS-26-blue?labelColor=444) -->
+
 # MediaRemote Adapter
 
 Get now playing information using the MediaRemote framework
-on all macOS versions, including 15.4 and newer.
+on all macOS versions, including 15.4 and above.
 
 This works by using a system binary &ndash; `/usr/bin/perl` in this case &ndash;
 which is entitled to use the MediaRemote framework
 and by dynamically loading a custom helper framework
-that prints real-time updates to the standard output.
+that prints real-time updates to stdout.
 
 ## Features
 
 - Minimal and simple API:
   - Bundle the MediaRemoteAdapter.framework with your app
-  - Execute the provided perl script using `NSTask` and
-  - Consume simple JSON and base64 encoded data
-    that is streamed to the standard output
-    (use `NSJSONSerialization` and `NSData`'s
-    `initWithBase64EncodedString` for decoding)
+  - Execute the provided perl script using e.g. `NSTask`
+  - Then consume simple JSON and base64 encoded data
+    that is streamed to the standard output.
+    You can use `NSJSONSerialization` and `NSData`'s
+    `initWithBase64EncodedString` for decoding
 - Full metadata support for now playing items
 - Real-time updates to changes of now playing information
+- Pure Objective-C and Perl (shipped with macOS), no external dependencies
 - Extensibility to support more MediaRemote features in the future
   (contributions welcome)
-- Pure Objective-C and Perl (shipped with macOS), no external dependencies
 - Optional debounce delay to prevent bursts of small updates
   (the default is 100ms)
 
@@ -42,13 +45,14 @@ The output of this command is characterised by the following rules:
 
 - The script runs indefinitely until the process is terminated with a signal
 - Each line printed to stdout contains a single JSON dictionary with the following keys:
-    - type (string): Always "data". There are no other types at the moment
-    - diff (boolean): Whether to update the previous non-diff payload. When this value is true, only the keys for updated values are set in the payload. Other keys should retain the value of the data payloads before this one
-    - payload (dictionary): The now playing metadata. The keys should be self-explanatory. For details check the convertNowPlayingInformation function in [src/MediaRemoteAdapter.m](./src/MediaRemoteAdapter.m). All available keys are always set to either a value or null when diff is false or no keys are set at all when no media player is reporting now playing information. There are may be missing keys when diff is true, but at least one keys is always set. For a list of all keys check [src/MediaRemoteAdapterKeys.m](./src/MediaRemoteAdapterKeys.m)
+    - `type` (string): Always "data". There are no other types at the moment
+    - `diff` (boolean): Whether to update the previous non-diff payload. When this value is true, only the keys for updated values are set in the payload. Other keys should retain the value of the data payloads before this one
+    - `payload` (dictionary): The now playing metadata. The keys should be self-explanatory. For details check the `convertNowPlayingInformation` function in [src/MediaRemoteAdapter.m](./src/MediaRemoteAdapter.m). All available keys are always set to either a value or null when diff is false or no keys are set at all when no media player is reporting now playing information. There are may be missing keys when diff is true, but at least one keys is always set. For a list of all keys check [src/MediaRemoteAdapterKeys.m](./src/MediaRemoteAdapterKeys.m)
 - The script exits with an exit code other than 0 when a fatal error occured, e.g. when the MediaRemote framework could not be loaded. This may be used to stop any retries of executing this command again
-- The script terminates gracefully when a SIGTERM signal is sent to the process. This signal should be used to cancel the observation of changes to now playing items
-- It is recommended to use Objective-C's NSJSONSerialization for deserialization of JSON output, since that is used to serialize the underlying NSDictionary. Escape sequences like `\/` may not be parsed properly otherwise. Likewise, NSData's initWithBase64EncodedString method may be used to parse the artwork data
+- The script terminates gracefully when a `SIGTERM` signal is sent to the process. This signal should be used to cancel the observation of changes to now playing items
+- It is recommended to use Objective-C's `NSJSONSerialization` for deserialization of JSON output, since that is used to serialize the underlying `NSDictionary`. Escape sequences like `\/` may not be parsed properly otherwise. Likewise, `NSData`'s `initWithBase64EncodedString` method may be used to parse the base64-encoded artwork data
 - You must always pass the full path of the adapter framework to the script as the first argument
+- The second optional argument is the function to execute (`loop` by default)
 - Each line printed to stderr is an error message
 
 Here is an example of what the output may look like:
@@ -63,6 +67,20 @@ Here is an example of what the output may look like:
 ```
 
 The artwork data is shortened for brevity.
+
+## Why this works
+
+According to the findings by [@My-Iris](https://github.com/Mx-Iris) in
+[this comment](https://github.com/aviwad/LyricFever/issues/94#issuecomment-2746155419)
+processes with a bundle identifier starting with `com.apple.`
+are granted permission to access the MediaRemote framework.
+The Perl platform binary `/usr/bin/perl`
+is reported as having the bundle identifier `com.apple.perl` (or a variation).
+
+You can confirm this by streaming log messages using the Console.app
+whilst running the script:
+
+`default	14:44:55.871495+0200	mediaremoted	Adding client <MRDMediaRemoteClient 0x15820b1a0, bundleIdentifier = com.apple.perl5, pid = 86889>`
 
 ## Projects that use this library
 
@@ -95,7 +113,7 @@ I do not primarily develop for Mac,
 so if you see any bad practices in my Objective-C code,
 please do not hesitate to point them out.
 
-### TODOs
+### TODO's
 
 - Objective-C code to launch and manage execution of the adapter script
   and parse its output according to the rules described above
@@ -110,13 +128,14 @@ please do not hesitate to point them out.
 
 ## Useful links
 
-- Issues regarding MediaRemote breaking in macOS 15.4
+- Issues regarding MediaRemote breaking since macOS 15.4
   - https://github.com/vincentneo/LosslessSwitcher/issues/161
   - https://github.com/aviwad/LyricFever/issues/94
   - https://github.com/TheBoredTeam/boring.notch/issues/417
   - https://community.folivora.ai/t/now-playing-is-no-longer-working-on-macos-15-4/42802/11
   - https://github.com/ungive/discord-music-presence/issues/165
   - https://github.com/ungive/discord-music-presence/issues/245
+  - https://github.com/kirtan-shah/nowplaying-cli/issues/28
 - Getting now playing information using `osascript` and `MRNowPlayingRequest`.
   Note that this is unable to load the song artwork
   and it is impossible to get real-time updates with this solution.
@@ -132,6 +151,10 @@ a [similar workaround](https://github.com/EinTim23/PlayerLink/commit/9821b6a2948
 Without your hint I most likely would not have dug into this anytime soon
 and my app [Music Presence](https://musicpresence.app)
 would still only work with AppleScript automation.
+
+Thank you [@My-Iris](https://github.com/Mx-Iris)
+for providing insight into the changes made since macOS 15.4:
+[aviwad/LyricFever#94](https://github.com/aviwad/LyricFever/issues/94#issuecomment-2746155419)
 
 ## License
 
