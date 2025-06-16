@@ -220,17 +220,21 @@ void loop(void) {
           NSLog(@"[ObjC] Debounced block executing. Getting now playing info.");
           MRMediaRemoteGetNowPlayingInfo(dispatch_get_main_queue(), ^(CFDictionaryRef information) {
               NSDictionary *nowPlayingInfo = (__bridge NSDictionary *)information;
-              if (nowPlayingInfo != nil) {
-                  NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
-                  NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
-                  appForNotification(notification, ^(NSRunningApplication *process) {
-                      data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
-                      data[(NSString *)kApplicationName] = process.localizedName;
-                  });
-                  printData(data);
-              } else {
-                  NSLog(@"[ObjC] Now playing info is nil.");
+
+              // If there's no information, or the dictionary is empty, do nothing.
+              // This prevents wiping the UI with an empty state.
+              if (nowPlayingInfo == nil || [nowPlayingInfo count] == 0) {
+                  NSLog(@"[ObjC] Now playing info is nil or empty. Ignoring.");
+                  return;
               }
+
+              NSLog(@"[ObjC] Now playing info is not nil. Converting and printing.");
+              NSMutableDictionary *data = convertNowPlayingInformation(nowPlayingInfo);
+              appForNotification(notification, ^(NSRunningApplication *process) {
+                  data[(NSString *)kBundleIdentifier] = process.bundleIdentifier;
+                  data[(NSString *)kApplicationName] = process.localizedName;
+              });
+              printData(data);
           });
       });
       
