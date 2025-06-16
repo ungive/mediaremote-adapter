@@ -3,7 +3,6 @@
 A Swift package for macOS that provides a robust, modern interface for controlling media playback and receiving track information, designed to work around the sandboxing and entitlement restrictions of the private `MediaRemote.framework`.
 
 ## How It Works
-
 This package uses a unique architecture to gain the necessary permissions for media control:
 
 1.  **Swift `MediaController`:** The public API you interact with in your app. It's a simple, modern Swift class.
@@ -12,6 +11,8 @@ This package uses a unique architecture to gain the necessary permissions for me
 4.  **Dynamic Loading:** At runtime, the Perl script dynamically loads the compiled Objective-C library, acting as a sandboxed bridge. It passes commands in from your app and streams track data back out over a pipe.
 
 This approach provides the power of the private framework with the safety and convenience of a modern Swift Package.
+
+<img src="https://github.com/user-attachments/assets/ddb17380-37fd-4b63-803e-b82f616db48d" alt="drawing" width="400"/>
 
 ## Installation
 
