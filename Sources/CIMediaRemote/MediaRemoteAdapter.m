@@ -131,6 +131,14 @@ convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
+    setValue((NSString *)kIsPlaying, ^id {
+        // Use the raw string value to avoid a linker error.
+        id playbackRate = information[@"MRMediaRemoteNowPlayingInfoPlaybackRate"];
+        if (playbackRate != nil && [playbackRate isKindOfClass:[NSNumber class]]) {
+            return @([playbackRate doubleValue] > 0.0);
+        }
+        return @(NO); // Default to not playing
+    });
 
     return data;
 }

@@ -8,6 +8,7 @@
 
 extern NSString *const kTitle;
 extern NSString *const kName;
+extern NSString *const kIsPlaying;
 extern NSString *const kArtist;
 extern NSString *const kAlbum;
 extern NSString *const kDurationMicros;
