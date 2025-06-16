@@ -52,12 +52,13 @@ build() {
     # Navigate back to the project root
     cd "$PROJECT_ROOT"
 
-    # Get the absolute path to the built framework
-    FRAMEWORK_PATH=$(realpath "$PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework")
-
     echo ""
     echo "✅ Build successful!"
-    echo "   MediaRemoteAdapter.framework is located at: $FRAMEWORK_PATH"
+    echo "   Framework: $PROJECT_ROOT/$BUILD_DIR/MediaRemoteAdapter.framework"
+    echo "   Test Harness: $PROJECT_ROOT/$BUILD_DIR/test/TestHarness"
+    echo ""
+    echo "To run the test harness, execute:"
+    echo "   /usr/bin/perl $PROJECT_ROOT/test/run_test.pl $PROJECT_ROOT/$BUILD_DIR/test/TestHarness"
 }
 
 # --- Main Script Logic ---

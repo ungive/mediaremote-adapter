@@ -43,3 +43,6 @@ add_custom_command(
     COMMAND codesign --force --deep --sign -
             $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
     COMMENT "Ad-hoc signing ${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework")
+
+# Add the test directory
+add_subdirectory(test)
