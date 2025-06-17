@@ -10,7 +10,7 @@
 #import "adapter/now_playing.h"
 #import "utility/helpers.h"
 
-#define GET_TIMEOUT_MILLIS 1000
+#define GET_TIMEOUT_MILLIS 2000
 #define JSON_NULL @"null"
 
 void adapter_get() {
