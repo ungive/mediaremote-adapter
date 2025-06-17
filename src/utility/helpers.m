@@ -48,9 +48,9 @@ NSString *serializeJsonSafe(id any) {
                                  encoding:NSUTF8StringEncoding];
 }
 
-void appForPID(int pid, void (^block)(NSRunningApplication *)) {
+bool appForPID(int pid, void (^block)(NSRunningApplication *)) {
     if (pid <= 0) {
-        return;
+        return false;
     }
     NSRunningApplication *process =
         [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
@@ -59,13 +59,14 @@ void appForPID(int pid, void (^block)(NSRunningApplication *)) {
             [NSString stringWithFormat:@"Failed to determine bundle identifier "
                                        @"for process with PID %d",
                                        pid]);
-        return;
+        return false;
     }
     if (process.bundleIdentifier == nil) {
         printErr([NSString
             stringWithFormat:
                 @"The bundle identifier for process with PID %d is nil", pid]);
-        return;
+        return false;
     }
     block(process);
+    return true;
 }

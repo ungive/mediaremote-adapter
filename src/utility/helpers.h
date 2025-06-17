@@ -17,6 +17,6 @@ void fail(NSString *message);
 NSString *formatError(NSError *error);
 NSString *serializeJsonSafe(id any);
 
-void appForPID(int pid, void (^block)(NSRunningApplication *));
+bool appForPID(int pid, void (^block)(NSRunningApplication *));
 
 #endif // MEDIAREMOTEADAPTER_UTILITY_HELPERS_H
