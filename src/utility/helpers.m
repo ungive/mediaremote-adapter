@@ -30,6 +30,15 @@ void fail(NSString *message) {
     exit(1);
 }
 
+void failf(NSString *format, ...) {
+    va_list args;
+    va_start(args, format);
+    NSString *formattedMessage = [[NSString alloc] initWithFormat:format
+                                                        arguments:args];
+    va_end(args);
+    fail(formattedMessage);
+}
+
 NSString *formatError(NSError *error) {
     return
         [NSString stringWithFormat:@"%@ (%@:%ld)", [error localizedDescription],

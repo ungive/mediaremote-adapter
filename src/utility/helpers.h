@@ -12,7 +12,9 @@
 void printOut(NSString *message);
 void printErr(NSString *message);
 void printErrf(NSString *format, ...);
+
 void fail(NSString *message);
+void failf(NSString *format, ...);
 
 NSString *formatError(NSError *error);
 NSString *serializeJsonSafe(id any);
