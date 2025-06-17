@@ -1,3 +1,5 @@
+// clang-format off
+
 #include <Foundation/Foundation.h>
 
 #include "MediaRemote.h"

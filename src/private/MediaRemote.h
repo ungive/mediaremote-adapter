@@ -1,3 +1,5 @@
+// clang-format off
+
 #ifndef MEDIAREMOTE_PRIVATE_H_
 #define MEDIAREMOTE_PRIVATE_H_
 
