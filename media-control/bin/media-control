@@ -14,7 +14,7 @@ my $script_path =
     'mediaremote-adapter.pl');
 my $framework_path = File::Spec->rel2abs(
     File::Spec->catdir(
-        $FindBin::Bin, '..', 'lib', 'MediaRemoteAdapter.framework'
+        $FindBin::Bin, '..', 'Frameworks', 'MediaRemoteAdapter.framework'
     )
 );
 
