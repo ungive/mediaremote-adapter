@@ -30,9 +30,9 @@ my $symbol = DynaLoader::dl_find_symbol($handle, "$symbol_name")
 DynaLoader::dl_install_xsub("main::$function_name", $symbol);
 
 eval {
-  no strict 'refs';
-  &{"main::$function_name"}();
+    no strict 'refs';
+    &{"main::$function_name"}();
 };
 if ($@) {
-  die "Error executing $function_name: $@\n";
+    die "Error executing $function_name: $@\n";
 }

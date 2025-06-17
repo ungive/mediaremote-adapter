@@ -3,5 +3,6 @@
         "*.h": "objective-c",
         "*.m": "objective-c"
     },
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "perltidy-more.profile": ".../.perltidyrc"
 }
