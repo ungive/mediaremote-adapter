@@ -4,5 +4,8 @@
         "*.m": "objective-c"
     },
     "editor.formatOnSave": true,
-    "perltidy-more.profile": ".../.perltidyrc"
+    "perltidy-more.profile": ".../.perltidyrc",
+    "cmake.configureArgs": [
+        "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/dist"
+    ]
 }
