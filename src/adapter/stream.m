@@ -124,8 +124,10 @@ extern void adapter_stream() {
                                   queue:g_dispatchQueue];
 
     void (^handle)() = ^{
-      if (liveData[kBundleIdentifier] != nil && liveData[kPlaying] != nil &&
-          liveData[kTitle] != nil) {
+      if (liveData[kBundleIdentifier] != nil &&
+          liveData[kBundleIdentifier] != [NSNull null] &&
+          liveData[kPlaying] != nil && liveData[kPlaying] != [NSNull null] &&
+          liveData[kTitle] != nil && liveData[kTitle] != [NSNull null]) {
           // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
           // liveData[kPlaying]);
           printData(liveData);
