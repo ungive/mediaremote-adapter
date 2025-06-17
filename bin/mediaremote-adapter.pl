@@ -21,8 +21,8 @@ die "Framework not found at $framework\n" unless -e $framework;
 my $handle = DynaLoader::dl_load_file($framework, 0)
   or die "Failed to load framework: $framework\n";
 my $function_name = $ARGV[1] // 'stream';
-die "Invalid function name: '$function_name'. Must be 'stream'.\n"
-  unless $function_name eq 'stream';
+die "Invalid function name: '$function_name'. Must be 'get' or 'stream'.\n"
+  unless $function_name eq 'get' || $function_name eq 'stream';
 
 my $symbol_name = "adapter_$function_name";
 my $symbol = DynaLoader::dl_find_symbol($handle, "$symbol_name")

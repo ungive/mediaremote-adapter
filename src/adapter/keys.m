@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
-#import "stream_payload_keys.h"
+#import "keys.h"
 
 NSArray<NSString *> *identifyingStreamPayloadKeys(void) {
     return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];

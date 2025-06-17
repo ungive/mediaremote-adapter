@@ -6,7 +6,12 @@
 
 #import <Foundation/Foundation.h>
 
+// Prints the current MediaRemote now playing information to stdout.
+// Data is encoded as a JSON dictionary or "null" when there is no information.
+extern void adapter_get();
+
 // Streams MediaRemote now playing updates to stdout.
+// Each update is printed on a separate lined, encoded as a JSON dictionary.
 // Exits when the process receives a SIGTERM signal.
 extern void adapter_stream();
 
