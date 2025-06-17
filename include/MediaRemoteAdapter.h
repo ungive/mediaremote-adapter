@@ -6,6 +6,11 @@
 
 #import <Foundation/Foundation.h>
 
+// Methods suffixed with "_env" read its parameters from the environment.
+// Parameters must have the format:
+// MEDIAREMOTEADAPTER_<FUNC_NAME>_<PARAM_INDEX>_<PARAM_NAME>
+// Example: MEDIAREMOTEADAPTER_adapter_send_0_command
+
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
 extern void adapter_get();
@@ -14,6 +19,9 @@ extern void adapter_get();
 // Each update is printed on a separate lined, encoded as a JSON dictionary.
 // Exits when the process receives a SIGTERM signal.
 extern void adapter_stream();
+
+extern void adapter_send(int command);
+extern void adapter_send_env();
 
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;

@@ -62,6 +62,41 @@ extern NSString *kMRMediaRemoteRouteStatusUserInfoKey;
 
 #pragma mark API
 
+typedef enum {
+    /*
+     * Use nil for userInfo.
+     */
+    kMRPlay = 0,
+    kMRPause = 1,
+    kMRTogglePlayPause = 2,
+    kMRStop = 3,
+    kMRNextTrack = 4,
+    kMRPreviousTrack = 5,
+    kMRToggleShuffle = 6,
+    kMRToggleRepeat = 7,
+    kMRStartForwardSeek = 8,
+    kMREndForwardSeek = 9,
+    kMRStartBackwardSeek = 10,
+    kMREndBackwardSeek = 11,
+    kMRGoBackFifteenSeconds = 12,
+    kMRSkipFifteenSeconds = 13,
+
+    /*
+     * Use a NSDictionary for userInfo, which contains three keys:
+     * kMRMediaRemoteOptionTrackID
+     * kMRMediaRemoteOptionStationID
+     * kMRMediaRemoteOptionStationHash
+     */
+    kMRLikeTrack = 0x6A,
+    kMRBanTrack = 0x6B,
+    kMRAddTrackToWishList = 0x6C,
+    kMRRemoveTrackFromWishList = 0x6D
+} MRCommand;
+
+extern CFStringRef MRMediaRemoteSendCommand;
+
+typedef bool (*MRMediaRemoteSendCommand_t)(MRCommand command, id userInfo);
+
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationPID;
@@ -92,6 +127,8 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @end
 
 @interface MediaRemote : NSObject
+// Commands
+@property(readonly) MRMediaRemoteSendCommand_t sendCommand;
 // Observers
 @property(readonly) MRMediaRemoteRegisterForNowPlayingNotifications_t registerForNowPlayingNotifications;
 @property(readonly) MRMediaRemoteUnregisterForNowPlayingNotifications_t unregisterForNowPlayingNotifications;

@@ -20,10 +20,12 @@ if(NOT MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS MATCHES "^[0-9]+$")
 endif()
 
 set(SOURCES
+    src/adapter/env.m
     src/adapter/get.m
     src/adapter/globals.m
     src/adapter/keys.m
     src/adapter/now_playing.m
+    src/adapter/send.m
     src/adapter/stream.m
     src/adapter/test.m
     src/private/MediaRemote.m

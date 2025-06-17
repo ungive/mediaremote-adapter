@@ -55,6 +55,8 @@ NSString *kMRMediaRemoteOptionStationHash = @"kMRMediaRemoteOptionStationHash";
 NSString *kMRMediaRemoteRouteDescriptionUserInfoKey = @"kMRMediaRemoteRouteDescriptionUserInfoKey";
 NSString *kMRMediaRemoteRouteStatusUserInfoKey = @"kMRMediaRemoteRouteStatusUserInfoKey";
 
+CFStringRef MRMediaRemoteSendCommand = CFSTR("MRMediaRemoteSendCommand");
+
 CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications = CFSTR("MRMediaRemoteRegisterForNowPlayingNotifications");
 CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications = CFSTR("MRMediaRemoteUnregisterForNowPlayingNotifications");
 CFStringRef MRMediaRemoteGetNowPlayingApplicationPID = CFSTR("MRMediaRemoteGetNowPlayingApplicationPID");
@@ -66,6 +68,7 @@ NSString *kMRNowPlayingClientUserInfoKey = @"kMRNowPlayingClientUserInfoKey";
 static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFrameworks/MediaRemote.framework";
 
 @implementation MediaRemote
+@synthesize sendCommand;
 @synthesize registerForNowPlayingNotifications;
 @synthesize unregisterForNowPlayingNotifications;
 @synthesize getNowPlayingApplicationPID;
@@ -81,6 +84,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     if (!bundle) {
         return nil;
     }
+    sendCommand = (MRMediaRemoteSendCommand_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSendCommand);
     registerForNowPlayingNotifications = (MRMediaRemoteRegisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteRegisterForNowPlayingNotifications);
     unregisterForNowPlayingNotifications = (MRMediaRemoteUnregisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteUnregisterForNowPlayingNotifications);
     getNowPlayingApplicationPID = (MRMediaRemoteGetNowPlayingApplicationPID_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationPID);
