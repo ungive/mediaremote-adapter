@@ -191,7 +191,7 @@ for providing insight into the changes made since macOS 15.4:
 
 ## License
 
-This file is licensed under the BSD 3-Clause License.
+This project is licensed under the BSD 3-Clause License.
 See [LICENSE](./LICENSE) for details.
 
 Copyright (c) 2025 Jonas van den Berg
