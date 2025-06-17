@@ -50,7 +50,7 @@ void adapter_get() {
         handle();
       });
       if (!ok) {
-          fail(@"Could not determine the now playing application");
+          handle();
       }
     });
 
