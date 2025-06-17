@@ -1,0 +1,22 @@
+// Copyright (c) 2025 Jonas van den Berg
+// This file is licensed under the BSD 3-Clause License.
+
+#ifndef MEDIAREMOTEADAPTER_UTILITY_HELPERS_H
+#define MEDIAREMOTEADAPTER_UTILITY_HELPERS_H
+
+#include <stdarg.h>
+
+#import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
+
+void printOut(NSString *message);
+void printErr(NSString *message);
+void printErrf(NSString *format, ...);
+void fail(NSString *message);
+
+NSString *formatError(NSError *error);
+NSString *serializeJsonSafe(id any);
+
+void appForPID(int pid, void (^block)(NSRunningApplication *));
+
+#endif // MEDIAREMOTEADAPTER_UTILITY_HELPERS_H

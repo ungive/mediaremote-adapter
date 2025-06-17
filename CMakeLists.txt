@@ -11,8 +11,14 @@ if(NOT MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS MATCHES "^[0-9]+$")
                         "got ${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS}")
 endif()
 
-set(SOURCES src/MediaRemoteAdapter.m src/MediaRemoteAdapterKeys.m
-            src/MediaRemote.m src/Debounce.m)
+set(SOURCES
+    src/adapter/globals.m
+    src/adapter/stream_payload_keys.m
+    src/adapter/stream.m
+    src/adapter/test.m
+    src/private/MediaRemote.m
+    src/utility/Debounce.m
+    src/utility/helpers.m)
 set(HEADERS include/MediaRemoteAdapter.h)
 
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")

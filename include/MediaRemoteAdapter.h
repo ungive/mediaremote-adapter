@@ -6,16 +6,9 @@
 
 #import <Foundation/Foundation.h>
 
-// Tests whether the process is entitled to use the MediaRemote framework.
-// Prints "1" to stdout when it is entitled and "0" otherwise.
-extern void test();
-
 // Streams MediaRemote now playing updates to stdout.
 // Exits when the process receives a SIGTERM signal.
-extern void loop();
-
-// Stops the any active calls to loop().
-extern void stop();
+extern void adapter_stream();
 
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;
@@ -27,5 +20,15 @@ extern NSString *kElapsedTimeMicros;
 extern NSString *kTimestampEpochMicros;
 extern NSString *kArtworkMimeType;
 extern NSString *kArtworkDataBase64;
+
+// PRIVATE API
+
+// Stops any active calls to stream().
+extern void _adapter_stream_cancel();
+
+// Tests whether the process is entitled to use the MediaRemote framework.
+// Prints "1" to stdout when it is entitled and "0" otherwise.
+// NOTE This does not work reliably yet.
+extern void _adapter_test();
 
 #endif // MEDIAREMOTEADAPTER_ADAPTER_H

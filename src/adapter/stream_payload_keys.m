@@ -1,7 +1,11 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
-#import "MediaRemoteAdapter.h"
+#import "stream_payload_keys.h"
+
+NSArray<NSString *> *identifyingStreamPayloadKeys(void) {
+    return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
+}
 
 NSString *kBundleIdentifier = @"bundleIdentifier";
 NSString *kPlaying = @"playing";

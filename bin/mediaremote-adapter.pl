@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Copyright (c) 2025 Jonas van den Berg
 # This file is licensed under the BSD 3-Clause License.
 
@@ -19,12 +20,13 @@ die "Framework not found at $framework\n" unless -e $framework;
 
 my $handle = DynaLoader::dl_load_file($framework, 0)
   or die "Failed to load framework: $framework\n";
-my $function_name = $ARGV[1] // 'loop';
-die "Invalid function name: '$function_name'. Must be 'loop' or 'test'.\n"
-  unless $function_name eq 'loop' || $function_name eq 'test';
+my $function_name = $ARGV[1] // 'stream';
+die "Invalid function name: '$function_name'. Must be 'stream'.\n"
+  unless $function_name eq 'stream';
 
-my $symbol = DynaLoader::dl_find_symbol($handle, $function_name)
-  or die "Symbol '$function_name' not found in $framework\n";
+my $symbol_name = "adapter_$function_name";
+my $symbol = DynaLoader::dl_find_symbol($handle, "$symbol_name")
+  or die "Symbol '$symbol_name' not found in $framework\n";
 DynaLoader::dl_install_xsub("main::$function_name", $symbol);
 
 eval {

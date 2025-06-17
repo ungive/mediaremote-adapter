@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
-#ifndef MEDIAREMOTEADAPTER_DEBOUNCE
-#define MEDIAREMOTEADAPTER_DEBOUNCE
+#ifndef MEDIAREMOTEADAPTER_UTILITY_DEBOUNCE_H
+#define MEDIAREMOTEADAPTER_UTILITY_DEBOUNCE_H
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
@@ -20,4 +20,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif // MEDIAREMOTEADAPTER_DEBOUNCE
+#endif // MEDIAREMOTEADAPTER_UTILITY_DEBOUNCE_H
