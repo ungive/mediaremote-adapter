@@ -7,10 +7,10 @@ use warnings;
 use FindBin;
 use File::Spec;
 
-die "Usage: $0 stream\n" unless @ARGV == 1;
+die "Usage: $0 [get|stream]\n" unless @ARGV == 1;
 
 my $script_path =
-  File::Spec->catfile($FindBin::Bin, '..', 'libexec', 'bin',
+  File::Spec->catfile($FindBin::Bin, '..', 'lib', 'media-control',
     'mediaremote-adapter.pl');
 my $framework_path = File::Spec->rel2abs(
     File::Spec->catdir(
