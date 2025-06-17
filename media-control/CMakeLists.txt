@@ -16,12 +16,7 @@ set(LIBEXEC_BIN "${OUT_DIR}/libexec/bin")
 set(LIB_DIR "${OUT_DIR}/lib")
 get_filename_component(ADAPTER_FRAMEWORK_DIRNAME "${ADAPTER_FRAMEWORK_PATH}"
                        NAME)
-add_custom_target(
-    media_control_dist ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${BIN_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${LIBEXEC_BIN}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${LIB_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E copy "${BINARY}" "${BIN_DIR}/"
-    COMMAND ${CMAKE_COMMAND} -E copy "${ADAPTER_SCRIPT}" "${LIBEXEC_BIN}/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ADAPTER_FRAMEWORK_PATH}"
-            "${LIB_DIR}/${ADAPTER_FRAMEWORK_DIRNAME}")
+
+install(PROGRAMS "${BINARY}" DESTINATION "${BIN_DIR}")
+install(PROGRAMS "${ADAPTER_SCRIPT}" DESTINATION "${LIBEXEC_BIN}")
+install(DIRECTORY "${ADAPTER_FRAMEWORK_PATH}" DESTINATION "${LIB_DIR}")

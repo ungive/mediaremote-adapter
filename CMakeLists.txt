@@ -67,7 +67,3 @@ set(ADAPTER_FRAMEWORK_PATH
     CACHE PATH "Path to built adapter framework")
 
 add_subdirectory(media-control)
-add_dependencies(media_control_dist MediaRemoteAdapter)
-
-add_custom_target(media_control ALL COMMENT "Building media-control tool")
-add_dependencies(media_control media_control_dist)
