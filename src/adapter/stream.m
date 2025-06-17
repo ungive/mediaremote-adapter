@@ -124,10 +124,15 @@ extern void adapter_stream() {
                                   queue:g_dispatchQueue];
 
     void (^handle)() = ^{
-      if (liveData[kBundleIdentifier] != nil &&
-          liveData[kBundleIdentifier] != [NSNull null] &&
-          liveData[kPlaying] != nil && liveData[kPlaying] != [NSNull null] &&
-          liveData[kTitle] != nil && liveData[kTitle] != [NSNull null]) {
+      NSArray<NSString *> *keys = mandatoryStreamPayloadKeys();
+      bool allPresent = true;
+      for (NSString *key in keys) {
+          if (liveData[key] == nil || liveData[key] == [NSNull null]) {
+              allPresent = false;
+              break;
+          }
+      }
+      if (allPresent) {
           // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
           // liveData[kPlaying]);
           printData(liveData);

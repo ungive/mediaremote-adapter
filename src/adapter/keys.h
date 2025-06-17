@@ -6,6 +6,9 @@
 
 #import <Foundation/Foundation.h>
 
+// These keys are mandatory and must never be null, empty or missing.
+NSArray<NSString *> *mandatoryStreamPayloadKeys(void);
+
 // These keys identify a now playing item uniquely.
 NSArray<NSString *> *identifyingStreamPayloadKeys(void);
 
