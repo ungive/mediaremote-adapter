@@ -4,3 +4,4 @@ notes
 CMakePresets.json
 .cache
 todo*.txt
+dist
