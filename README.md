@@ -32,6 +32,15 @@ which is entitled to use the MediaRemote framework
 and by dynamically loading a custom helper framework
 that prints real-time updates to stdout.
 
+## Try it now
+
+```sh
+$ brew tap ungive/media-control
+$ brew install media-control
+$ media-control get     # Get now playing information once
+$ media-control stream  # Stream updates in real-time
+```
+
 ## Features
 
 - Minimal and simple API:
@@ -49,7 +58,7 @@ that prints real-time updates to stdout.
 - Optional debounce delay to prevent bursts of small updates
   (the default is 100ms)
 
-## Usage
+## Build from source
 
 ```
 $ git clone https://github.com/ungive/mediaremote-adapter.git
