@@ -26,7 +26,7 @@ set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
 add_library(MediaRemoteAdapter SHARED ${SOURCES})
 
 if(NOT "${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS}" STREQUAL "0")
-    message("Compiling framework with a debounce delay of "
+    message("Compiling adapter framework with a debounce delay of "
             "${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS} milliseconds")
     target_compile_definitions(
         MediaRemoteAdapter
@@ -62,4 +62,12 @@ add_custom_command(
             $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
     COMMENT "Ad-hoc signing ${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework")
 
-# TODO make debounce optional and configurable with CMake
+set(ADAPTER_FRAMEWORK_PATH
+    "${CMAKE_CURRENT_BINARY_DIR}/${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework"
+    CACHE PATH "Path to built adapter framework")
+
+add_subdirectory(media-control)
+add_dependencies(media_control_dist MediaRemoteAdapter)
+
+add_custom_target(media_control ALL COMMENT "Building media-control tool")
+add_dependencies(media_control media_control_dist)

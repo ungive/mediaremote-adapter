@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# Copyright (c) 2025 Jonas van den Berg
+# This file is licensed under the BSD 3-Clause License.
+
+use strict;
+use warnings;
+use FindBin;
+use File::Spec;
+
+die "Usage: $0 stream\n" unless @ARGV == 1;
+
+my $script_path =
+  File::Spec->catfile($FindBin::Bin, '..', 'libexec', 'bin',
+    'mediaremote-adapter.pl');
+my $framework_path = File::Spec->rel2abs(
+    File::Spec->catdir(
+        $FindBin::Bin, '..', 'lib', 'MediaRemoteAdapter.framework'
+    )
+);
+
+# TODO extend for more commands in the future
+my $command = $ARGV[0];
+
+exec $^X, $script_path, $framework_path, $command
+  or die "Failed to exec $script_path: $!";
