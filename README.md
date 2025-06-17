@@ -37,8 +37,10 @@ that prints real-time updates to stdout.
 ```sh
 $ brew tap ungive/media-control
 $ brew install media-control
-$ media-control get     # Get now playing information once
-$ media-control stream  # Stream updates in real-time
+$ media-control get                # Get now playing information once
+$ media-control stream             # Stream now playing updates in real-time
+$ media-control toggle-play-pause  # Toggle playback
+$ media-control                    # Print help
 ```
 
 ## Features
