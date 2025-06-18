@@ -43,6 +43,9 @@ $ media-control toggle-play-pause  # Toggle playback
 $ media-control                    # Print help
 ```
 
+For advanced usage examples,
+read the CLI documentation [here](./media-control/README.md).
+
 ## Features
 
 - Minimal and simple API:
