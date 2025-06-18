@@ -51,6 +51,11 @@ Metadata:
   get     Read now playing information once
   stream  Stream updates to now playing information
 
+Options:
+  stream
+    --no-diff     Disable diffing and always dump all metadata
+    --debounce=N  Delay in milliseconds to prevent spam (0 by default)
+
 HELP
   my $commands_title = "Commands:";
   my $description_title = "";
