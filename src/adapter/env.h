@@ -6,6 +6,8 @@
 
 #import <Foundation/Foundation.h>
 
+NSString *getEnvValue(NSString *name);
+
 NSString *getEnvFuncParam(NSString *func_name, int param_pos,
                           NSString *param_name);
 NSString *getEnvFuncParamSafe(NSString *func_name, int param_pos,
@@ -14,5 +16,8 @@ NSNumber *getEnvFuncParamInt(NSString *func_name, int param_pos,
                              NSString *param_name);
 int getEnvFuncParamIntSafe(NSString *func_name, int param_pos,
                            NSString *param_name);
+
+NSString *getEnvOption(NSString *option_name);
+NSNumber *getEnvOptionInt(NSString *option_name);
 
 #endif // MEDIAREMOTEADAPTER_ADAPTER_ENV_H

@@ -11,13 +11,6 @@ set(ADAPTER_VERSION
 
 set(MEDIAREMOTEADAPTER_FRAMEWORK_NAME "MediaRemoteAdapter"
     CACHE STRING "The output name of the adapter framework")
-set(MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS "100"
-    CACHE STRING "Delay until handling changed now playing information")
-
-if(NOT MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS MATCHES "^[0-9]+$")
-    message(FATAL_ERROR "The debounce delay must be a positive integer, "
-                        "got ${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS}")
-endif()
 
 set(SOURCES
     src/adapter/env.m
@@ -36,15 +29,6 @@ set(HEADERS include/MediaRemoteAdapter.h)
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
 
 add_library(MediaRemoteAdapter SHARED ${SOURCES})
-
-if(NOT "${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS}" STREQUAL "0")
-    message("Compiling adapter framework with a debounce delay of "
-            "${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS} milliseconds")
-    target_compile_definitions(
-        MediaRemoteAdapter
-        PRIVATE
-            "DEBOUNCE_DELAY_MILLIS=${MEDIAREMOTEADAPTER_DEBOUNCE_DELAY_MILLIS}")
-endif()
 
 set_target_properties(
     MediaRemoteAdapter

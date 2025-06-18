@@ -21,14 +21,17 @@ static NSNumber *parseIntegerOrNil(NSString *str) {
     }
 }
 
+NSString *getEnvValue(NSString *name) {
+    NSDictionary *env = [[NSProcessInfo processInfo] environment];
+    return env[name];
+}
+
 NSString *getEnvFuncParam(NSString *func_name, int param_pos,
                           NSString *param_name) {
     NSString *envVarName =
-        [NSString stringWithFormat:@"MEDIAREMOTEADAPTER_%@_%d_%@", func_name,
-                                   param_pos, param_name];
-    NSDictionary *env = [[NSProcessInfo processInfo] environment];
-    NSString *value = env[envVarName];
-    return value;
+        [NSString stringWithFormat:@"MEDIAREMOTEADAPTER_PARAM_%@_%d_%@",
+                                   func_name, param_pos, param_name];
+    return getEnvValue(envVarName);
 }
 
 NSString *getEnvFuncParamSafe(NSString *func_name, int param_pos,
@@ -69,4 +72,14 @@ int getEnvFuncParamIntSafe(NSString *func_name, int param_pos,
               param_name, func_name, param_pos, raw);
     }
     return [result intValue];
+}
+
+NSString *getEnvOption(NSString *option_name) {
+    NSString *envVarName = [NSString
+        stringWithFormat:@"MEDIAREMOTEADAPTER_OPTION_%@", option_name];
+    return getEnvValue(envVarName);
+}
+
+NSNumber *getEnvOptionInt(NSString *option_name) {
+    return parseIntegerOrNil(getEnvOption(option_name));
 }

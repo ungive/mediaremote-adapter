@@ -6,6 +6,7 @@
 #import <Foundation/Foundation.h>
 
 #import "MediaRemoteAdapter.h"
+#import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
@@ -110,13 +111,11 @@ static void appForNotification(NSNotification *notification,
 
 extern void adapter_stream() {
 
-    static const int debounce_delay_millis = (DEBOUNCE_DELAY_MILLIS);
-#ifndef NDEBUG
-    if (debounce_delay_millis > 0) {
-        // NSLog(@"Using a debounce delay of %d milliseconds",
-        //       debounce_delay_millis);
+    int debounce_delay_millis = 0;
+    NSNumber *debounce_option = getEnvOptionInt(@"debounce");
+    if (debounce_option != nil) {
+        debounce_delay_millis = [debounce_option intValue];
     }
-#endif // !NDEBUG
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block Debounce *debounce =
@@ -305,6 +304,8 @@ extern void adapter_stream() {
     [shared_workscape_notification_center
         removeObserver:app_termination_observer];
 }
+
+extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
     if (g_runLoop) {

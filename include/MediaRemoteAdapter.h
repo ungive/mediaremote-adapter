@@ -19,6 +19,7 @@ extern void adapter_get();
 // Each update is printed on a separate lined, encoded as a JSON dictionary.
 // Exits when the process receives a SIGTERM signal.
 extern void adapter_stream();
+extern void adapter_stream_env();
 
 extern void adapter_send(int command);
 extern void adapter_send_env();
