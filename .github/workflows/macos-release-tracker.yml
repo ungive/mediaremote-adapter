@@ -3,6 +3,7 @@ name: macOS Release Tracker
 on:
   schedule:
     - cron: '*/5 * * * *' # every 8 hours
+  workflow_dispatch:
 
 jobs:
   check-macos-releases:
