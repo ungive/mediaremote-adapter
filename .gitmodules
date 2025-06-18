@@ -1,0 +1,3 @@
+[submodule ".github/workflows/macos-release-tracker"]
+	path = .github/workflows/macos-release-tracker
+	url = https://github.com/ungive/github-macos-release-tracker.git
