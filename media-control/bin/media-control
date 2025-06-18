@@ -91,6 +91,7 @@ HELP
   print <<"HELP";
 
 HELP
+  exit;
 }
 
 sub has_command_id {
@@ -105,80 +106,59 @@ sub has_command_id {
 
 sub fail {
   my ($message) = @_;
-  print STDERR "Error: $message\n";
+  print STDERR "$message\n";
   exit 1;
-}
-
-sub fail_if {
-  my ($more) = @_;
-  if (defined $more) {
-    fail "Too many arguments";
-  }
 }
 
 sub delegate {
   my $name = shift;
-  my $id = shift;
   my @args = ($script_path, $framework_path, $name);
-  push @args, $id if defined $id;
-  exec $^X, @args or die "Failed to execute $script_path: $!";
-  exit 0;
-}
-
-sub parse_command {
-  my $command = shift;
-  my $id = shift;
-  my $more = shift;
-  if ($command eq 'get') {
-    fail_if($id);
-    delegate($command);
-  }
-  elsif ($command eq 'stream') {
-    fail_if($id);
-    delegate($command);
-  }
-  elsif ($command eq 'send') {
-    if (defined $id) {
-      if (has_command_id($id)) {
-        fail_if($more);
-        delegate($command, $id);
-      }
-      else {
-        fail "Unknown ID: $id";
-      }
-    }
-    else {
-      fail "Missing ID for command '$command'";
-    }
-  }
-  else {
-    my $found = 0;
-    foreach my $cmd (@command_list) {
-      my $command_id = $cmd->{id};
-      if ($cmd->{name} eq $command && defined $command_id) {
-        $found = 1;
-        fail_if($id);
-        delegate("send", $command_id);
-      }
-    }
-    if (!$found) {
-      fail "Unknown command '$command'\n";
-    }
-  }
+  exec $^X, @args, @_, @ARGV
+    or die "Failed to execute $script_path: $!";
+  exit 1;
 }
 
 my $command = shift @ARGV or print_help() and exit;
-my $id = shift @ARGV;
-my $more = shift @ARGV;
-if (defined $id && $id !~ /^0$/) {
-  $id =~ s/^0+//;
-}
-if (defined $id && $id !~ /^\d+$/) {
-  fail "'$id' is not a valid ID";
-}
 if ($command eq 'help') {
   print_help();
-  exit;
 }
-
-parse_command($command, $id, $more);
+elsif ($command eq 'stream') {
+  delegate($command);
+}
+elsif ($command eq 'get') {
+  delegate($command);
+}
+elsif ($command eq 'send') {
+  my $id = shift @ARGV;
+  if (defined $id && $id !~ /^0$/) {
+    $id =~ s/^0+//;
+  }
+  if (defined $id && $id !~ /^\d+$/) {
+    fail "'$id' is not a valid command ID";
+  }
+  if (defined $id) {
+    if (has_command_id($id)) {
+      print("$command $id\n");
+      delegate($command, $id);
+    }
+    else {
+      fail "Unknown command ID: $id";
+    }
+  }
+  else {
+    fail "Missing ID for command '$command'";
+  }
+}
+else {
+  my $found = 0;
+  foreach my $cmd (@command_list) {
+    my $command_id = $cmd->{id};
+    if ($cmd->{name} eq $command && defined $command_id) {
+      $found = 1;
+      delegate("send", $command_id);
+    }
+  }
+  if (!$found) {
+    fail "Unknown command '$command'\n";
+  }
+}
