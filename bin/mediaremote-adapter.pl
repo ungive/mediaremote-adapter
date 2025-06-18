@@ -2,6 +2,19 @@
 # Copyright (c) 2025 Jonas van den Berg
 # This file is licensed under the BSD 3-Clause License.
 
+# Usage:
+#   mediaremote-adapter.pl FRAMEWORK_PATH [FUNCTION [PARAMS...]]
+#
+# FRAMEWORK_PATH:
+#   Absolute (!) path to MediaRemoteAdapter.framework
+# FUNCTION:
+#   stream (default): Streams now playing information as diffs
+#   get: Prints now playing information once with all available metadata
+#   send: Sends a command to the now playing application
+# PARAMS:
+#   send(command)
+#     command: The MRCommand ID as a number (e.g. kMRPlay = 0)
+
 use strict;
 use warnings;
 use DynaLoader;
@@ -22,8 +35,8 @@ my $handle = DynaLoader::dl_load_file($framework, 0)
   or die "Failed to load framework: $framework\n";
 my $function_name = $ARGV[1] // 'stream';
 die "Invalid function name: '$function_name'\n"
-  unless $function_name eq 'get'
-  || $function_name eq 'stream'
+  unless $function_name eq 'stream'
+  || $function_name eq 'get'
   || $function_name eq 'send';
 
 my $symbol_name = "adapter_$function_name";
