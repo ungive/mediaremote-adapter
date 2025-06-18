@@ -5,3 +5,4 @@ CMakePresets.json
 .cache
 todo*.txt
 dist
+perltidy.ERR
