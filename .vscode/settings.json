@@ -7,5 +7,12 @@
     "perltidy-more.profile": ".../.perltidyrc",
     "cmake.configureArgs": [
         "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/dist"
-    ]
+    ],
+    "markdown.extension.toc.levels": "3..6",
+    "markdown.extension.toc.omittedFromToc": {
+        "media-control/README.md": [
+            "## Installation and basic usage",
+            "## Overview"
+        ]
+    }
 }
