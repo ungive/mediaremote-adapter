@@ -63,8 +63,6 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
     return [diff copy];
 }
 
-static NSDictionary *previousData = nil;
-
 static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     NSArray<NSString *> *keys = identifyingStreamPayloadKeys();
     for (NSString *key in keys) {
@@ -80,21 +78,28 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     return true;
 }
 
-static void printData(NSDictionary *data) {
+static NSDictionary *previousData = nil;
+
+static void printData(NSDictionary *data, bool diff) {
     NSArray<NSString *> *diffKeys = identifyingStreamPayloadKeys();
     NSString *serialized = nil;
-    if (previousData != nil && isSameItemIdentity(previousData, data)) {
-        NSDictionary *diff = createDiff(previousData, data);
-        if ([diff count] == 0) {
+    if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
+        NSDictionary *result = createDiff(previousData, data);
+        if ([result count] == 0) {
             return;
         }
-        serialized = serializeData(diff, true);
+        serialized = serializeData(result, true);
     } else {
         serialized = serializeData(data, false);
     }
     if (serialized != nil) {
-        previousData = [data copy];
+        if (diff) {
+            previousData = [data copy];
+        }
         printOut(serialized);
+    }
+    if (!diff) {
+        previousData = nil;
     }
 }
 
@@ -117,10 +122,17 @@ extern void adapter_stream() {
         debounce_delay_millis = [debounce_option intValue];
     }
 
+    NSString *no_diff_option = getEnvOption(@"no_diff");
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-    __block Debounce *debounce =
+    __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_dispatchQueue];
+    __block const bool no_diff = no_diff_option != nil;
+
+    void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
+      printData(data, !no_diff);
+    };
 
     void (^handle)() = ^{
       NSArray<NSString *> *keys = mandatoryStreamPayloadKeys();
@@ -134,14 +146,14 @@ extern void adapter_stream() {
       if (allPresent) {
           // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
           // liveData[kPlaying]);
-          printData(liveData);
+          localPrintData(liveData);
       }
     };
 
     void (^requestNowPlayingApplicationPID)() = ^{
       g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
         if (pid == 0) {
-            printData([NSMutableDictionary dictionary]);
+            localPrintData([NSMutableDictionary dictionary]);
             return;
         }
         appForPID(pid, ^(NSRunningApplication *process) {
