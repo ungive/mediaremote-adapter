@@ -33,20 +33,26 @@ use DynaLoader;
 use File::Spec;
 use File::Basename;
 
-die "Framework path not provided" unless @ARGV >= 1;
+sub fail {
+  my ($error) = @_;
+  print STDERR "$error\n";
+  exit 1;
+}
 
-my $framework_path = $ARGV[0];
+fail "Framework path not provided" unless @ARGV >= 1;
+
+my $framework_path = shift @ARGV;
 my $framework_basename = File::Basename::basename($framework_path);
-die "Provided path is not a framework: $framework_path\n"
+fail "Provided path is not a framework: $framework_path\n"
   unless $framework_basename =~ s/\.framework$//;
 
 my $framework = File::Spec->catfile($framework_path, $framework_basename);
-die "Framework not found at $framework\n" unless -e $framework;
+fail "Framework not found at $framework\n" unless -e $framework;
 
 my $handle = DynaLoader::dl_load_file($framework, 0)
-  or die "Failed to load framework: $framework\n";
-my $function_name = $ARGV[1] // "stream";
-die "Invalid function name: '$function_name'\n"
+  or fail "Failed to load framework: $framework\n";
+my $function_name = shift @ARGV || "stream";
+fail "Invalid function name: '$function_name'\n"
   unless $function_name eq "stream"
   || $function_name eq "get"
   || $function_name eq "send";
@@ -54,15 +60,20 @@ die "Invalid function name: '$function_name'\n"
 sub parse_options {
   my ($start_index) = @_;
   my %arg_map;
-  for my $i ($start_index .. $#ARGV) {
+  my $i = $start_index;
+  while ($i <= $#ARGV) {
     my $arg = $ARGV[$i];
     if ($arg =~ /^--([a-z\\-]+)(?:=(.*))?$/) {
       my $key = $1;
-      my $value = $2 || undef;
+      my $value = defined $2 ? $2 : undef;
       $arg_map{$key} = $value;
+      splice @ARGV, $i, 1;
+    }
+    else {
+      $i++;
     }
   }
-  return \%arg_map;  # Return a reference to the hash
+  return \%arg_map;
 }
 
 sub env_func {
@@ -75,33 +86,59 @@ sub set_env_param {
   $ENV{"MEDIAREMOTEADAPTER_PARAM_${func}_${index}_${name}"} = "$value";
 }
 
-sub set_env_option {
+sub set_env_option_unsafe {
   my ($name, $value) = @_;
+  $name =~ s/-/_/g;
   $ENV{"MEDIAREMOTEADAPTER_OPTION_${name}"} = defined $value ? "$value" : "";
+}
+
+sub set_env_option {
+  my ($options, $key) = @_;
+  my $value = $options->{$key};
+  if (defined $value) {
+    fail "Unexpected value for option '$key'";
+  }
+  set_env_option_unsafe($key, $value);
+}
+
+sub set_env_option_value {
+  my ($options, $key) = @_;
+  my $value = $options->{$key};
+  if (!defined $value) {
+    fail "Missing value for option '$key'";
+  }
+  set_env_option_unsafe($key, $value);
 }
 
 my $symbol_name = "adapter_$function_name";
 if ($function_name eq "send") {
-  my $id = $ARGV[2];
-  die "Missing ID for send command" unless defined $id;
+  my $id = shift @ARGV;
+  fail "Missing ID for send command" unless defined $id;
   set_env_param($symbol_name, 0, "command", "$id");
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "stream") {
-  my $options = parse_options(2);
+  my $options = parse_options(0);
   foreach my $key (keys %{$options}) {
-    if ($key eq "no-diff" && !defined $options->{$key}) {
-      set_env_option("no_diff");
+    if ($key eq "no-diff") {
+      set_env_option($options, $key);
     }
-    elsif ($key eq "debounce" && defined $options->{$key}) {
-      set_env_option("debounce", $options->{$key});
+    elsif ($key eq "debounce") {
+      set_env_option_value($options, $key);
+    }
+    else {
+      fail "Unrecognized option '$key'";
     }
   }
   $symbol_name = env_func($symbol_name);
 }
 
+if (defined shift @ARGV) {
+  fail "Too many arguments";
+}
+
 my $symbol = DynaLoader::dl_find_symbol($handle, "$symbol_name")
-  or die "Symbol '$symbol_name' not found in $framework\n";
+  or fail "Symbol '$symbol_name' not found in $framework\n";
 DynaLoader::dl_install_xsub("main::$function_name", $symbol);
 
 eval {
@@ -109,5 +146,5 @@ eval {
   &{"main::$function_name"}();
 };
 if ($@) {
-  die "Error executing $function_name: $@\n";
+  fail "Error executing $function_name: $@\n";
 }
