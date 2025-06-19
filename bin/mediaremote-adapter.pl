@@ -53,7 +53,7 @@ HELP
   exit 0;
 }
 
-if (!defined $ARGV[0]) {
+if (!defined $ARGV[1]) {
   print_help();
 }
 
