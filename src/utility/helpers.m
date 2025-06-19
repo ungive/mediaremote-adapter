@@ -119,9 +119,15 @@ NSString *serializeJsonDictionarySafe(NSDictionary *any) {
         NSCAssert(false, @"Cannot serialize nil as JSON");
         return JSON_NULL;
     }
-    NSError *error;
     any = sanitizeDictionaryForJsonEncoding(any);
+    if (any == nil) {
+        NSCAssert(false, @"Sanitized JSON dictionary is nil");
+        return JSON_NULL;
+    }
+    NSCAssert([NSJSONSerialization isValidJSONObject:any],
+              @"Sanitized JSON dictionary is not a valid JSON object");
     @try {
+        NSError *error;
         NSData *serialized = [NSJSONSerialization dataWithJSONObject:any
                                                              options:0
                                                                error:&error];
