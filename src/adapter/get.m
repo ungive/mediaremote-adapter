@@ -5,6 +5,7 @@
 #import <dispatch/dispatch.h>
 
 #import "MediaRemoteAdapter.h"
+#import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
@@ -14,6 +15,9 @@
 #define JSON_NULL @"null"
 
 void adapter_get() {
+
+    NSString *micros_option = getEnvOption(@"micros");
+    __block const bool convert_micros = micros_option != nil;
 
     id semaphore = dispatch_semaphore_create(0);
 
@@ -62,7 +66,8 @@ void adapter_get() {
 
     g_mediaRemote.getNowPlayingInfo(
         g_dispatchQueue, ^(NSDictionary *information) {
-          NSDictionary *converted = convertNowPlayingInformation(information);
+          NSDictionary *converted =
+              convertNowPlayingInformation(information, convert_micros);
           [liveData addEntriesFromDictionary:converted];
           handle();
         });
@@ -78,3 +83,5 @@ void adapter_get() {
     }
     dispatch_release(semaphore);
 }
+
+extern void adapter_get_env() { adapter_get(); }

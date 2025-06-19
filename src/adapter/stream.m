@@ -112,11 +112,14 @@ extern void adapter_stream() {
 
     NSString *no_diff_option = getEnvOption(@"no_diff");
 
+    NSString *micros_option = getEnvOption(@"micros");
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_dispatchQueue];
     __block const bool no_diff = no_diff_option != nil;
+    __block const bool convert_micros = micros_option != nil;
 
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
       printData(data, !no_diff);
@@ -156,7 +159,7 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingInfo(g_dispatchQueue, ^(
                                           NSDictionary *information) {
         NSMutableDictionary *converted =
-            convertNowPlayingInformation(information);
+            convertNowPlayingInformation(information, convert_micros);
         // Transfer anything over from the existing live data.
         if (liveData[kMRABundleIdentifier] != nil) {
             converted[kMRABundleIdentifier] = liveData[kMRABundleIdentifier];

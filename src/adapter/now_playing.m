@@ -20,7 +20,8 @@ void waitForCommandCompletion() {
     dispatch_release(semaphore);
 }
 
-NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
+NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
+                                                  bool convertMicros) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
@@ -51,34 +52,43 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
     setKey(kMRATitle, kMRMediaRemoteNowPlayingInfoTitle);
     setKey(kMRAArtist, kMRMediaRemoteNowPlayingInfoArtist);
     setKey(kMRAAlbum, kMRMediaRemoteNowPlayingInfoAlbum);
-    setValue(kMRADurationMicros, ^id {
-      id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
-      if (duration != nil) {
-          NSTimeInterval durationMicros = [duration doubleValue] * 1000 * 1000;
-          return @(floor(durationMicros));
-      }
-      return nil;
-    });
-    setValue(kMRAElapsedTimeMicros, ^id {
-      id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
-      if (elapsedTime != nil) {
-          NSTimeInterval elapsedTimeMicros =
-              [elapsedTime doubleValue] * 1000 * 1000;
-          return @(floor(elapsedTimeMicros));
-      }
-      return nil;
-    });
-    setValue(kMRATimestampEpochMicros, ^id {
-      NSDate *timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
-      if (timestamp != nil) {
-          NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
-          NSTimeInterval timestampEpochMicro = timestampEpoch * 1000 * 1000;
-          return @(floor(timestampEpochMicro));
-      }
-      return nil;
-    });
     setKey(kMRAArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
     setKey(kMRAArtworkData, kMRMediaRemoteNowPlayingInfoArtworkData);
+
+    if (!convertMicros) {
+        setKey(kMRADuration, kMRMediaRemoteNowPlayingInfoDuration);
+        setKey(kMRAElapsedTime, kMRMediaRemoteNowPlayingInfoElapsedTime);
+        setKey(kMRATimestamp, kMRMediaRemoteNowPlayingInfoTimestamp);
+    } else {
+        setValue(kMRADurationMicros, ^id {
+          id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
+          if (duration != nil) {
+              NSTimeInterval durationMicros =
+                  [duration doubleValue] * 1000 * 1000;
+              return @(floor(durationMicros));
+          }
+          return nil;
+        });
+        setValue(kMRAElapsedTimeMicros, ^id {
+          id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+          if (elapsedTime != nil) {
+              NSTimeInterval elapsedTimeMicros =
+                  [elapsedTime doubleValue] * 1000 * 1000;
+              return @(floor(elapsedTimeMicros));
+          }
+          return nil;
+        });
+        setValue(kMRATimestampEpochMicros, ^id {
+          NSDate *timestamp =
+              information[kMRMediaRemoteNowPlayingInfoTimestamp];
+          if (timestamp != nil) {
+              NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
+              NSTimeInterval timestampEpochMicro = timestampEpoch * 1000 * 1000;
+              return @(floor(timestampEpochMicro));
+          }
+          return nil;
+        });
+    }
 
     // Some of the following keys might fail due to not being convertible
     // to JSON automatically. This is difficult to test because most media

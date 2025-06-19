@@ -8,12 +8,16 @@
 NSString *kMRABundleIdentifier = @"bundleIdentifier";
 NSString *kMRAPlaying = @"playing";
 
-NSString *kMRATitle = @"title";
-NSString *kMRAArtist = @"artist";
-NSString *kMRAAlbum = @"album";
 NSString *kMRADurationMicros = @"durationMicros";
 NSString *kMRAElapsedTimeMicros = @"elapsedTimeMicros";
 NSString *kMRATimestampEpochMicros = @"timestampEpochMicros";
+
+NSString *kMRATitle = @"title";
+NSString *kMRAArtist = @"artist";
+NSString *kMRAAlbum = @"album";
+NSString *kMRADuration = @"duration";
+NSString *kMRAElapsedTime = @"elapsedTime";
+NSString *kMRATimestamp = @"timestamp";
 NSString *kMRAArtworkMimeType = @"artworkMimeType";
 NSString *kMRAArtworkData = @"artworkData";
 

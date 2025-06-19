@@ -14,12 +14,16 @@
 extern NSString *kMRABundleIdentifier;
 extern NSString *kMRAPlaying;
 
-extern NSString *kMRATitle;
-extern NSString *kMRAArtist;
-extern NSString *kMRAAlbum;
 extern NSString *kMRADurationMicros;
 extern NSString *kMRAElapsedTimeMicros;
 extern NSString *kMRATimestampEpochMicros;
+
+extern NSString *kMRATitle;
+extern NSString *kMRAArtist;
+extern NSString *kMRAAlbum;
+extern NSString *kMRADuration;
+extern NSString *kMRAElapsedTime;
+extern NSString *kMRATimestamp;
 extern NSString *kMRAArtworkMimeType;
 extern NSString *kMRAArtworkData;
 
@@ -53,6 +57,7 @@ extern NSString *kMRARadioStationHash;
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
 extern void adapter_get();
+extern void adapter_get_env();
 
 // Streams MediaRemote now playing updates to stdout.
 // Each update is printed on a separate lined, encoded as a JSON dictionary.

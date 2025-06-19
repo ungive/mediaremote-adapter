@@ -43,6 +43,11 @@ OPTIONS:
   stream
     --no-diff: Disable diffing and always dump all metadata
     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
+  get, stream
+    --micros: Replaces the following time keys with microsecond equivalents
+      duration -> durationMicros
+      elapsedTime -> elapsedTimeMicros
+      timestamp -> timestampEpochMicros (converted to epoch time)
 
 Examples (script name and framework path omitted):
   stream --no-diff --debounce=100
@@ -153,6 +158,21 @@ elsif ($function_name eq "stream") {
     }
     elsif ($key eq "debounce") {
       set_env_option_value($options, $key);
+    }
+    elsif ($key eq "micros") {
+      set_env_option($options, $key);
+    }
+    else {
+      fail "Unrecognized option '$key'";
+    }
+  }
+  $symbol_name = env_func($symbol_name);
+}
+elsif ($function_name eq "get") {
+  my $options = parse_options(0);
+  foreach my $key (keys %{$options}) {
+    if ($key eq "micros") {
+      set_env_option($options, $key);
     }
     else {
       fail "Unrecognized option '$key'";
