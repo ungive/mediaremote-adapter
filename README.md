@@ -328,6 +328,12 @@ to read now playing information and control media playback on the device
   for showing what you are listening to in your Discord status.
   It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
   to detect media from all media players again.
+- [media-control](https://github.com/ungive/media-control)
+  is a CLI tool to control and observe media playback on any macOS version.
+  You can install it directly via brew: `$ brew tap ungive/media-control && brew install media-control`
+
+*If you use this library in your project, please
+[let me know](https://github.com/ungive/mediaremote-adapter/issues)!*
 
 ## Useful links
 
