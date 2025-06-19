@@ -65,7 +65,7 @@ long getEnvFuncParamLongSafe(NSString *func_name, int param_pos,
               @"function '%@' at position %d is not an integer: '%@'",
               param_name, func_name, param_pos, raw);
     }
-    if ([raw length] > [[NSString stringWithFormat:@"%ld", LONG_MAX] length]) {
+    if ([result longLongValue] > [result longValue]) {
         failf(@"Parameter '%@' for "
               @"function '%@' at position %d is too large to fit into a "
               @"long integer: %@",
