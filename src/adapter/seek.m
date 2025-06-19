@@ -12,7 +12,7 @@
 #import "adapter/now_playing.h"
 #import "utility/helpers.h"
 
-void adapter_seek(int position) {
+void adapter_seek(long position) {
 
     if (position < 0) {
         failf(@"Negative values are not allowed: %d", position);
@@ -26,8 +26,8 @@ void adapter_seek(int position) {
     waitForCommandCompletion();
 }
 
-static inline int seek_0_position() {
-    return getEnvFuncParamIntSafe(@"adapter_seek", 0, @"position");
+static inline long seek_0_position() {
+    return getEnvFuncParamLongSafe(@"adapter_seek", 0, @"position");
 }
 
 void adapter_seek_env() { adapter_seek(seek_0_position()); }

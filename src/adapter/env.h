@@ -14,6 +14,8 @@ NSString *getEnvFuncParamSafe(NSString *func_name, int param_pos,
                               NSString *param_name);
 NSNumber *getEnvFuncParamInt(NSString *func_name, int param_pos,
                              NSString *param_name);
+long getEnvFuncParamLongSafe(NSString *func_name, int param_pos,
+                             NSString *param_name);
 int getEnvFuncParamIntSafe(NSString *func_name, int param_pos,
                            NSString *param_name);
 

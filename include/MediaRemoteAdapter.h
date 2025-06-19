@@ -82,7 +82,7 @@ extern void adapter_send_env();
 
 // Seeks the timeline of the nowplaying application to the given position.
 // The position must be given in microseconds.
-extern void adapter_seek(int position);
+extern void adapter_seek(long position);
 extern void adapter_seek_env();
 
 typedef enum {
