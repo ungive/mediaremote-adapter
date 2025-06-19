@@ -9,6 +9,7 @@
 #import "MediaRemoteAdapter.h"
 #import "adapter/env.h"
 #import "adapter/globals.h"
+#import "adapter/now_playing.h"
 #import "utility/helpers.h"
 
 #define WAIT_TIMEOUT_MILLIS 1000
@@ -45,21 +46,6 @@ static MRCommand findCommand(int command, bool *found) {
     }
     *found = false;
     return (MRCommand)0;
-}
-
-// Requests information once so that the process runs long enough for the
-// MediaRemote command to actually be sent to the now playing application.
-static void waitForCommandCompletion() {
-    id semaphore = dispatch_semaphore_create(0);
-
-    g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
-      dispatch_semaphore_signal(semaphore);
-    });
-
-    dispatch_time_t timeout =
-        dispatch_time(DISPATCH_TIME_NOW, WAIT_TIMEOUT_MILLIS * NSEC_PER_MSEC);
-    dispatch_semaphore_wait(semaphore, timeout);
-    dispatch_release(semaphore);
 }
 
 void adapter_send(int command) {

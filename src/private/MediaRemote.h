@@ -94,8 +94,10 @@ typedef enum {
 } MRCommand;
 
 extern CFStringRef MRMediaRemoteSendCommand;
-
 typedef bool (*MRMediaRemoteSendCommand_t)(MRCommand command, id userInfo);
+
+extern CFStringRef MRMediaRemoteSetElapsedTime;
+typedef bool (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
 
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
@@ -129,6 +131,8 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @interface MediaRemote : NSObject
 // Commands
 @property(readonly) MRMediaRemoteSendCommand_t sendCommand;
+// Other controls
+@property(readonly) MRMediaRemoteSetElapsedTime_t setElapsedTime;
 // Observers
 @property(readonly) MRMediaRemoteRegisterForNowPlayingNotifications_t registerForNowPlayingNotifications;
 @property(readonly) MRMediaRemoteUnregisterForNowPlayingNotifications_t unregisterForNowPlayingNotifications;

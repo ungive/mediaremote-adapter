@@ -58,7 +58,8 @@ my $function_name = shift @ARGV || "stream";
 fail "Invalid function name: '$function_name'"
   unless $function_name eq "stream"
   || $function_name eq "get"
-  || $function_name eq "send";
+  || $function_name eq "send"
+  || $function_name eq "seek";
 
 sub parse_options {
   my ($start_index) = @_;
@@ -116,7 +117,7 @@ sub set_env_option_value {
 my $symbol_name = "adapter_$function_name";
 if ($function_name eq "send") {
   my $id = shift @ARGV;
-  fail "Missing ID for send command" unless defined $id;
+  fail "Missing ID for '$function_name' command" unless defined $id;
   set_env_param($symbol_name, 0, "command", "$id");
   $symbol_name = env_func($symbol_name);
 }
@@ -133,6 +134,12 @@ elsif ($function_name eq "stream") {
       fail "Unrecognized option '$key'";
     }
   }
+  $symbol_name = env_func($symbol_name);
+}
+elsif ($function_name eq "seek") {
+  my $position = shift @ARGV;
+  fail "Missing position for '$function_name' command" unless defined $position;
+  set_env_param($symbol_name, 0, "position", "$position");
   $symbol_name = env_func($symbol_name);
 }
 

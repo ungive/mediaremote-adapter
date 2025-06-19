@@ -21,8 +21,14 @@ extern void adapter_get();
 extern void adapter_stream();
 extern void adapter_stream_env();
 
+// Sends the given MediaRemote command to the current now playing application.
 extern void adapter_send(int command);
 extern void adapter_send_env();
+
+// Seeks the timeline of the nowplaying application to the given position.
+// The position must be given in microseconds.
+extern void adapter_seek(int position);
+extern void adapter_seek_env();
 
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;

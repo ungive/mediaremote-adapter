@@ -1,7 +1,23 @@
 #import "now_playing.h"
 
+#import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "private/MediaRemote.h"
+
+#define WAIT_TIMEOUT_MILLIS 2000
+
+void waitForCommandCompletion() {
+    id semaphore = dispatch_semaphore_create(0);
+
+    g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
+      dispatch_semaphore_signal(semaphore);
+    });
+
+    dispatch_time_t timeout =
+        dispatch_time(DISPATCH_TIME_NOW, WAIT_TIMEOUT_MILLIS * NSEC_PER_MSEC);
+    dispatch_semaphore_wait(semaphore, timeout);
+    dispatch_release(semaphore);
+}
 
 NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
