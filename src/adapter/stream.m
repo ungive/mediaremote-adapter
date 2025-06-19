@@ -81,7 +81,6 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
 static NSDictionary *previousData = nil;
 
 static void printData(NSDictionary *data, bool diff) {
-    NSArray<NSString *> *diffKeys = identifyingStreamPayloadKeys();
     NSString *serialized = nil;
     if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
         NSDictionary *result = createDiff(previousData, data);
