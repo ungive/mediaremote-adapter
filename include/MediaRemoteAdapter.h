@@ -22,6 +22,33 @@ extern NSString *kMRATimestampEpochMicros;
 extern NSString *kMRAArtworkMimeType;
 extern NSString *kMRAArtworkDataBase64;
 
+extern NSString *kMRAChapterNumber;
+extern NSString *kMRAComposer;
+extern NSString *kMRAGenre;
+extern NSString *kMRAIsAdvertisement;
+extern NSString *kMRAIsBanned;
+extern NSString *kMRAIsInWishList;
+extern NSString *kMRAIsLiked;
+extern NSString *kMRAIsMusicApp;
+extern NSString *kMRAPlaybackRate;
+extern NSString *kMRAProhibitsSkip;
+extern NSString *kMRAQueueIndex;
+extern NSString *kMRARadioStationIdentifier;
+extern NSString *kMRARepeatMode;
+extern NSString *kMRAShuffleMode;
+extern NSString *kMRAStartTime;
+extern NSString *kMRASupportsFastForward15Seconds;
+extern NSString *kMRASupportsIsBanned;
+extern NSString *kMRASupportsIsLiked;
+extern NSString *kMRASupportsRewind15Seconds;
+extern NSString *kMRATotalChapterCount;
+extern NSString *kMRATotalDiscCount;
+extern NSString *kMRATotalQueueCount;
+extern NSString *kMRATotalTrackCount;
+extern NSString *kMRATrackNumber;
+extern NSString *kMRAUniqueIdentifier;
+extern NSString *kMRARadioStationHash;
+
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
 extern void adapter_get();
