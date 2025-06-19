@@ -30,9 +30,17 @@ void adapter_get() {
           assert(false);
           return;
       }
+
+      NSArray<NSString *> *keys = mandatoryStreamPayloadKeys();
+      bool allPresent = true;
+      for (NSString *key in keys) {
+          if (liveData[key] == nil || liveData[key] == [NSNull null]) {
+              allPresent = false;
+              break;
+          }
+      }
       NSString *result = nil;
-      if (liveData[kBundleIdentifier] == nil || liveData[kPlaying] == nil ||
-          liveData[kTitle] == nil) {
+      if (!allPresent) {
           result = JSON_NULL;
       } else {
           result = serializeJsonSafe(liveData);
