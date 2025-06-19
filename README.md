@@ -32,7 +32,7 @@ which is entitled to use the MediaRemote framework
 and by dynamically loading a custom helper framework
 that prints real-time updates to stdout.
 
-## See it in action
+## Example
 
 Install the [media-control](https://github.com/ungive/media-control)
 CLI tool to see this project in action. Works on all macOS versions:
