@@ -12,10 +12,13 @@
 #   stream (default): Streams now playing information (as diff by default)
 #   get: Prints now playing information once with all available metadata
 #   send: Sends a command to the now playing application
+#   seek: Seeks to a specific timeline position
 #
 # PARAMS:
 #   send(command)
 #     command: The MRCommand ID as a number (e.g. kMRPlay = 0)
+#   seek(position)
+#     position: The timeline position in microseconds
 #
 # OPTIONS:
 #   stream
@@ -43,16 +46,16 @@ fail "Framework path not provided" unless @ARGV >= 1;
 
 my $framework_path = shift @ARGV;
 my $framework_basename = File::Basename::basename($framework_path);
-fail "Provided path is not a framework: $framework_path\n"
+fail "Provided path is not a framework: $framework_path"
   unless $framework_basename =~ s/\.framework$//;
 
 my $framework = File::Spec->catfile($framework_path, $framework_basename);
-fail "Framework not found at $framework\n" unless -e $framework;
+fail "Framework not found at $framework" unless -e $framework;
 
 my $handle = DynaLoader::dl_load_file($framework, 0)
-  or fail "Failed to load framework: $framework\n";
+  or fail "Failed to load framework: $framework";
 my $function_name = shift @ARGV || "stream";
-fail "Invalid function name: '$function_name'\n"
+fail "Invalid function name: '$function_name'"
   unless $function_name eq "stream"
   || $function_name eq "get"
   || $function_name eq "send";
@@ -138,7 +141,7 @@ if (defined shift @ARGV) {
 }
 
 my $symbol = DynaLoader::dl_find_symbol($handle, "$symbol_name")
-  or fail "Symbol '$symbol_name' not found in $framework\n";
+  or fail "Symbol '$symbol_name' not found in $framework";
 DynaLoader::dl_install_xsub("main::$function_name", $symbol);
 
 eval {
@@ -146,5 +149,5 @@ eval {
   &{"main::$function_name"}();
 };
 if ($@) {
-  fail "Error executing $function_name: $@\n";
+  fail "Error executing $function_name: $@";
 }
