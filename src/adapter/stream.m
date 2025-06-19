@@ -23,22 +23,11 @@ static const double INDEFINITELY = 1e10;
 static CFRunLoopRef g_runLoop = NULL;
 
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
-    NSError *error;
-    NSDictionary *wrappedData = @{
+    return serializeJsonDictionarySafe(@{
         @"type" : @"data",
         @"diff" : @(diff),
         @"payload" : data,
-    };
-    NSData *serialized = [NSJSONSerialization dataWithJSONObject:wrappedData
-                                                         options:0
-                                                           error:&error];
-    if (!serialized) {
-        printErr([NSString stringWithFormat:@"Failed for serialize data: %@",
-                                            formatError(error)]);
-        return nil;
-    }
-    return [[NSString alloc] initWithData:serialized
-                                 encoding:NSUTF8StringEncoding];
+    });
 }
 
 static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
