@@ -60,7 +60,8 @@ fail "Invalid function name: '$function_name'"
   || $function_name eq "get"
   || $function_name eq "send"
   || $function_name eq "seek"
-  || $function_name eq "shuffle";
+  || $function_name eq "shuffle"
+  || $function_name eq "repeat";
 
 sub parse_options {
   my ($start_index) = @_;
@@ -144,6 +145,12 @@ elsif ($function_name eq "seek") {
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "shuffle") {
+  my $mode = shift @ARGV;
+  fail "Missing mode for '$function_name' command" unless defined $mode;
+  set_env_param($symbol_name, 0, "mode", "$mode");
+  $symbol_name = env_func($symbol_name);
+}
+elsif ($function_name eq "repeat") {
   my $mode = shift @ARGV;
   fail "Missing mode for '$function_name' command" unless defined $mode;
   set_env_param($symbol_name, 0, "mode", "$mode");

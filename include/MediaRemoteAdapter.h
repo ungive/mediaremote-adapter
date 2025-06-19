@@ -67,6 +67,15 @@ typedef enum {
 extern void adapter_shuffle(MRAShuffleMode mode);
 extern void adapter_shuffle_env();
 
+typedef enum {
+    kMRARepeatDisabled = 1,
+    kMRARepeatTrack = 2,
+    kMRARepeatPlaylist = 3,
+} MRARepeatMode;
+
+extern void adapter_repeat(MRARepeatMode mode);
+extern void adapter_repeat_env();
+
 // PRIVATE API
 
 // Stops any active calls to stream().

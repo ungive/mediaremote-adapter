@@ -18,6 +18,7 @@ set(SOURCES
     src/adapter/globals.m
     src/adapter/keys.m
     src/adapter/now_playing.m
+    src/adapter/repeat.m
     src/adapter/seek.m
     src/adapter/send.m
     src/adapter/shuffle.m
