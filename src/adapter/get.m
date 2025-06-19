@@ -46,7 +46,7 @@ void adapter_get() {
 
     g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
       bool ok = appForPID(pid, ^(NSRunningApplication *process) {
-        liveData[kBundleIdentifier] = process.bundleIdentifier;
+        liveData[kMRABundleIdentifier] = process.bundleIdentifier;
         handle();
       });
       if (!ok) {
@@ -56,7 +56,7 @@ void adapter_get() {
 
     g_mediaRemote.getNowPlayingApplicationIsPlaying(
         g_dispatchQueue, ^(bool isPlaying) {
-          liveData[kPlaying] = @(isPlaying);
+          liveData[kMRAPlaying] = @(isPlaying);
           handle();
         });
 

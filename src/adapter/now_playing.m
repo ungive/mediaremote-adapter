@@ -1,5 +1,6 @@
 #import "now_playing.h"
 
+#import "MediaRemoteAdapter.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "private/MediaRemote.h"
@@ -45,10 +46,10 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       }
     };
 
-    setKey(kTitle, kMRMediaRemoteNowPlayingInfoTitle);
-    setKey(kArtist, kMRMediaRemoteNowPlayingInfoArtist);
-    setKey(kAlbum, kMRMediaRemoteNowPlayingInfoAlbum);
-    setValue(kDurationMicros, ^id {
+    setKey(kMRATitle, kMRMediaRemoteNowPlayingInfoTitle);
+    setKey(kMRAArtist, kMRMediaRemoteNowPlayingInfoArtist);
+    setKey(kMRAAlbum, kMRMediaRemoteNowPlayingInfoAlbum);
+    setValue(kMRADurationMicros, ^id {
       id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
       if (duration != nil) {
           NSTimeInterval durationMicros = [duration doubleValue] * 1000 * 1000;
@@ -56,7 +57,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
-    setValue(kElapsedTimeMicros, ^id {
+    setValue(kMRAElapsedTimeMicros, ^id {
       id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
       if (elapsedTime != nil) {
           NSTimeInterval elapsedTimeMicros =
@@ -65,7 +66,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
-    setValue(kTimestampEpochMicros, ^id {
+    setValue(kMRATimestampEpochMicros, ^id {
       NSDate *timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
       if (timestamp != nil) {
           NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
@@ -74,8 +75,8 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       }
       return nil;
     });
-    setKey(kArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
-    setValue(kArtworkDataBase64, ^id {
+    setKey(kMRAArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
+    setValue(kMRAArtworkDataBase64, ^id {
       NSData *artworkData =
           information[kMRMediaRemoteNowPlayingInfoArtworkData];
       if (artworkData != nil) {

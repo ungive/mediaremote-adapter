@@ -3,8 +3,10 @@
 
 #import "keys.h"
 
+#import "MediaRemoteAdapter.h"
+
 NSArray<NSString *> *mandatoryPayloadKeys(void) {
-    return @[ kBundleIdentifier, kTitle, kPlaying ];
+    return @[ kMRABundleIdentifier, kMRATitle, kMRAPlaying ];
 }
 
 bool allMandatoryPayloadKeysSet(NSDictionary *data) {
@@ -18,16 +20,16 @@ bool allMandatoryPayloadKeysSet(NSDictionary *data) {
 }
 
 NSArray<NSString *> *identifyingPayloadKeys(void) {
-    return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
+    return @[ kMRABundleIdentifier, kMRATitle, kMRAArtist, kMRAAlbum ];
 }
 
-NSString *kBundleIdentifier = @"bundleIdentifier";
-NSString *kPlaying = @"playing";
-NSString *kTitle = @"title";
-NSString *kArtist = @"artist";
-NSString *kAlbum = @"album";
-NSString *kDurationMicros = @"durationMicros";
-NSString *kElapsedTimeMicros = @"elapsedTimeMicros";
-NSString *kTimestampEpochMicros = @"timestampEpochMicros";
-NSString *kArtworkMimeType = @"artworkMimeType";
-NSString *kArtworkDataBase64 = @"artworkDataBase64";
+NSString *kMRABundleIdentifier = @"bundleIdentifier";
+NSString *kMRAPlaying = @"playing";
+NSString *kMRATitle = @"title";
+NSString *kMRAArtist = @"artist";
+NSString *kMRAAlbum = @"album";
+NSString *kMRADurationMicros = @"durationMicros";
+NSString *kMRAElapsedTimeMicros = @"elapsedTimeMicros";
+NSString *kMRATimestampEpochMicros = @"timestampEpochMicros";
+NSString *kMRAArtworkMimeType = @"artworkMimeType";
+NSString *kMRAArtworkDataBase64 = @"artworkDataBase64";

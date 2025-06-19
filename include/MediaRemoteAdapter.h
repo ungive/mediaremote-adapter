@@ -11,16 +11,16 @@
 // MEDIAREMOTEADAPTER_<FUNC_NAME>_<PARAM_INDEX>_<PARAM_NAME>
 // Example: MEDIAREMOTEADAPTER_adapter_send_0_command
 
-extern NSString *kBundleIdentifier;
-extern NSString *kPlaying;
-extern NSString *kTitle;
-extern NSString *kArtist;
-extern NSString *kAlbum;
-extern NSString *kDurationMicros;
-extern NSString *kElapsedTimeMicros;
-extern NSString *kTimestampEpochMicros;
-extern NSString *kArtworkMimeType;
-extern NSString *kArtworkDataBase64;
+extern NSString *kMRABundleIdentifier;
+extern NSString *kMRAPlaying;
+extern NSString *kMRATitle;
+extern NSString *kMRAArtist;
+extern NSString *kMRAAlbum;
+extern NSString *kMRADurationMicros;
+extern NSString *kMRAElapsedTimeMicros;
+extern NSString *kMRATimestampEpochMicros;
+extern NSString *kMRAArtworkMimeType;
+extern NSString *kMRAArtworkDataBase64;
 
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
@@ -33,20 +33,20 @@ extern void adapter_stream();
 extern void adapter_stream_env();
 
 typedef enum {
-    kPlay = 0,
-    kPause = 1,
-    kTogglePlayPause = 2,
-    kStop = 3,
-    kNextTrack = 4,
-    kPreviousTrack = 5,
-    kToggleShuffle = 6,
-    kToggleRepeat = 7,
-    kStartForwardSeek = 8,
-    kEndForwardSeek = 9,
-    kStartBackwardSeek = 10,
-    kEndBackwardSeek = 11,
-    kGoBackFifteenSeconds = 12,
-    kSkipFifteenSeconds = 13,
+    kMRAPlay = 0,
+    kMRAPause = 1,
+    kMRATogglePlayPause = 2,
+    kMRAStop = 3,
+    kMRANextTrack = 4,
+    kMRAPreviousTrack = 5,
+    kMRAToggleShuffle = 6,
+    kMRAToggleRepeat = 7,
+    kMRAStartForwardSeek = 8,
+    kMRAEndForwardSeek = 9,
+    kMRAStartBackwardSeek = 10,
+    kMRAEndBackwardSeek = 11,
+    kMRAGoBackFifteenSeconds = 12,
+    kMRASkipFifteenSeconds = 13,
 } AdapterCommand;
 
 // Sends the given MediaRemote command to the current now playing application.

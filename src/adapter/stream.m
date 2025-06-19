@@ -148,7 +148,7 @@ extern void adapter_stream() {
             return;
         }
         appForPID(pid, ^(NSRunningApplication *process) {
-          liveData[kBundleIdentifier] = process.bundleIdentifier;
+          liveData[kMRABundleIdentifier] = process.bundleIdentifier;
           handle();
         });
       });
@@ -158,35 +158,35 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingApplicationIsPlaying(
           g_dispatchQueue, ^(bool isPlaying) {
             // NSLog(@"getNowPlayingApplicationIsPlaying = %d", isPlaying);
-            liveData[kPlaying] = @(isPlaying);
+            liveData[kMRAPlaying] = @(isPlaying);
             handle();
           });
     };
 
     void (^requestNowPlayingInfo)() = ^{
-      g_mediaRemote.getNowPlayingInfo(
-          g_dispatchQueue, ^(NSDictionary *information) {
-            NSMutableDictionary *converted =
-                convertNowPlayingInformation(information);
-            // Transfer anything over from the existing live data.
-            if (liveData[kBundleIdentifier] != nil) {
-                converted[kBundleIdentifier] = liveData[kBundleIdentifier];
-            }
-            if (liveData[kPlaying] != nil) {
-                converted[kPlaying] = liveData[kPlaying];
-            }
-            // Use the old artwork data, since often the MediaRemote framework
-            // unloads the artwork and then loads it again shortly after.
-            // Only do this when the items have the same identity.
-            if (isSameItemIdentity(liveData, converted) &&
-                liveData[kArtworkDataBase64] != nil &&
-                liveData[kArtworkDataBase64] != [NSNull null] &&
-                converted[kArtworkDataBase64] == [NSNull null]) {
-                converted[kArtworkDataBase64] = liveData[kArtworkDataBase64];
-            }
-            [liveData addEntriesFromDictionary:converted];
-            handle();
-          });
+      g_mediaRemote.getNowPlayingInfo(g_dispatchQueue, ^(
+                                          NSDictionary *information) {
+        NSMutableDictionary *converted =
+            convertNowPlayingInformation(information);
+        // Transfer anything over from the existing live data.
+        if (liveData[kMRABundleIdentifier] != nil) {
+            converted[kMRABundleIdentifier] = liveData[kMRABundleIdentifier];
+        }
+        if (liveData[kMRAPlaying] != nil) {
+            converted[kMRAPlaying] = liveData[kMRAPlaying];
+        }
+        // Use the old artwork data, since often the MediaRemote framework
+        // unloads the artwork and then loads it again shortly after.
+        // Only do this when the items have the same identity.
+        if (isSameItemIdentity(liveData, converted) &&
+            liveData[kMRAArtworkDataBase64] != nil &&
+            liveData[kMRAArtworkDataBase64] != [NSNull null] &&
+            converted[kMRAArtworkDataBase64] == [NSNull null]) {
+            converted[kMRAArtworkDataBase64] = liveData[kMRAArtworkDataBase64];
+        }
+        [liveData addEntriesFromDictionary:converted];
+        handle();
+      });
     };
 
     void (^requestAll)() = ^{
@@ -225,19 +225,19 @@ extern void adapter_stream() {
                           notification.userInfo
                               [kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
                       if (isPlayingValue != nil) {
-                          if (liveData[kBundleIdentifier] != nil &&
-                              ![liveData[kBundleIdentifier]
+                          if (liveData[kMRABundleIdentifier] != nil &&
+                              ![liveData[kMRABundleIdentifier]
                                   isEqual:process.bundleIdentifier]) {
                               // This is a different process, reset all data.
                               resetAll();
                           }
-                          liveData[kBundleIdentifier] =
+                          liveData[kMRABundleIdentifier] =
                               process.bundleIdentifier;
-                          liveData[kPlaying] = @([isPlayingValue boolValue]);
+                          liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
                           // NSLog(@"kMRMediaRemoteNowPlayingApplication"
                           //       @"IsPlayingDidChangeNotification = %d",
                           //       [isPlayingValue boolValue]);
-                          if (liveData[kTitle] == nil) {
+                          if (liveData[kMRATitle] == nil) {
                               requestNowPlayingInfo();
                           }
                       }
@@ -253,16 +253,16 @@ extern void adapter_stream() {
                   [debounce call:^{
                     appForNotification(
                         notification, ^(NSRunningApplication *process) {
-                          if (liveData[kBundleIdentifier] != nil &&
-                              ![liveData[kBundleIdentifier]
+                          if (liveData[kMRABundleIdentifier] != nil &&
+                              ![liveData[kMRABundleIdentifier]
                                   isEqual:process.bundleIdentifier]) {
                               // This is a different process, reset all data.
                               resetAll();
                           }
-                          if (liveData[kBundleIdentifier] == nil) {
+                          if (liveData[kMRABundleIdentifier] == nil) {
                               requestNowPlayingApplicationPID();
                           }
-                          if (liveData[kPlaying] == nil) {
+                          if (liveData[kMRAPlaying] == nil) {
                               requestNowPlayingApplicationIsPlaying();
                           }
                           requestNowPlayingInfo();
@@ -282,7 +282,7 @@ extern void adapter_stream() {
                         userInfo[@"NSApplicationBundleIdentifier"];
                     if (bundleIdentifier != nil &&
                         [bundleIdentifier
-                            isEqual:liveData[kBundleIdentifier]]) {
+                            isEqual:liveData[kMRABundleIdentifier]]) {
                         // Refresh all data, since the application terminated.
                         refreshAll();
                     }
