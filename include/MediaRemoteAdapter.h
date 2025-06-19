@@ -58,6 +58,15 @@ extern void adapter_send_env();
 extern void adapter_seek(int position);
 extern void adapter_seek_env();
 
+typedef enum {
+    kMRAShuffleDisabled = 1,
+    kMRAShuffleAlbums = 2,
+    kMRAShuffleTracks = 3,
+} MRAShuffleMode;
+
+extern void adapter_shuffle(MRAShuffleMode mode);
+extern void adapter_shuffle_env();
+
 // PRIVATE API
 
 // Stops any active calls to stream().

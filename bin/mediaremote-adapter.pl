@@ -59,7 +59,8 @@ fail "Invalid function name: '$function_name'"
   unless $function_name eq "stream"
   || $function_name eq "get"
   || $function_name eq "send"
-  || $function_name eq "seek";
+  || $function_name eq "seek"
+  || $function_name eq "shuffle";
 
 sub parse_options {
   my ($start_index) = @_;
@@ -140,6 +141,12 @@ elsif ($function_name eq "seek") {
   my $position = shift @ARGV;
   fail "Missing position for '$function_name' command" unless defined $position;
   set_env_param($symbol_name, 0, "position", "$position");
+  $symbol_name = env_func($symbol_name);
+}
+elsif ($function_name eq "shuffle") {
+  my $mode = shift @ARGV;
+  fail "Missing mode for '$function_name' command" unless defined $mode;
+  set_env_param($symbol_name, 0, "mode", "$mode");
   $symbol_name = env_func($symbol_name);
 }
 

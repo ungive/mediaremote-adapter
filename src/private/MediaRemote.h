@@ -97,7 +97,9 @@ extern CFStringRef MRMediaRemoteSendCommand;
 typedef bool (*MRMediaRemoteSendCommand_t)(MRCommand command, id userInfo);
 
 extern CFStringRef MRMediaRemoteSetElapsedTime;
+extern CFStringRef MRMediaRemoteSetShuffleMode;
 typedef bool (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
+typedef bool (*MRMediaRemoteSetShuffleMode_t)(int mode);
 
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
@@ -133,6 +135,7 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteSendCommand_t sendCommand;
 // Other controls
 @property(readonly) MRMediaRemoteSetElapsedTime_t setElapsedTime;
+@property(readonly) MRMediaRemoteSetShuffleMode_t setShuffleMode;
 // Observers
 @property(readonly) MRMediaRemoteRegisterForNowPlayingNotifications_t registerForNowPlayingNotifications;
 @property(readonly) MRMediaRemoteUnregisterForNowPlayingNotifications_t unregisterForNowPlayingNotifications;
