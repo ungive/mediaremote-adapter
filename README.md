@@ -74,7 +74,7 @@ $ cmake ..
 $ cmake --build .
 $ cd ..
 $ FRAMEWORK_PATH=$(realpath ./build/MediaRemoteAdapter.framework)
-$ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH"
+$ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" stream
 ```
 
 The output of this command is characterised by the following rules:

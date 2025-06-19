@@ -2,39 +2,50 @@
 # Copyright (c) 2025 Jonas van den Berg
 # This file is licensed under the BSD 3-Clause License.
 
-# Usage:
-#   mediaremote-adapter.pl FRAMEWORK_PATH [FUNCTION [PARAMS|OPTIONS...]]
-#
-# FRAMEWORK_PATH:
-#   Absolute (!) path to MediaRemoteAdapter.framework
-#
-# FUNCTION:
-#   stream (default): Streams now playing information (as diff by default)
-#   get: Prints now playing information once with all available metadata
-#   send: Sends a command to the now playing application
-#   seek: Seeks to a specific timeline position
-#
-# PARAMS:
-#   send(command)
-#     command: The MRCommand ID as a number (e.g. kMRPlay = 0)
-#   seek(position)
-#     position: The timeline position in microseconds
-#
-# OPTIONS:
-#   stream
-#     --no-diff: Disable diffing and always dump all metadata
-#     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
-#
-# Examples (script name and framework path omitted):
-#   stream --no-diff --debounce=100
-#   send 2  # Toggles play/pause in the media player (kMRTogglePlayPause)
-#
+# For usage information read below or run the script without arguments.
 
 use strict;
 use warnings;
 use DynaLoader;
 use File::Spec;
 use File::Basename;
+
+sub print_help() {
+  print <<'HELP';
+Usage:
+  mediaremote-adapter.pl FRAMEWORK_PATH [FUNCTION [PARAMS|OPTIONS...]]
+
+FRAMEWORK_PATH:
+  Absolute path to MediaRemoteAdapter.framework
+
+FUNCTION:
+  stream: Streams now playing information (as diff by default)
+  get: Prints now playing information once with all available metadata
+  send: Sends a command to the now playing application
+  seek: Seeks to a specific timeline position
+
+PARAMS:
+  send(command)
+    command: The MRCommand ID as a number (e.g. kMRPlay = 0)
+  seek(position)
+    position: The timeline position in microseconds
+
+OPTIONS:
+  stream
+    --no-diff: Disable diffing and always dump all metadata
+    --debounce=N: Delay in milliseconds to prevent spam (0 by default)
+
+Examples (script name and framework path omitted):
+  stream --no-diff --debounce=100
+  send 2  # Toggles play/pause in the media player (kMRTogglePlayPause)
+
+HELP
+  exit 0;
+}
+
+if (!defined $ARGV[0]) {
+  print_help();
+}
 
 sub fail {
   my ($error) = @_;
@@ -54,7 +65,7 @@ fail "Framework not found at $framework" unless -e $framework;
 
 my $handle = DynaLoader::dl_load_file($framework, 0)
   or fail "Failed to load framework: $framework";
-my $function_name = shift @ARGV || "stream";
+my $function_name = shift @ARGV or fail "Missing function name";
 fail "Invalid function name: '$function_name'"
   unless $function_name eq "stream"
   || $function_name eq "get"
