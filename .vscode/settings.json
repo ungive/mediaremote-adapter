@@ -4,5 +4,9 @@
         "*.m": "objective-c"
     },
     "editor.formatOnSave": true,
-    "perltidy-more.profile": ".../.perltidyrc"
+    "perltidy-more.profile": ".../.perltidyrc",
+    "markdown.extension.toc.levels": "3..6",
+    "markdown.extension.toc.omittedFromToc": {
+        "README.md": []
+    }
 }

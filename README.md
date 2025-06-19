@@ -32,37 +32,39 @@ which is entitled to use the MediaRemote framework
 and by dynamically loading a custom helper framework
 that prints real-time updates to stdout.
 
-## Try it now
+## See it in action
 
-```sh
+Install the [media-control](https://github.com/ungive/media-control)
+CLI tool to see this project in action. Works on all macOS versions:
+
+```
 $ brew tap ungive/media-control
 $ brew install media-control
-$ media-control get                # Get now playing information once
-$ media-control stream             # Stream now playing updates in real-time
-$ media-control toggle-play-pause  # Toggle playback
-$ media-control                    # Print help
+$ media-control stream
 ```
 
-For advanced usage examples,
-read the CLI documentation:
-[github.com/ungive/media-control](https://github.com/ungive/media-control)
+## Usage
 
-## Features
+This project provides a Perl script
+with a well-defined CLI interface that you can invoke from your app
+in order to read now playing information and control media players.
+This [mediaremote-adapter.pl](./bin/mediaremote-adapter.pl) script
+needs to be bundled with your app,
+alongside the `MediaRemoteAdapter.framework`
+which is exposed as a CMake target in [CMakeLists.txt](./CMakeLists.txt).
+You can find instructions to build the framework in the next section.
 
-- Minimal and simple API:
-  - Bundle the MediaRemoteAdapter.framework with your app
-  - Execute the provided perl script using e.g. `NSTask`
-  - Then consume simple JSON and base64 encoded data
-    that is streamed to the standard output.
-    You can use `NSJSONSerialization` and `NSData`'s
-    `initWithBase64EncodedString` for decoding
-- Full metadata support for now playing items
-- Real-time updates to changes of now playing information
-- Pure Objective-C and Perl (shipped with macOS), no external dependencies
-- Extensibility to support more MediaRemote features in the future
-  (contributions welcome)
-- Optional debounce delay to prevent bursts of small updates
-  (the default is 100ms)
+The script must then be invoked like this:
+
+```
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework COMMAND
+```
+
+Where `COMMAND` is one of the commands listed below.
+
+> [!NOTE]
+> A Swift package and an Objective-C library
+> that you can directly include in your project is underway.
 
 ## Build from source
 
@@ -77,32 +79,215 @@ $ FRAMEWORK_PATH=$(realpath ./build/MediaRemoteAdapter.framework)
 $ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" stream
 ```
 
-The output of this command is characterised by the following rules:
+This creates the `MediaRemoteAdapter.framework` in the build directory,
+which must be *bundled* with your app, but *not linked against*.
+The framework is only used by the script
+and the path to it must merely be passed as a script argument.
 
-- The script runs indefinitely until the process is terminated with a signal
-- Each line printed to stdout contains a single JSON dictionary with the following keys:
-    - `type` (string): Always "data". There are no other types at the moment
-    - `diff` (boolean): Whether to update the previous non-diff payload. When this value is true, only the keys for updated values are set in the payload. Other keys should retain the value of the data payloads before this one
-    - `payload` (dictionary): The now playing metadata. The keys should be self-explanatory. For details check the `convertNowPlayingInformation` function in [src/adapter/stream.m](./src/adapter/stream.m). When diff is false, all keys that have a reported value are set. Keys that do not have a value may be missing. No keys are set at all, when no media player is reporting now playing information. There are may be missing keys when diff is true, but at least one keys is always set. For a list of all keys check [include/MediaRemoteAdapter.h](./include/MediaRemoteAdapter.h)
-- The script exits with an exit code other than 0 when a fatal error occured, e.g. when the MediaRemote framework could not be loaded. This may be used to stop any retries of executing this command again
-- The script terminates gracefully when a `SIGTERM` signal is sent to the process. This signal should be used to cancel the observation of changes to now playing items
-- It is recommended to use Objective-C's `NSJSONSerialization` for deserialization of JSON output, since that is used to serialize the underlying `NSDictionary`. Escape sequences like `\/` may not be parsed properly otherwise. Likewise, `NSData`'s `initWithBase64EncodedString` method may be used to parse the base64-encoded artwork data
-- You must always pass the full path of the adapter framework to the script as the first argument
-- The second optional argument is the function to execute (`loop` by default)
-- Each line printed to stderr is an error message
+## Commands
 
-Here is an example of what the output may look like:
+- [get](#get)
+- [stream](#stream)
+- [send COMMAND](#send-command)
+- [seek POSITION](#seek-position)
+- [shuffle MODE](#shuffle-mode)
+- [repeat MODE](#repeat-mode)
+- [speed SPEED](#speed-speed)
 
-```
-{"type":"data","diff":false,"payload":{"artist":"Sara Rikas","timestampEpochMicros":1747256447190675,"title":"Cigarety","bundleIdentifier":"com.tidal.desktop","elapsedTimeMicros":0,"playing":false,"album":"Ja, Sára","artworkMimeType":"image\/jpeg","durationMicros":281346077,"artworkDataBase64":null}}
-{"type":"data","diff":true,"payload":{"artworkDataBase64":"\/9j\/4AAQSkZJRgABAQAAS..."}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260249656367,"elapsedTimeMicros":75372614}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260311282554,"elapsedTimeMicros":0,"durationMicros":281000000}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260312118660,"playing":true,"durationMicros":281346077}}
-{"type":"data","diff":true,"payload":{"timestampEpochMicros":1747260324723482,"elapsedTimeMicros":12772000,"playing":false}}
-```
+### get
 
-The artwork data is shortened for brevity.
+Prints now playing information once with all available metadata.
+
+Output is encoded as JSON and characterized by either `null`
+or a dictionary with any of the following keys:
+
+> `bundleIdentifier`
+`playing`
+`title`
+`artist`
+`album`
+`duration`
+`elapsedTime`
+`timestamp`
+`artworkMimeType`
+`artworkDataBase64`
+`chapterNumber`
+`composer`
+`genre`
+`isAdvertisement`
+`isBanned`
+`isInWishList`
+`isLiked`
+`isMusicApp`
+`playbackRate`
+`prohibitsSkip`
+`queueIndex`
+`radioStationIdentifier`
+`repeatMode`
+`shuffleMode`
+`startTime`
+`supportsFastForward15Seconds`
+`supportsIsBanned`
+`supportsIsLiked`
+`supportsRewind15Seconds`
+`totalChapterCount`
+`totalDiscCount`
+`totalQueueCount`
+`totalTrackCount`
+`trackNumber`
+`uniqueIdentifier`
+`radioStationHash`
+
+The following mandatory keys never have a null value:
+`bundleIdentifier`
+`playing`
+`title`.
+If any of the mandatory keys cannot be determined,
+the command prints `null`.
+Media without a title is considered invalid.
+
+**Options**
+
+`--micros`&ensp;Replaces the following keys with microsecond equivalents:
+
+| Original key  | Converted key name     | Comment                 |
+| ------------- | ---------------------- | ----------------------- |
+| `duration`    | `durationMicros`       | -                       |
+| `elapsedTime` | `elapsedTimeMicros`    | -                       |
+| `timestamp`   | `timestampEpochMicros` | Converted to epoch time |
+
+---
+
+### stream
+
+Streams now playing information updates in real-time
+until the script receives a SIGTERM signal.
+
+Output is encoded as JSON and characterized by
+a dictionary with the following keys:
+
+> `type`
+`diff`
+`payload`
+
+The value of `type` is always set to `"data"`.
+
+`diff` is a boolean that indicates whether the `payload`
+contains only fields whose values have been updated.
+If set to `false`,
+the payload is to be considered the current now playing state,
+regardless of any payloads that were sent in the past.
+If set to `true` on the other hand,
+the last sent non-diff payload must be updated with these new values,
+in order to have a representation of the the current now playing state.
+**Diffing is enabled by default, but can be disabled with a command line flag.**
+
+`payload` contains the now playing information and is a dictionary
+that is structurally identical to the output of the `get` command,
+with the same keys. It is never `null` though.
+No keys are set at all,
+when no media player is reporting now playing information.
+
+**Options**
+
+`--no-diff`&ensp;Disables diffing. `diff` is always `false`
+and `payload` always contains all current information.
+
+`--debounce=N`&ensp;Adds a debounce delay in milliseconds
+between the point where changes are detected
+and when they are printed.
+If a new update comes in during delaying,
+the delay is reset and all updates are merged.
+This is useful to prevent bursts of smaller updates.
+The default is 0.
+
+`--micros`&ensp;Identical to the `--micros` option of the `get` command.
+
+---
+
+### send COMMAND
+
+Sends a MediaRemote command to the now playing application.
+
+The value for `COMMAND` must be a valid ID from the table below.
+
+|  ID   | MediaRemote key         | Description                   |
+| :---: | ----------------------- | ----------------------------- |
+|   0   | kMRPlay                 | Start playback                |
+|   1   | kMRPause                | Pause playback                |
+|   2   | kMRTogglePlayPause      | Toggle between play and pause |
+|   3   | kMRStop                 | Stop playback                 |
+|   4   | kMRNextTrack            | Skip to the next track        |
+|   5   | kMRPreviousTrack        | Return to the previous track  |
+|   6   | kMRToggleShuffle        | Toggle shuffle mode           |
+|   7   | kMRToggleRepeat         | Toggle repeat mode            |
+|   8   | kMRStartForwardSeek     | Start seeking forward         |
+|   9   | kMREndForwardSeek       | Stop seeking forward          |
+|  10   | kMRStartBackwardSeek    | Start seeking backward        |
+|  11   | kMREndBackwardSeek      | Stop seeking backward         |
+|  12   | kMRGoBackFifteenSeconds | Go back 15 seconds            |
+|  13   | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
+
+---
+
+### seek POSITION
+
+Seeks to a specific timeline position with the now playing application.
+
+The value for `POSITION` must a valid positive integer.
+The unit is microseconds.
+
+---
+
+### shuffle MODE
+
+Sets the shuffle mode.
+
+The value for `MODE` must be a valid ID from the table below.
+
+|  ID   | Description    |
+| :---: | -------------- |
+|   1   | Disable        |
+|   2   | Shuffle albums |
+|   3   | Shuffle tracks |
+
+---
+
+### repeat MODE
+
+Sets the repeat mode.
+
+The value for `MODE` must be a valid ID from the table below.
+
+|  ID   | Description     |
+| :---: | --------------- |
+|   1   | Disable         |
+|   2   | Repeat track    |
+|   3   | Repeat playlist |
+
+---
+
+### speed SPEED
+
+Sets the playback speed.
+
+The value for `SPEED` must be a valid positive integer.
+
+---
+
+## Implementation notes
+
+- Consider `NSJSONSerialization` for JSON deserialization.
+  This is what is used for encoding
+- You can use `NSData`'s `initWithBase64EncodedString`
+  for decoding of base64 data
+- Every line printed to stderr is an error message.
+  If the script did not exit with a non-zero exit code,
+  then any of these errors are non-fatal and can be safely ignored
+- You should not reinvoke the script when a fatal error occurs
+  (non-zero exit code)
+- Make sure to pass the absolute path of the bundled framework
+  as the first argument and not a relative path
 
 ## Why this works
 
@@ -118,13 +303,6 @@ whilst running the script:
 
 `default	14:44:55.871495+0200	mediaremoted	Adding client <MRDMediaRemoteClient 0x15820b1a0, bundleIdentifier = com.apple.perl5, pid = 86889>`
 
-## Projects that use this library
-
-- [Music Presence](https://musicpresence.app) is a cross-platform desktop application
-  for showing what you are listening to in your Discord status.
-  It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
-  to detect media from all media players again.
-
 ## Motivation
 
 This project was created due to the MediaRemote framework
@@ -137,33 +315,12 @@ and perhaps to inspire Apple to give us a public API
 to read now playing information and control media playback on the device
 (see the note at the top of this file).
 
-## Contributing
+## Projects that use this library
 
-This project aims to be a universal drop-in replacement
-for directly using the MediaRemote framework on Mac.
-
-If you have the time to contribute, you are more than welcome to do so,
-any help to improve this project is greatly appreciated!
-You can find things to work on in the list of TODOs below,
-in open issues and in the TODO and FIXME comments
-in the project's source files.
-
-I do not primarily develop for Mac,
-so if you see any bad practices in my Objective-C code,
-please do not hesitate to point them out.
-
-### TODO's
-
-- Objective-C code to launch and manage execution of the adapter script
-  and parse its output according to the rules described above
-- Example project on how to use the adapter framework and script
-  and instructions on how to bundle it with your app
-- This library currently does not handle "peculiar media",
-  which is reported media that is in a transition state
-  from e.g. "song A by artist B" to "song C by artist D"
-  having mixed metadata from both songs, e.g. "song C by artist B"
-  (artist is updated too late)
-- Solve FIXMEs and implement other TODOs that are located in source files
+- [Music Presence](https://musicpresence.app) is a cross-platform desktop application
+  for showing what you are listening to in your Discord status.
+  It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
+  to detect media from all media players again.
 
 ## Useful links
 
