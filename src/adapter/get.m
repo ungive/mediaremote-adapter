@@ -35,7 +35,7 @@ void adapter_get() {
       if (!allMandatoryPayloadKeysSet(liveData)) {
           result = JSON_NULL;
       } else {
-          result = serializeJsonSafe(liveData);
+          result = serializeJsonDictionarySafe(liveData);
           if (!result) {
               fail(@"Failed to serialize now playing information");
           }

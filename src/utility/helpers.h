@@ -17,7 +17,7 @@ void fail(NSString *message);
 void failf(NSString *format, ...);
 
 NSString *formatError(NSError *error);
-NSString *serializeJsonSafe(id any);
+NSString *serializeJsonDictionarySafe(NSDictionary *any);
 
 bool appForPID(int pid, void (^block)(NSRunningApplication *));
 

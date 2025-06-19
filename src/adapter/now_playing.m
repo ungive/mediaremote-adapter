@@ -78,14 +78,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       return nil;
     });
     setKey(kMRAArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
-    setValue(kMRAArtworkDataBase64, ^id {
-      NSData *artworkData =
-          information[kMRMediaRemoteNowPlayingInfoArtworkData];
-      if (artworkData != nil) {
-          return [artworkData base64EncodedStringWithOptions:0];
-      }
-      return nil;
-    });
+    setKey(kMRAArtworkDataBase64, kMRMediaRemoteNowPlayingInfoArtworkData);
 
     return data;
 }
