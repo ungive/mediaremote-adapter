@@ -110,7 +110,7 @@ or a dictionary with any of the following keys:
 `elapsedTime`
 `timestamp`
 `artworkMimeType`
-`artworkDataBase64`
+`artworkData`
 `chapterNumber`
 `composer`
 `genre`
