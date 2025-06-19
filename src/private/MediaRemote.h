@@ -96,9 +96,11 @@ typedef enum {
 extern CFStringRef MRMediaRemoteSendCommand;
 typedef bool (*MRMediaRemoteSendCommand_t)(MRCommand command, id userInfo);
 
+extern CFStringRef MRMediaRemoteSetPlaybackSpeed;
 extern CFStringRef MRMediaRemoteSetElapsedTime;
 extern CFStringRef MRMediaRemoteSetShuffleMode;
 extern CFStringRef MRMediaRemoteSetRepeatMode;
+typedef bool (*MRMediaRemoteSetPlaybackSpeed_t)(int speed);
 typedef bool (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
 typedef bool (*MRMediaRemoteSetShuffleMode_t)(int mode);
 typedef bool (*MRMediaRemoteSetRepeatMode_t)(int mode);
@@ -136,6 +138,7 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 // Commands
 @property(readonly) MRMediaRemoteSendCommand_t sendCommand;
 // Other controls
+@property(readonly) MRMediaRemoteSetPlaybackSpeed_t setPlaybackSpeed;
 @property(readonly) MRMediaRemoteSetElapsedTime_t setElapsedTime;
 @property(readonly) MRMediaRemoteSetShuffleMode_t setShuffleMode;
 @property(readonly) MRMediaRemoteSetRepeatMode_t setRepeatMode;

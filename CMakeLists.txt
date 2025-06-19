@@ -22,6 +22,7 @@ set(SOURCES
     src/adapter/seek.m
     src/adapter/send.m
     src/adapter/shuffle.m
+    src/adapter/speed.m
     src/adapter/stream.m
     src/adapter/test.m
     src/private/MediaRemote.m

@@ -57,6 +57,7 @@ NSString *kMRMediaRemoteRouteStatusUserInfoKey = @"kMRMediaRemoteRouteStatusUser
 
 CFStringRef MRMediaRemoteSendCommand = CFSTR("MRMediaRemoteSendCommand");
 
+CFStringRef MRMediaRemoteSetPlaybackSpeed = CFSTR("MRMediaRemoteSetPlaybackSpeed");
 CFStringRef MRMediaRemoteSetElapsedTime = CFSTR("MRMediaRemoteSetElapsedTime");
 CFStringRef MRMediaRemoteSetShuffleMode = CFSTR("MRMediaRemoteSetShuffleMode");
 CFStringRef MRMediaRemoteSetRepeatMode = CFSTR("MRMediaRemoteSetRepeatMode");
@@ -73,6 +74,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 
 @implementation MediaRemote
 @synthesize sendCommand;
+@synthesize setPlaybackSpeed;
 @synthesize setElapsedTime;
 @synthesize setShuffleMode;
 @synthesize setRepeatMode;
@@ -92,6 +94,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
         return nil;
     }
     sendCommand = (MRMediaRemoteSendCommand_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSendCommand);
+    setPlaybackSpeed = (MRMediaRemoteSetPlaybackSpeed_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetPlaybackSpeed);
     setElapsedTime = (MRMediaRemoteSetElapsedTime_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetElapsedTime);
     setShuffleMode = (MRMediaRemoteSetShuffleMode_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetShuffleMode);
     setRepeatMode = (MRMediaRemoteSetRepeatMode_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetRepeatMode);

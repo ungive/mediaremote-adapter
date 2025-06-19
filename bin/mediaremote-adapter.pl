@@ -25,6 +25,7 @@ FUNCTION:
   seek     Seeks to a specific timeline position
   shuffle  Sets the shuffle mode
   repeat   Sets the repeat mode
+  speed    Sets the playback speed
 
 PARAMS:
   send(command)
@@ -35,6 +36,8 @@ PARAMS:
     mode: The shuffle mode
   repeat(mode)
     mode: The repeat mode
+  speed(speed)
+    speed: The playback speed
 
 OPTIONS:
   stream
@@ -79,7 +82,8 @@ fail "Invalid function name: '$function_name'"
   || $function_name eq "send"
   || $function_name eq "seek"
   || $function_name eq "shuffle"
-  || $function_name eq "repeat";
+  || $function_name eq "repeat"
+  || $function_name eq "speed";
 
 sub parse_options {
   my ($start_index) = @_;
@@ -172,6 +176,12 @@ elsif ($function_name eq "repeat") {
   my $mode = shift @ARGV;
   fail "Missing mode for '$function_name' command" unless defined $mode;
   set_env_param($symbol_name, 0, "mode", "$mode");
+  $symbol_name = env_func($symbol_name);
+}
+elsif ($function_name eq "speed") {
+  my $speed = shift @ARGV;
+  fail "Missing speed for '$function_name' command" unless defined $speed;
+  set_env_param($symbol_name, 0, "speed", "$speed");
   $symbol_name = env_func($symbol_name);
 }
 

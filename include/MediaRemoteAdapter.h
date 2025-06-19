@@ -103,6 +103,9 @@ typedef enum {
 extern void adapter_repeat(MRARepeatMode mode);
 extern void adapter_repeat_env();
 
+extern void adapter_speed(int speed);
+extern void adapter_speed_env();
+
 // PRIVATE API
 
 // Stops any active calls to stream().
