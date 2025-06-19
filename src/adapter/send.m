@@ -18,20 +18,20 @@ static NSArray<NSNumber *> *acceptedCommands;
 
 __attribute__((constructor)) static void init() {
     acceptedCommands = @[
-        @(kMRPlay),
-        @(kMRPause),
-        @(kMRTogglePlayPause),
-        @(kMRStop),
-        @(kMRNextTrack),
-        @(kMRPreviousTrack),
-        @(kMRToggleShuffle),
-        @(kMRToggleRepeat),
-        @(kMRStartForwardSeek),
-        @(kMREndForwardSeek),
-        @(kMRStartBackwardSeek),
-        @(kMREndBackwardSeek),
-        @(kMRGoBackFifteenSeconds),
-        @(kMRSkipFifteenSeconds),
+        @(kPlay),
+        @(kPause),
+        @(kTogglePlayPause),
+        @(kStop),
+        @(kNextTrack),
+        @(kPreviousTrack),
+        @(kToggleShuffle),
+        @(kToggleRepeat),
+        @(kStartForwardSeek),
+        @(kEndForwardSeek),
+        @(kStartBackwardSeek),
+        @(kEndBackwardSeek),
+        @(kGoBackFifteenSeconds),
+        @(kSkipFifteenSeconds),
     ];
     // TODO like/unlike tracks by reading now playing information first,
     // getting the track ID, station ID and station hash
@@ -48,10 +48,10 @@ static MRCommand findCommand(int command, bool *found) {
     return (MRCommand)0;
 }
 
-void adapter_send(int command) {
+void adapter_send(AdapterCommand command) {
 
     bool ok = false;
-    MRCommand commandValue = findCommand(command, &ok);
+    MRCommand commandValue = findCommand((int)command, &ok);
     if (!ok) {
         failf(@"Invalid command: %d", command);
     }
@@ -68,4 +68,4 @@ static inline int send_0_command() {
     return getEnvFuncParamIntSafe(@"adapter_send", 0, @"command");
 }
 
-void adapter_send_env() { adapter_send(send_0_command()); }
+void adapter_send_env() { adapter_send((AdapterCommand)send_0_command()); }

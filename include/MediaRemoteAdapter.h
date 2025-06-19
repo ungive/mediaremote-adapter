@@ -11,25 +11,6 @@
 // MEDIAREMOTEADAPTER_<FUNC_NAME>_<PARAM_INDEX>_<PARAM_NAME>
 // Example: MEDIAREMOTEADAPTER_adapter_send_0_command
 
-// Prints the current MediaRemote now playing information to stdout.
-// Data is encoded as a JSON dictionary or "null" when there is no information.
-extern void adapter_get();
-
-// Streams MediaRemote now playing updates to stdout.
-// Each update is printed on a separate lined, encoded as a JSON dictionary.
-// Exits when the process receives a SIGTERM signal.
-extern void adapter_stream();
-extern void adapter_stream_env();
-
-// Sends the given MediaRemote command to the current now playing application.
-extern void adapter_send(int command);
-extern void adapter_send_env();
-
-// Seeks the timeline of the nowplaying application to the given position.
-// The position must be given in microseconds.
-extern void adapter_seek(int position);
-extern void adapter_seek_env();
-
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;
 extern NSString *kTitle;
@@ -40,6 +21,42 @@ extern NSString *kElapsedTimeMicros;
 extern NSString *kTimestampEpochMicros;
 extern NSString *kArtworkMimeType;
 extern NSString *kArtworkDataBase64;
+
+// Prints the current MediaRemote now playing information to stdout.
+// Data is encoded as a JSON dictionary or "null" when there is no information.
+extern void adapter_get();
+
+// Streams MediaRemote now playing updates to stdout.
+// Each update is printed on a separate lined, encoded as a JSON dictionary.
+// Exits when the process receives a SIGTERM signal.
+extern void adapter_stream();
+extern void adapter_stream_env();
+
+typedef enum {
+    kPlay = 0,
+    kPause = 1,
+    kTogglePlayPause = 2,
+    kStop = 3,
+    kNextTrack = 4,
+    kPreviousTrack = 5,
+    kToggleShuffle = 6,
+    kToggleRepeat = 7,
+    kStartForwardSeek = 8,
+    kEndForwardSeek = 9,
+    kStartBackwardSeek = 10,
+    kEndBackwardSeek = 11,
+    kGoBackFifteenSeconds = 12,
+    kSkipFifteenSeconds = 13,
+} AdapterCommand;
+
+// Sends the given MediaRemote command to the current now playing application.
+extern void adapter_send(AdapterCommand command);
+extern void adapter_send_env();
+
+// Seeks the timeline of the nowplaying application to the given position.
+// The position must be given in microseconds.
+extern void adapter_seek(int position);
+extern void adapter_seek_env();
 
 // PRIVATE API
 
