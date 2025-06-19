@@ -31,16 +31,8 @@ void adapter_get() {
           return;
       }
 
-      NSArray<NSString *> *keys = mandatoryPayloadKeys();
-      bool allPresent = true;
-      for (NSString *key in keys) {
-          if (liveData[key] == nil || liveData[key] == [NSNull null]) {
-              allPresent = false;
-              break;
-          }
-      }
       NSString *result = nil;
-      if (!allPresent) {
+      if (!allMandatoryPayloadKeysSet(liveData)) {
           result = JSON_NULL;
       } else {
           result = serializeJsonSafe(liveData);

@@ -7,6 +7,16 @@ NSArray<NSString *> *mandatoryPayloadKeys(void) {
     return @[ kBundleIdentifier, kTitle, kPlaying ];
 }
 
+bool allMandatoryPayloadKeysSet(NSDictionary *data) {
+    NSArray<NSString *> *keys = mandatoryPayloadKeys();
+    for (NSString *key in keys) {
+        if (data[key] == nil || data[key] == [NSNull null]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 NSArray<NSString *> *identifyingPayloadKeys(void) {
     return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
 }

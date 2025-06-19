@@ -9,6 +9,10 @@
 // These keys are mandatory and must never be null, empty or missing.
 NSArray<NSString *> *mandatoryPayloadKeys(void);
 
+// Checks whether all mandatory payload keys returned by mandatoryPayloadKeys()
+// are present in the given payload dictionary and have a non-null value.
+bool allMandatoryPayloadKeysSet(NSDictionary *data);
+
 // These keys identify a now playing item uniquely.
 NSArray<NSString *> *identifyingPayloadKeys(void);
 

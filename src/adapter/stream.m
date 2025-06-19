@@ -134,15 +134,7 @@ extern void adapter_stream() {
     };
 
     void (^handle)() = ^{
-      NSArray<NSString *> *keys = mandatoryPayloadKeys();
-      bool allPresent = true;
-      for (NSString *key in keys) {
-          if (liveData[key] == nil || liveData[key] == [NSNull null]) {
-              allPresent = false;
-              break;
-          }
-      }
-      if (allPresent) {
+      if (allMandatoryPayloadKeysSet(liveData)) {
           // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
           // liveData[kPlaying]);
           localPrintData(liveData);
