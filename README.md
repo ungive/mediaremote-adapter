@@ -48,7 +48,7 @@ $ media-control stream
 This project provides a Perl script
 with a well-defined CLI interface that you can invoke from your app
 in order to read now playing information and control media players.
-This [mediaremote-adapter.pl](./bin/mediaremote-adapter.pl) script
+The [mediaremote-adapter.pl](./bin/mediaremote-adapter.pl) script
 needs to be bundled with your app,
 alongside the `MediaRemoteAdapter.framework`
 which is exposed as a CMake target in [CMakeLists.txt](./CMakeLists.txt).
@@ -82,7 +82,7 @@ $ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" stream
 This creates the `MediaRemoteAdapter.framework` in the build directory,
 which must be *bundled* with your app, but *not linked against*.
 The framework is only used by the script
-and the path to it must merely be passed as a script argument.
+and must merely be passed as a script argument.
 
 ## Commands
 
@@ -197,7 +197,7 @@ and `payload` always contains all current information.
 between the point where changes are detected
 and when they are printed.
 If a new update comes in during delaying,
-the delay is reset and all updates are merged.
+the delay is restarted and all updates are merged.
 This is useful to prevent bursts of smaller updates.
 The default is 0.
 
