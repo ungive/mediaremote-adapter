@@ -24,14 +24,16 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
-      id value = [NSNull null];
+      id value = nil;
       if (information != nil) {
           id result = information[fromKey];
           if (result != nil) {
               value = result;
           }
       }
-      [data setObject:value forKey:key];
+      if (value != nil) {
+          [data setObject:value forKey:key];
+      }
     };
 
     void (^setValue)(id key, id (^)(void)) = ^(id key, id (^evaluate)(void)) {
