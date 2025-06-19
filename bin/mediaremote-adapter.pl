@@ -19,10 +19,12 @@ FRAMEWORK_PATH:
   Absolute path to MediaRemoteAdapter.framework
 
 FUNCTION:
-  stream: Streams now playing information (as diff by default)
-  get: Prints now playing information once with all available metadata
-  send: Sends a command to the now playing application
-  seek: Seeks to a specific timeline position
+  stream   Streams now playing information (as diff by default)
+  get      Prints now playing information once with all available metadata
+  send     Sends a command to the now playing application
+  seek     Seeks to a specific timeline position
+  shuffle  Sets the shuffle mode
+  repeat   Sets the repeat mode
 
 PARAMS:
   send(command)
@@ -37,7 +39,8 @@ OPTIONS:
 
 Examples (script name and framework path omitted):
   stream --no-diff --debounce=100
-  send 2  # Toggles play/pause in the media player (kMRTogglePlayPause)
+  send 2    # Toggles play/pause in the media player (kMRATogglePlayPause)
+  repeat 3  # Sets the repeat mode to "playlist" (kMRARepeatModePlaylist)
 
 HELP
   exit 0;
