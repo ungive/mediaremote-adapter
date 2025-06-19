@@ -88,6 +88,9 @@ which must be *bundled* with your app, but *not linked against*.
 The framework is only used by the script
 and must merely be passed as a script argument.
 
+The framework is built for all of the following architectures:
+`x86_64` `arm64` `arm64e`
+
 ## Commands
 
 - [get](#get)
