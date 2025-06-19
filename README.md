@@ -44,7 +44,8 @@ $ media-control                    # Print help
 ```
 
 For advanced usage examples,
-read the CLI documentation [here](./media-control/README.md).
+read the CLI documentation:
+[github.com/ungive/media-control](https://github.com/ungive/media-control)
 
 ## Features
 

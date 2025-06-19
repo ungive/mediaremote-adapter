@@ -57,9 +57,3 @@ add_custom_command(
     COMMAND codesign --force --deep --sign -
             $<TARGET_BUNDLE_DIR:MediaRemoteAdapter>
     COMMENT "Ad-hoc signing ${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework")
-
-set(ADAPTER_FRAMEWORK_PATH
-    "${CMAKE_CURRENT_BINARY_DIR}/${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}.framework"
-    CACHE PATH "Path to built adapter framework")
-
-add_subdirectory(media-control)
