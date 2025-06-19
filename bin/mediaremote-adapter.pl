@@ -31,6 +31,10 @@ PARAMS:
     command: The MRCommand ID as a number (e.g. kMRPlay = 0)
   seek(position)
     position: The timeline position in microseconds
+  shuffle(mode)
+    mode: The shuffle mode
+  repeat(mode)
+    mode: The repeat mode
 
 OPTIONS:
   stream
