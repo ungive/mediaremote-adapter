@@ -175,6 +175,7 @@ please do not hesitate to point them out.
   - https://github.com/ungive/discord-music-presence/issues/165
   - https://github.com/ungive/discord-music-presence/issues/245
   - https://github.com/kirtan-shah/nowplaying-cli/issues/28
+  - https://github.com/FelixKratz/SketchyBar/issues/708
 - Getting now playing information using `osascript` and `MRNowPlayingRequest`.
   Note that this is unable to load the song artwork
   and it is impossible to get real-time updates with this solution.
