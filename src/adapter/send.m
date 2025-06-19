@@ -12,8 +12,6 @@
 #import "adapter/now_playing.h"
 #import "utility/helpers.h"
 
-#define WAIT_TIMEOUT_MILLIS 1000
-
 static NSArray<NSNumber *> *acceptedCommands;
 
 __attribute__((constructor)) static void init() {
