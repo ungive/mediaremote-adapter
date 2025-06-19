@@ -46,7 +46,7 @@ static MRCommand findCommand(int command, bool *found) {
     return (MRCommand)0;
 }
 
-void adapter_send(AdapterCommand command) {
+void adapter_send(MRACommand command) {
 
     bool ok = false;
     MRCommand commandValue = findCommand((int)command, &ok);
@@ -66,4 +66,4 @@ static inline int send_0_command() {
     return getEnvFuncParamIntSafe(@"adapter_send", 0, @"command");
 }
 
-void adapter_send_env() { adapter_send((AdapterCommand)send_0_command()); }
+void adapter_send_env() { adapter_send((MRACommand)send_0_command()); }

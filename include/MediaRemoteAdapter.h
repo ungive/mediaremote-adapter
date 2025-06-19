@@ -47,10 +47,10 @@ typedef enum {
     kMRAEndBackwardSeek = 11,
     kMRAGoBackFifteenSeconds = 12,
     kMRASkipFifteenSeconds = 13,
-} AdapterCommand;
+} MRACommand;
 
 // Sends the given MediaRemote command to the current now playing application.
-extern void adapter_send(AdapterCommand command);
+extern void adapter_send(MRACommand command);
 extern void adapter_send_env();
 
 // Seeks the timeline of the nowplaying application to the given position.
