@@ -66,6 +66,10 @@ Where `COMMAND` is one of the commands listed below.
 > A Swift package and an Objective-C library
 > that you can directly include in your project is underway.
 
+> [!WARNING]
+> This project is still in development
+> and the API may experience breaking changes across minor revisions.
+
 ## Build from source
 
 ```
