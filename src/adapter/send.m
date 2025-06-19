@@ -58,7 +58,7 @@ void adapter_send(int command) {
 
     bool result = g_mediaRemote.sendCommand(commandValue, nil);
     if (!result) {
-        failf(@"Failed to send command: %d", command);
+        failf(@"Failed to send command %d", command);
     }
 
     waitForCommandCompletion();
