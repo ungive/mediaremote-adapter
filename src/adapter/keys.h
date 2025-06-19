@@ -7,10 +7,10 @@
 #import <Foundation/Foundation.h>
 
 // These keys are mandatory and must never be null, empty or missing.
-NSArray<NSString *> *mandatoryStreamPayloadKeys(void);
+NSArray<NSString *> *mandatoryPayloadKeys(void);
 
 // These keys identify a now playing item uniquely.
-NSArray<NSString *> *identifyingStreamPayloadKeys(void);
+NSArray<NSString *> *identifyingPayloadKeys(void);
 
 extern NSString *kBundleIdentifier;
 extern NSString *kPlaying;

@@ -64,7 +64,7 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
 }
 
 static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
-    NSArray<NSString *> *keys = identifyingStreamPayloadKeys();
+    NSArray<NSString *> *keys = identifyingPayloadKeys();
     for (NSString *key in keys) {
         id aValue = a[key];
         id bValue = b[key];
@@ -135,7 +135,7 @@ extern void adapter_stream() {
     };
 
     void (^handle)() = ^{
-      NSArray<NSString *> *keys = mandatoryStreamPayloadKeys();
+      NSArray<NSString *> *keys = mandatoryPayloadKeys();
       bool allPresent = true;
       for (NSString *key in keys) {
           if (liveData[key] == nil || liveData[key] == [NSNull null]) {

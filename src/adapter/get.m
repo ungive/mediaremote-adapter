@@ -31,7 +31,7 @@ void adapter_get() {
           return;
       }
 
-      NSArray<NSString *> *keys = mandatoryStreamPayloadKeys();
+      NSArray<NSString *> *keys = mandatoryPayloadKeys();
       bool allPresent = true;
       for (NSString *key in keys) {
           if (liveData[key] == nil || liveData[key] == [NSNull null]) {

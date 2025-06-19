@@ -3,11 +3,11 @@
 
 #import "keys.h"
 
-NSArray<NSString *> *mandatoryStreamPayloadKeys(void) {
+NSArray<NSString *> *mandatoryPayloadKeys(void) {
     return @[ kBundleIdentifier, kTitle, kPlaying ];
 }
 
-NSArray<NSString *> *identifyingStreamPayloadKeys(void) {
+NSArray<NSString *> *identifyingPayloadKeys(void) {
     return @[ kBundleIdentifier, kTitle, kArtist, kAlbum ];
 }
 
