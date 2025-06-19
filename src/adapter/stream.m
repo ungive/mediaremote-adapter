@@ -168,10 +168,10 @@ extern void adapter_stream() {
         // unloads the artwork and then loads it again shortly after.
         // Only do this when the items have the same identity.
         if (isSameItemIdentity(liveData, converted) &&
-            liveData[kMRAArtworkDataBase64] != nil &&
-            liveData[kMRAArtworkDataBase64] != [NSNull null] &&
-            converted[kMRAArtworkDataBase64] == [NSNull null]) {
-            converted[kMRAArtworkDataBase64] = liveData[kMRAArtworkDataBase64];
+            liveData[kMRAArtworkData] != nil &&
+            liveData[kMRAArtworkData] != [NSNull null] &&
+            converted[kMRAArtworkData] == [NSNull null]) {
+            converted[kMRAArtworkData] = liveData[kMRAArtworkData];
         }
         [liveData addEntriesFromDictionary:converted];
         handle();

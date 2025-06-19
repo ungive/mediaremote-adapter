@@ -78,7 +78,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information) {
       return nil;
     });
     setKey(kMRAArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
-    setKey(kMRAArtworkDataBase64, kMRMediaRemoteNowPlayingInfoArtworkData);
+    setKey(kMRAArtworkData, kMRMediaRemoteNowPlayingInfoArtworkData);
 
     // Some of the following keys might fail due to not being convertible
     // to JSON automatically. This is difficult to test because most media

@@ -13,6 +13,7 @@
 
 extern NSString *kMRABundleIdentifier;
 extern NSString *kMRAPlaying;
+
 extern NSString *kMRATitle;
 extern NSString *kMRAArtist;
 extern NSString *kMRAAlbum;
@@ -20,7 +21,7 @@ extern NSString *kMRADurationMicros;
 extern NSString *kMRAElapsedTimeMicros;
 extern NSString *kMRATimestampEpochMicros;
 extern NSString *kMRAArtworkMimeType;
-extern NSString *kMRAArtworkDataBase64;
+extern NSString *kMRAArtworkData;
 
 extern NSString *kMRAChapterNumber;
 extern NSString *kMRAComposer;
