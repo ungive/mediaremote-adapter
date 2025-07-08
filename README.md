@@ -18,8 +18,8 @@
 
 <!-- BADGES BEGIN -->
 ![](https://img.shields.io/github/stars/ungive/mediaremote-adapter?style=flat&label=stars&logo=github&labelColor=444&color=DAAA3F&cacheSeconds=3600)
-![](https://img.shields.io/static/v1?label=macOS&message=macOS%2026.0%20%2825A5279m%29&labelColor=444&color=blue)
-![](https://img.shields.io/static/v1?label=last%20tested&message=Mon%20Jun%2016%2016%3A43%3A24%20CEST%202025&labelColor=444&color)
+![](https://img.shields.io/static/v1?label=macOS&message=macOS%2026.0%20%2825A5306g%29&labelColor=444&color=blue)
+![](https://img.shields.io/static/v1?label=last%20tested&message=Tue%20Jul%20%208%2022%3A04%3A21%20CEST%202025&labelColor=444&color)
 <!-- BADGES END -->
 
 # MediaRemote Adapter
