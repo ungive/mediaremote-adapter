@@ -22,11 +22,15 @@ def get_output(command):
     return result.stdout.strip()
 
 
+def normalize_whitespace(text):
+    return re.sub(r'\s+', ' ', text.strip())
+
+
 def generate_badges():
     system_version = get_output(
         "system_profiler SPSoftwareDataType | sed -En 's/.*System Version: *//p'"
     )
-    date_output = get_output("date")
+    date_output = normalize_whitespace(get_output("date"))
     encoded_system_version = urllib.parse.quote(system_version)
     encoded_date = urllib.parse.quote(date_output)
     badge1 = f"![](https://img.shields.io/static/v1?label=macOS&message={encoded_system_version}&labelColor=444&color=blue)"
