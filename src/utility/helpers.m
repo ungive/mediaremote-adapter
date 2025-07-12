@@ -1,7 +1,9 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #import "helpers.h"
 
@@ -48,6 +50,7 @@ NSString *formatError(NSError *error) {
 }
 
 static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
+    const id unsupported_type = nil; // remove silently at call site with log
     if ([value isKindOfClass:[NSDictionary class]]) {
         NSDictionary *dictionary = (NSDictionary *)value;
         NSMutableDictionary *result = [NSMutableDictionary dictionary];
@@ -87,8 +90,14 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
         }
         return result;
     } else if ([value isKindOfClass:[NSString class]] ||
-               [value isKindOfClass:[NSNumber class]] ||
                [value isKindOfClass:[NSNull class]]) {
+        return value;
+    } else if ([value isKindOfClass:[NSNumber class]]) {
+        NSNumber *number = (NSNumber *)value;
+        double unwrapped = [number doubleValue];
+        if (isnan(unwrapped) || isinf(unwrapped)) {
+            return unsupported_type;
+        }
         return value;
     } else if ([value isKindOfClass:[NSDate class]]) {
         static NSDateFormatter *formatter = nil;
@@ -106,7 +115,7 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
     } else if ([value isKindOfClass:[NSData class]]) {
         return [(NSData *)value base64EncodedStringWithOptions:0];
     } else {
-        return nil; // unsupported type: remove silently at call site with log
+        return unsupported_type;
     }
 }
 
