@@ -60,14 +60,14 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
                           [key description], [key class]);
                 continue;
             }
-            id clean = sanitizeValueForJsonEncoding(
-                [dictionary objectForKey:key], key);
+            id raw = [dictionary objectForKey:key];
+            id clean = sanitizeValueForJsonEncoding(raw, key);
             if (clean) {
                 result[key] = clean;
             } else {
-                printErrf(
-                    @"Invalid JSON value type in dictionary for key '%@': %@",
-                    key, [[dictionary objectForKey:key] class]);
+                printErrf(@"Invalid JSON value type in dictionary for key "
+                          @"'%@': %@ (%@)",
+                          key, raw, [raw class]);
             }
         }
         return result;
@@ -81,11 +81,12 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
                 [result addObject:clean];
             } else if (parentKey != nil) {
                 printErrf(@"Invalid JSON value type in array at index %d "
-                          @"under key '%@': %@",
-                          i, parentKey, [elem class]);
+                          @"under key '%@': %@ (%@)",
+                          i, parentKey, elem, [elem class]);
             } else {
-                printErrf(@"Invalid JSON value type in array at index %d: %@",
-                          i, [elem class]);
+                printErrf(
+                    @"Invalid JSON value type in array at index %d: %@ (%@)", i,
+                    elem, [elem class]);
             }
         }
         return result;
