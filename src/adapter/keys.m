@@ -6,6 +6,7 @@
 #import "MediaRemoteAdapter.h"
 
 NSString *kMRABundleIdentifier = @"bundleIdentifier";
+NSString *kMRAParentAppBundleIdentifier = @"parentAppBundleIdentifier";
 NSString *kMRAPlaying = @"playing";
 
 NSString *kMRADurationMicros = @"durationMicros";
