@@ -66,7 +66,6 @@ CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications = CFSTR("MRMediaRemo
 CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications = CFSTR("MRMediaRemoteUnregisterForNowPlayingNotifications");
 CFStringRef MRMediaRemoteGetNowPlayingApplicationPID = CFSTR("MRMediaRemoteGetNowPlayingApplicationPID");
 CFStringRef MRMediaRemoteGetNowPlayingClient = CFSTR("MRMediaRemoteGetNowPlayingClient");
-CFStringRef MRNowPlayingClientGetParentAppBundleIdentifier = CFSTR("MRNowPlayingClientGetParentAppBundleIdentifier");
 CFStringRef MRMediaRemoteGetNowPlayingInfo = CFSTR("MRMediaRemoteGetNowPlayingInfo");
 CFStringRef MRMediaRemoteGetNowPlayingApplicationIsPlaying = CFSTR("MRMediaRemoteGetNowPlayingApplicationIsPlaying");
 
@@ -84,7 +83,6 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 @synthesize unregisterForNowPlayingNotifications;
 @synthesize getNowPlayingApplicationPID;
 @synthesize getNowPlayingClient;
-@synthesize getNowPlayingClientParentAppBundleIdentifier;
 @synthesize getNowPlayingInfo;
 @synthesize getNowPlayingApplicationIsPlaying;
 -(id)init
@@ -106,7 +104,6 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     unregisterForNowPlayingNotifications = (MRMediaRemoteUnregisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteUnregisterForNowPlayingNotifications);
     getNowPlayingApplicationPID = (MRMediaRemoteGetNowPlayingApplicationPID_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationPID);
     getNowPlayingClient = (MRMediaRemoteGetNowPlayingClient_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingClient);
-    getNowPlayingClientParentAppBundleIdentifier = (MRNowPlayingClientGetParentAppBundleIdentifier_t)CFBundleGetFunctionPointerForName(bundle, MRNowPlayingClientGetParentAppBundleIdentifier);
     getNowPlayingInfo = (MRMediaRemoteGetNowPlayingInfo_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfo);
     getNowPlayingApplicationIsPlaying = (MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationIsPlaying);
     return self;
