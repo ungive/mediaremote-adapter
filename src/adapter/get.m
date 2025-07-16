@@ -21,7 +21,7 @@ void adapter_get() {
 
     id semaphore = dispatch_semaphore_create(0);
 
-    static const int expected_calls = 3;
+    static const int expected_calls = 4;
 
     __block int calls = 0; // thread-safe because the dispatch queue is serial.
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
@@ -57,6 +57,21 @@ void adapter_get() {
           handle();
       }
     });
+    g_mediaRemote.getNowPlayingClient(
+      g_dispatchQueue, ^(id client) {
+        NSString *parentAppBundleID = nil;
+        if (client &&
+            [client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
+            parentAppBundleID = [client
+                performSelector:@selector(parentApplicationBundleIdentifier)];
+        }
+
+        if (parentAppBundleID) {
+            liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
+        }
+
+        handle();
+      });
 
     g_mediaRemote.getNowPlayingApplicationIsPlaying(
         g_dispatchQueue, ^(bool isPlaying) {
