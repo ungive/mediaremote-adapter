@@ -44,8 +44,6 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
       }
       if (value != nil) {
           [data setObject:value forKey:key];
-      } else {
-          [data setObject:[NSNull null] forKey:key];
       }
     };
 
