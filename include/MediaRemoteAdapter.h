@@ -53,6 +53,7 @@ extern NSString *kMRATotalQueueCount;
 extern NSString *kMRATotalTrackCount;
 extern NSString *kMRATrackNumber;
 extern NSString *kMRAUniqueIdentifier;
+extern NSString *kMRAContentItemIdentifier;
 extern NSString *kMRARadioStationHash;
 
 // Prints the current MediaRemote now playing information to stdout.

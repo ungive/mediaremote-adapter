@@ -51,6 +51,7 @@ extern NSString *kMRMediaRemoteNowPlayingInfoTotalQueueCount;
 extern NSString *kMRMediaRemoteNowPlayingInfoTotalTrackCount;
 extern NSString *kMRMediaRemoteNowPlayingInfoTrackNumber;
 extern NSString *kMRMediaRemoteNowPlayingInfoUniqueIdentifier;
+extern NSString *kMRMediaRemoteNowPlayingInfoContentItemIdentifier;
 extern NSString *kMRMediaRemoteNowPlayingInfoRadioStationHash;
 extern NSString *kMRMediaRemoteOptionMediaType;
 extern NSString *kMRMediaRemoteOptionSourceID;

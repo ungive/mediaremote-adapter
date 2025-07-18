@@ -48,6 +48,7 @@ NSString *kMRATotalQueueCount = @"totalQueueCount";
 NSString *kMRATotalTrackCount = @"totalTrackCount";
 NSString *kMRATrackNumber = @"trackNumber";
 NSString *kMRAUniqueIdentifier = @"uniqueIdentifier";
+NSString *kMRAContentItemIdentifier = @"contentItemIdentifier";
 NSString *kMRARadioStationHash = @"radioStationHash";
 
 NSArray<NSString *> *mandatoryPayloadKeys(void) {

@@ -123,6 +123,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
     setKey(kMRATotalTrackCount, kMRMediaRemoteNowPlayingInfoTotalTrackCount);
     setKey(kMRATrackNumber, kMRMediaRemoteNowPlayingInfoTrackNumber);
     setKey(kMRAUniqueIdentifier, kMRMediaRemoteNowPlayingInfoUniqueIdentifier);
+    setKey(kMRAContentItemIdentifier, kMRMediaRemoteNowPlayingInfoContentItemIdentifier);
     setKey(kMRARadioStationHash, kMRMediaRemoteNowPlayingInfoRadioStationHash);
     // clang-format on
 
