@@ -149,9 +149,10 @@ extern void adapter_stream() {
     void (^requestNowPlayingParentAppBundleIdentifier)() = ^{
       g_mediaRemote.getNowPlayingClient(g_dispatchQueue, ^(id client) {
         NSString *parentAppBundleID = nil;
-        if (client &&
-            [client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
-            parentAppBundleID = [client performSelector:@selector(parentApplicationBundleIdentifier)];
+        if (client && [client respondsToSelector:@selector
+                              (parentApplicationBundleIdentifier)]) {
+            parentAppBundleID = [client
+                performSelector:@selector(parentApplicationBundleIdentifier)];
         }
         if (parentAppBundleID) {
             liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
@@ -181,7 +182,8 @@ extern void adapter_stream() {
             converted[kMRABundleIdentifier] = liveData[kMRABundleIdentifier];
         }
         if (liveData[kMRAParentAppBundleIdentifier] != nil) {
-            converted[kMRAParentAppBundleIdentifier] = liveData[kMRAParentAppBundleIdentifier];
+            converted[kMRAParentAppBundleIdentifier] =
+                liveData[kMRAParentAppBundleIdentifier];
         }
         if (liveData[kMRAPlaying] != nil) {
             converted[kMRAPlaying] = liveData[kMRAPlaying];

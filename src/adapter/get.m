@@ -57,21 +57,19 @@ void adapter_get() {
           handle();
       }
     });
-    g_mediaRemote.getNowPlayingClient(
-      g_dispatchQueue, ^(id client) {
-        NSString *parentAppBundleID = nil;
-        if (client &&
-            [client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
-            parentAppBundleID = [client
-                performSelector:@selector(parentApplicationBundleIdentifier)];
-        }
 
-        if (parentAppBundleID) {
-            liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
-        }
-
-        handle();
-      });
+    g_mediaRemote.getNowPlayingClient(g_dispatchQueue, ^(id client) {
+      NSString *parentAppBundleID = nil;
+      if (client && [client respondsToSelector:@selector
+                            (parentApplicationBundleIdentifier)]) {
+          parentAppBundleID = [client
+              performSelector:@selector(parentApplicationBundleIdentifier)];
+      }
+      if (parentAppBundleID) {
+          liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
+      }
+      handle();
+    });
 
     g_mediaRemote.getNowPlayingApplicationIsPlaying(
         g_dispatchQueue, ^(bool isPlaying) {
