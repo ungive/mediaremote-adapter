@@ -108,6 +108,7 @@ typedef bool (*MRMediaRemoteSetRepeatMode_t)(int mode);
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationPID;
+extern CFStringRef MRMediaRemoteGetNowPlayingClient;
 extern CFStringRef MRMediaRemoteGetNowPlayingInfo;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationIsPlaying;
 
@@ -116,9 +117,11 @@ typedef void (*MRMediaRemoteUnregisterForNowPlayingNotifications_t)();
 
 typedef void (^MRMediaRemoteGetNowPlayingInfoCompletion_t)(NSDictionary *information);
 typedef void (^MRMediaRemoteGetNowPlayingApplicationPIDCompletion_t)(int PID);
+typedef void (^MRMediaRemoteGetNowPlayingClientCompletion_t)(id clientObj);
 typedef void (^MRMediaRemoteGetNowPlayingApplicationIsPlayingCompletion_t)(bool isPlaying);
 
 typedef void (*MRMediaRemoteGetNowPlayingApplicationPID_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationPIDCompletion_t completion);
+typedef void (*MRMediaRemoteGetNowPlayingClient_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingClientCompletion_t completion);
 typedef void (*MRMediaRemoteGetNowPlayingInfo_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoCompletion_t completion);
 typedef void (*MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationIsPlayingCompletion_t completion);
 
@@ -147,6 +150,7 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteUnregisterForNowPlayingNotifications_t unregisterForNowPlayingNotifications;
 // Metadata
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationPID_t getNowPlayingApplicationPID;
+@property(readonly) MRMediaRemoteGetNowPlayingClient_t getNowPlayingClient;
 @property(readonly) MRMediaRemoteGetNowPlayingInfo_t getNowPlayingInfo;
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationIsPlaying_t getNowPlayingApplicationIsPlaying;
 // Constructor

@@ -109,6 +109,7 @@ Output is encoded as JSON and characterized by either `null`
 or a dictionary with any of the following keys:
 
 > `bundleIdentifier`
+`parentAppBundleIdentifier`
 `playing`
 `title`
 `artist`
