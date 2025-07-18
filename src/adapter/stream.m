@@ -57,6 +57,9 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     for (NSString *key in keys) {
         id aValue = a[key];
         id bValue = b[key];
+        if (aValue == nil && bValue == nil) {
+            continue;
+        }
         if (aValue == nil || bValue == nil) {
             return false;
         }
