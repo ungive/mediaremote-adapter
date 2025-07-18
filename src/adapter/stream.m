@@ -146,7 +146,7 @@ extern void adapter_stream() {
       });
     };
 
-    void (^requestNowPlayingParentAppBundleIdentifier)() = ^{
+    void (^requestNowPlayingParentApplicationBundleIdentifier)() = ^{
       g_mediaRemote.getNowPlayingClient(g_dispatchQueue, ^(id client) {
         NSString *parentAppBundleID = nil;
         if (client && [client respondsToSelector:@selector
@@ -155,9 +155,9 @@ extern void adapter_stream() {
                 performSelector:@selector(parentApplicationBundleIdentifier)];
         }
         if (parentAppBundleID) {
-            liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
+            liveData[kMRAParentApplicationBundleIdentifier] = parentAppBundleID;
         } else {
-            [liveData removeObjectForKey:kMRAParentAppBundleIdentifier];
+            [liveData removeObjectForKey:kMRAParentApplicationBundleIdentifier];
         }
         handle();
       });
@@ -181,9 +181,9 @@ extern void adapter_stream() {
         if (liveData[kMRABundleIdentifier] != nil) {
             converted[kMRABundleIdentifier] = liveData[kMRABundleIdentifier];
         }
-        if (liveData[kMRAParentAppBundleIdentifier] != nil) {
-            converted[kMRAParentAppBundleIdentifier] =
-                liveData[kMRAParentAppBundleIdentifier];
+        if (liveData[kMRAParentApplicationBundleIdentifier] != nil) {
+            converted[kMRAParentApplicationBundleIdentifier] =
+                liveData[kMRAParentApplicationBundleIdentifier];
         }
         if (liveData[kMRAPlaying] != nil) {
             converted[kMRAPlaying] = liveData[kMRAPlaying];
@@ -204,7 +204,7 @@ extern void adapter_stream() {
 
     void (^requestAll)() = ^{
       requestNowPlayingApplicationPID();
-      requestNowPlayingParentAppBundleIdentifier();
+      requestNowPlayingParentApplicationBundleIdentifier();
       requestNowPlayingApplicationIsPlaying();
       requestNowPlayingInfo();
     };
@@ -247,7 +247,7 @@ extern void adapter_stream() {
                           }
                           liveData[kMRABundleIdentifier] =
                               process.bundleIdentifier;
-                          requestNowPlayingParentAppBundleIdentifier();
+                          requestNowPlayingParentApplicationBundleIdentifier();
                           liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
                           // NSLog(@"kMRMediaRemoteNowPlayingApplication"
                           //       @"IsPlayingDidChangeNotification = %d",
@@ -266,25 +266,26 @@ extern void adapter_stream() {
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
                   [debounce call:^{
-                    appForNotification(
-                        notification, ^(NSRunningApplication *process) {
-                          if (liveData[kMRABundleIdentifier] != nil &&
-                              ![liveData[kMRABundleIdentifier]
-                                  isEqual:process.bundleIdentifier]) {
-                              // This is a different process, reset all data.
-                              resetAll();
-                          }
-                          if (liveData[kMRABundleIdentifier] == nil) {
-                              requestNowPlayingApplicationPID();
-                          }
-                          if (liveData[kMRAParentAppBundleIdentifier] == nil) {
-                              requestNowPlayingParentAppBundleIdentifier();
-                          }
-                          if (liveData[kMRAPlaying] == nil) {
-                              requestNowPlayingApplicationIsPlaying();
-                          }
-                          requestNowPlayingInfo();
-                        });
+                    appForNotification(notification, ^(
+                                           NSRunningApplication *process) {
+                      if (liveData[kMRABundleIdentifier] != nil &&
+                          ![liveData[kMRABundleIdentifier]
+                              isEqual:process.bundleIdentifier]) {
+                          // This is a different process, reset all data.
+                          resetAll();
+                      }
+                      if (liveData[kMRABundleIdentifier] == nil) {
+                          requestNowPlayingApplicationPID();
+                      }
+                      if (liveData[kMRAParentApplicationBundleIdentifier] ==
+                          nil) {
+                          requestNowPlayingParentApplicationBundleIdentifier();
+                      }
+                      if (liveData[kMRAPlaying] == nil) {
+                          requestNowPlayingApplicationIsPlaying();
+                      }
+                      requestNowPlayingInfo();
+                    });
                   }];
                 }];
 

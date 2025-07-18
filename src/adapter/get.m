@@ -66,7 +66,7 @@ void adapter_get() {
               performSelector:@selector(parentApplicationBundleIdentifier)];
       }
       if (parentAppBundleID) {
-          liveData[kMRAParentAppBundleIdentifier] = parentAppBundleID;
+          liveData[kMRAParentApplicationBundleIdentifier] = parentAppBundleID;
       }
       handle();
     });
