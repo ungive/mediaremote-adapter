@@ -61,7 +61,7 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
     } else {
         setValue(kMRADurationMicros, ^id {
           id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
-          if (duration != nil) {
+          if (duration != nil && [duration isKindOfClass:[NSNumber class]]) {
               NSTimeInterval durationMicros =
                   [duration doubleValue] * 1000 * 1000;
               return @(floor(durationMicros));
@@ -70,7 +70,8 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
         });
         setValue(kMRAElapsedTimeMicros, ^id {
           id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
-          if (elapsedTime != nil) {
+          if (elapsedTime != nil &&
+              [elapsedTime isKindOfClass:[NSNumber class]]) {
               NSTimeInterval elapsedTimeMicros =
                   [elapsedTime doubleValue] * 1000 * 1000;
               return @(floor(elapsedTimeMicros));
@@ -78,9 +79,8 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
           return nil;
         });
         setValue(kMRATimestampEpochMicros, ^id {
-          NSDate *timestamp =
-              information[kMRMediaRemoteNowPlayingInfoTimestamp];
-          if (timestamp != nil) {
+          id timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
+          if (timestamp != nil && [timestamp isKindOfClass:[NSDate class]]) {
               NSTimeInterval timestampEpoch = [timestamp timeIntervalSince1970];
               NSTimeInterval timestampEpochMicro = timestampEpoch * 1000 * 1000;
               return @(floor(timestampEpochMicro));
