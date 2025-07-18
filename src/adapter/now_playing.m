@@ -10,9 +10,10 @@
 void waitForCommandCompletion() {
     id semaphore = dispatch_semaphore_create(0);
 
-    g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
-      dispatch_semaphore_signal(semaphore);
-    });
+    g_mediaRemote.getNowPlayingApplicationPID(
+        g_serialdispatchQueue, ^(int pid) {
+          dispatch_semaphore_signal(semaphore);
+        });
 
     dispatch_time_t timeout =
         dispatch_time(DISPATCH_TIME_NOW, WAIT_TIMEOUT_MILLIS * NSEC_PER_MSEC);

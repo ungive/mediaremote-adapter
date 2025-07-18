@@ -6,7 +6,7 @@
 #import "utility/helpers.h"
 
 MediaRemote *g_mediaRemote = NULL;
-dispatch_queue_t g_dispatchQueue;
+dispatch_queue_t g_serialdispatchQueue;
 
 __attribute__((constructor)) static void initGlobals() {
     g_mediaRemote = [[MediaRemote alloc] init];
@@ -14,6 +14,6 @@ __attribute__((constructor)) static void initGlobals() {
         fail(@"Failed to initialize MediaRemote Framework");
         return;
     }
-    g_dispatchQueue = dispatch_queue_create(
+    g_serialdispatchQueue = dispatch_queue_create(
         "mediaremote-adapter.serial-dispatch-queue", DISPATCH_QUEUE_SERIAL);
 }

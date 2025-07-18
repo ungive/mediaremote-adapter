@@ -48,17 +48,18 @@ void adapter_get() {
       dispatch_semaphore_signal(semaphore);
     };
 
-    g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
-      bool ok = appForPID(pid, ^(NSRunningApplication *process) {
-        liveData[kMRABundleIdentifier] = process.bundleIdentifier;
-        handle();
-      });
-      if (!ok) {
-          handle();
-      }
-    });
+    g_mediaRemote.getNowPlayingApplicationPID(
+        g_serialdispatchQueue, ^(int pid) {
+          bool ok = appForPID(pid, ^(NSRunningApplication *process) {
+            liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+            handle();
+          });
+          if (!ok) {
+              handle();
+          }
+        });
 
-    g_mediaRemote.getNowPlayingClient(g_dispatchQueue, ^(id client) {
+    g_mediaRemote.getNowPlayingClient(g_serialdispatchQueue, ^(id client) {
       NSString *parentAppBundleID = nil;
       if (client && [client respondsToSelector:@selector
                             (parentApplicationBundleIdentifier)]) {
@@ -72,13 +73,13 @@ void adapter_get() {
     });
 
     g_mediaRemote.getNowPlayingApplicationIsPlaying(
-        g_dispatchQueue, ^(bool isPlaying) {
+        g_serialdispatchQueue, ^(bool isPlaying) {
           liveData[kMRAPlaying] = @(isPlaying);
           handle();
         });
 
     g_mediaRemote.getNowPlayingInfo(
-        g_dispatchQueue, ^(NSDictionary *information) {
+        g_serialdispatchQueue, ^(NSDictionary *information) {
           NSDictionary *converted =
               convertNowPlayingInformation(information, convert_micros);
           [liveData addEntriesFromDictionary:converted];

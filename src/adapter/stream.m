@@ -120,7 +120,7 @@ extern void adapter_stream() {
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
-                                  queue:g_dispatchQueue];
+                                  queue:g_serialdispatchQueue];
     __block const bool no_diff = no_diff_option != nil;
     __block const bool convert_micros = micros_option != nil;
 
@@ -137,20 +137,21 @@ extern void adapter_stream() {
     };
 
     void (^requestNowPlayingApplicationPID)() = ^{
-      g_mediaRemote.getNowPlayingApplicationPID(g_dispatchQueue, ^(int pid) {
-        if (pid == 0) {
-            localPrintData([NSMutableDictionary dictionary]);
-            return;
-        }
-        appForPID(pid, ^(NSRunningApplication *process) {
-          liveData[kMRABundleIdentifier] = process.bundleIdentifier;
-          handle();
-        });
-      });
+      g_mediaRemote.getNowPlayingApplicationPID(
+          g_serialdispatchQueue, ^(int pid) {
+            if (pid == 0) {
+                localPrintData([NSMutableDictionary dictionary]);
+                return;
+            }
+            appForPID(pid, ^(NSRunningApplication *process) {
+              liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+              handle();
+            });
+          });
     };
 
     void (^requestNowPlayingParentApplicationBundleIdentifier)() = ^{
-      g_mediaRemote.getNowPlayingClient(g_dispatchQueue, ^(id client) {
+      g_mediaRemote.getNowPlayingClient(g_serialdispatchQueue, ^(id client) {
         NSString *parentAppBundleID = nil;
         if (client && [client respondsToSelector:@selector
                               (parentApplicationBundleIdentifier)]) {
@@ -168,7 +169,7 @@ extern void adapter_stream() {
 
     void (^requestNowPlayingApplicationIsPlaying)() = ^{
       g_mediaRemote.getNowPlayingApplicationIsPlaying(
-          g_dispatchQueue, ^(bool isPlaying) {
+          g_serialdispatchQueue, ^(bool isPlaying) {
             // NSLog(@"getNowPlayingApplicationIsPlaying = %d", isPlaying);
             liveData[kMRAPlaying] = @(isPlaying);
             handle();
@@ -176,7 +177,7 @@ extern void adapter_stream() {
     };
 
     void (^requestNowPlayingInfo)() = ^{
-      g_mediaRemote.getNowPlayingInfo(g_dispatchQueue, ^(
+      g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
                                           NSDictionary *information) {
         NSMutableDictionary *converted =
             convertNowPlayingInformation(information, convert_micros);
@@ -235,7 +236,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_dispatchQueue, ^() {
+                  dispatch_async(g_serialdispatchQueue, ^() {
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
                       id isPlayingValue =
@@ -298,7 +299,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_dispatchQueue, ^() {
+                  dispatch_async(g_serialdispatchQueue, ^() {
                     NSDictionary *userInfo = [notification userInfo];
                     id bundleIdentifier =
                         userInfo[@"NSApplicationBundleIdentifier"];
@@ -311,7 +312,7 @@ extern void adapter_stream() {
                   });
                 }];
 
-    g_mediaRemote.registerForNowPlayingNotifications(g_dispatchQueue);
+    g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
     // A little bit of a hack, but since CFRunLoopRun() returns without work,
     // we need to create a timer that ensures it doesn't exit and just idles.

@@ -10,6 +10,6 @@
 #import "private/MediaRemote.h"
 
 extern MediaRemote* g_mediaRemote;
-extern dispatch_queue_t g_dispatchQueue;
+extern dispatch_queue_t g_serialdispatchQueue;
 
 #endif // MEDIAREMOTEADAPTER_ADAPTER_GLOBALS_H

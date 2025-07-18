@@ -133,7 +133,7 @@ extern void _adapter_test() {
 
     // Trigger logs of mediaremoted by using the MediaRemote API.
     id semaphore = dispatch_semaphore_create(0);
-    g_mediaRemote.getNowPlayingInfo(g_dispatchQueue,
+    g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue,
                                     ^(NSDictionary *information) {
                                       dispatch_semaphore_signal(semaphore);
                                     });
