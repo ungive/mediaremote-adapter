@@ -161,12 +161,14 @@ The `mediaType` may contain one of the following values:
 - `kMRMediaRemoteNowPlayingInfoTypeAudio`
 - Possibly others, this key is not very well documented
 
-> [!NOTE]
-> *Metadata such as `artworkData` and `artworkMimeType`
-> often takes a bit of time to load
-> and may not appear in the output in all cases.
-> Do not rely on this key to be present at one specific point in time.
-> Either use the `stream` command or poll `get` regularly.*
+**Caveats**
+
+Metadata such as `artworkData` and `artworkMimeType`
+often takes a bit of time to load
+and may not appear in the output in all cases.
+Do not rely on this key to be present reliably.
+Either use the `stream` command or poll `get` regularly,
+to ensure you get the artwork data *eventually*.
 
 **Options**
 
