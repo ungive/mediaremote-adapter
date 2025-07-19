@@ -125,8 +125,8 @@ extern void adapter_stream() {
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_serialdispatchQueue];
-    __block const bool no_diff = no_diff_option != nil;
-    __block const bool convert_micros = micros_option != nil;
+    __block const BOOL no_diff = (no_diff_option != nil);
+    __block const BOOL convert_micros = (micros_option != nil);
 
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
       printData(data, !no_diff);
