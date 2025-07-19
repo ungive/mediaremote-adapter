@@ -18,10 +18,6 @@
 #define DEBOUNCE_DELAY_MILLIS 0
 #endif
 
-static const double INDEFINITELY = 1e10;
-
-static CFRunLoopRef g_runLoop = NULL;
-
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
     return serializeJsonDictionarySafe(@{
         @"type" : @"data",
@@ -61,27 +57,27 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
             continue;
         }
         if (aValue == nil || bValue == nil) {
-            return false;
+            return NO;
         }
         if (![aValue isEqual:bValue]) {
-            return false;
+            return NO;
         }
     }
-    return true;
+    return YES;
 }
 
 static NSDictionary *previousData = nil;
 
-static void printData(NSDictionary *data, bool diff) {
+static void printData(NSDictionary *data, BOOL diff) {
     NSString *serialized = nil;
     if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
         NSDictionary *result = createDiff(previousData, data);
         if ([result count] == 0) {
             return;
         }
-        serialized = serializeData(result, true);
+        serialized = serializeData(result, YES);
     } else {
-        serialized = serializeData(data, false);
+        serialized = serializeData(data, NO);
     }
     if (serialized != nil) {
         if (diff) {
@@ -103,7 +99,7 @@ static void appForNotification(NSNotification *notification,
     }
     int pid = [pidValue intValue];
     appForPID(pid, block);
-};
+}
 
 extern void adapter_stream() {
 
@@ -308,14 +304,7 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    // A little bit of a hack, but since CFRunLoopRun() returns without work,
-    // we need to create a timer that ensures it doesn't exit and just idles.
-    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(
-        kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + INDEFINITELY, 0, 0, 0,
-        NULL, NULL);
-    CFRunLoopAddTimer(g_runLoop, timer, kCFRunLoopCommonModes);
-    CFRunLoopRunResult result =
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, INDEFINITELY, FALSE);
+    [[NSRunLoop currentRunLoop] run];
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
 
@@ -328,10 +317,7 @@ extern void adapter_stream() {
 extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
-    if (g_runLoop) {
-        CFRunLoopStop(g_runLoop);
-        g_runLoop = NULL;
-    }
+    CFRunLoopStop(CFRunLoopGetCurrent());
 }
 
 static void handleSignal(int signal) {
@@ -341,7 +327,6 @@ static void handleSignal(int signal) {
 }
 
 __attribute__((constructor)) static void init() {
-    g_runLoop = CFRunLoopGetCurrent();
     signal(SIGTERM, handleSignal);
 }
 
