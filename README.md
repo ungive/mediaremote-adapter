@@ -162,6 +162,13 @@ The remaining value is converted to lowerCamelCase.
 Valid values may include: `music` and possibly others
 (this field is not documented anywhere).
 
+> [!NOTE]
+> *Metadata such as `artworkData` and `artworkMimeType`
+> often takes a bit of time to load
+> and may not appear in the output in all cases.
+> Do not rely on this key to be present at one specific point in time.
+> Either use the `stream` command or poll `get` regularly.*
+
 **Options**
 
 `--micros`&ensp;Replaces the following keys with microsecond equivalents:
