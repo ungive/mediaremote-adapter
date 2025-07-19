@@ -223,7 +223,7 @@ extern void adapter_stream() {
     };
 
     // FIXME Is this foolproof? This continues and registers observers
-    // which might intervene with the initial three requests.
+    // which might intervene with the initial requests.
     requestAll();
 
     NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
@@ -253,9 +253,6 @@ extern void adapter_stream() {
                               process.bundleIdentifier;
                           requestNowPlayingParentApplicationBundleIdentifier();
                           liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
-                          // NSLog(@"kMRMediaRemoteNowPlayingApplication"
-                          //       @"IsPlayingDidChangeNotification = %d",
-                          //       [isPlayingValue boolValue]);
                           if (liveData[kMRATitle] == nil) {
                               requestNowPlayingInfo();
                           }
