@@ -50,6 +50,7 @@ NSString *kMRATrackNumber = @"trackNumber";
 NSString *kMRAUniqueIdentifier = @"uniqueIdentifier";
 NSString *kMRAContentItemIdentifier = @"contentItemIdentifier";
 NSString *kMRARadioStationHash = @"radioStationHash";
+NSString *kMRAMediaType = @"mediaType";
 
 NSArray<NSString *> *mandatoryPayloadKeys(void) {
     return @[ kMRABundleIdentifier, kMRATitle, kMRAPlaying ];

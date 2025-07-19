@@ -89,6 +89,23 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
         });
     }
 
+    setValue(kMRAMediaType, ^id {
+      id mediaType = information[kMRMediaRemoteNowPlayingInfoMediaType];
+      if (mediaType == nil || ![mediaType isKindOfClass:[NSString class]]) {
+          return mediaType;
+      }
+      static NSString *prefix = @"MRMediaRemoteMediaType";
+      if ([mediaType hasPrefix:prefix]) {
+          mediaType = [mediaType substringFromIndex:prefix.length];
+      }
+      if ([mediaType length] == 0) {
+          return nil;
+      }
+      mediaType = [[mediaType substringToIndex:1].lowercaseString
+          stringByAppendingString:[mediaType substringFromIndex:1]];
+      return mediaType;
+    });
+
     // Some of the following keys might fail due to not being convertible
     // to JSON automatically. This is difficult to test because most media
     // players do not even set these keys and the data types are not documented

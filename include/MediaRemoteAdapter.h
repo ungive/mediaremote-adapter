@@ -55,6 +55,7 @@ extern NSString *kMRATrackNumber;
 extern NSString *kMRAUniqueIdentifier;
 extern NSString *kMRAContentItemIdentifier;
 extern NSString *kMRARadioStationHash;
+extern NSString *kMRAMediaType;
 
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
