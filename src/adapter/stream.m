@@ -18,10 +18,6 @@
 #define DEBOUNCE_DELAY_MILLIS 0
 #endif
 
-static const double INDEFINITELY = 1e10;
-
-static CFRunLoopRef g_runLoop = NULL;
-
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
     return serializeJsonDictionarySafe(@{
         @"type" : @"data",
@@ -308,14 +304,8 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    // A little bit of a hack, but since CFRunLoopRun() returns without work,
-    // we need to create a timer that ensures it doesn't exit and just idles.
-    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(
-        kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + INDEFINITELY, 0, 0, 0,
-        NULL, NULL);
-    CFRunLoopAddTimer(g_runLoop, timer, kCFRunLoopCommonModes);
-    CFRunLoopRunResult result =
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, INDEFINITELY, FALSE);
+    // Run the run loop so that we can wait for notifications.
+    [[NSRunLoop currentRunLoop] run];
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
 
@@ -328,10 +318,7 @@ extern void adapter_stream() {
 extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
-    if (g_runLoop) {
-        CFRunLoopStop(g_runLoop);
-        g_runLoop = NULL;
-    }
+    CFRunLoopStop(CFRunLoopGetCurrent());
 }
 
 static void handleSignal(int signal) {
@@ -341,7 +328,6 @@ static void handleSignal(int signal) {
 }
 
 __attribute__((constructor)) static void init() {
-    g_runLoop = CFRunLoopGetCurrent();
     signal(SIGTERM, handleSignal);
 }
 
