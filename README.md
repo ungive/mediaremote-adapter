@@ -156,11 +156,10 @@ If any of the mandatory keys cannot be determined,
 the command prints `null`.
 Media without a title is considered invalid.
 
-The `mediaType` key is derived from `kMRMediaRemoteNowPlayingInfoMediaType`
-and has any `MRMediaRemoteMediaType` prefix in its value stripped away.
-The remaining value is converted to lowerCamelCase.
-Valid values may include: `music` and possibly others
-(this field is not documented anywhere).
+The `mediaType` may contain one of the following values:
+- `MRMediaRemoteMediaTypeMusic`
+- `kMRMediaRemoteNowPlayingInfoTypeAudio`
+- Possibly others, this key is not very well documented
 
 > [!NOTE]
 > *Metadata such as `artworkData` and `artworkMimeType`
@@ -295,6 +294,14 @@ The value for `MODE` must be a valid ID from the table below.
 Sets the playback speed.
 
 The value for `SPEED` must be a valid positive integer.
+
+---
+
+## Built-in fixes
+
+This library has some fixes built-in to accomodate for inconsistencies within the MediaRemote framework:
+
+- The `stream` command reuses artwork data
 
 ---
 
