@@ -198,7 +198,7 @@ extern void adapter_stream() {
         if (isSameItemIdentity(liveData, converted) &&
             liveData[kMRAArtworkData] != nil &&
             liveData[kMRAArtworkData] != [NSNull null] &&
-            converted[kMRAArtworkData] == [NSNull null]) {
+            converted[kMRAArtworkData] == nil) {
             converted[kMRAArtworkData] = liveData[kMRAArtworkData];
         }
         [liveData setDictionary:converted];
