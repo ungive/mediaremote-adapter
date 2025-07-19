@@ -201,7 +201,7 @@ extern void adapter_stream() {
             converted[kMRAArtworkData] == [NSNull null]) {
             converted[kMRAArtworkData] = liveData[kMRAArtworkData];
         }
-        [liveData addEntriesFromDictionary:converted];
+        [liveData setDictionary:converted];
         handle();
       });
     };
