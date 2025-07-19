@@ -130,8 +130,6 @@ extern void adapter_stream() {
 
     void (^handle)() = ^{
       if (allMandatoryPayloadKeysSet(liveData)) {
-          // NSLog(@"getNowPlayingApplicationIsPlaying = %@",
-          // liveData[kPlaying]);
           localPrintData(liveData);
       }
     };
@@ -170,7 +168,6 @@ extern void adapter_stream() {
     void (^requestNowPlayingApplicationIsPlaying)() = ^{
       g_mediaRemote.getNowPlayingApplicationIsPlaying(
           g_serialdispatchQueue, ^(bool isPlaying) {
-            // NSLog(@"getNowPlayingApplicationIsPlaying = %d", isPlaying);
             liveData[kMRAPlaying] = @(isPlaying);
             handle();
           });
