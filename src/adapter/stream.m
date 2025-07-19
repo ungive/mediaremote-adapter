@@ -57,27 +57,27 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
             continue;
         }
         if (aValue == nil || bValue == nil) {
-            return false;
+            return NO;
         }
         if (![aValue isEqual:bValue]) {
-            return false;
+            return NO;
         }
     }
-    return true;
+    return YES;
 }
 
 static NSDictionary *previousData = nil;
 
-static void printData(NSDictionary *data, bool diff) {
+static void printData(NSDictionary *data, BOOL diff) {
     NSString *serialized = nil;
     if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
         NSDictionary *result = createDiff(previousData, data);
         if ([result count] == 0) {
             return;
         }
-        serialized = serializeData(result, true);
+        serialized = serializeData(result, YES);
     } else {
-        serialized = serializeData(data, false);
+        serialized = serializeData(data, NO);
     }
     if (serialized != nil) {
         if (diff) {
@@ -99,7 +99,7 @@ static void appForNotification(NSNotification *notification,
     }
     int pid = [pidValue intValue];
     appForPID(pid, block);
-};
+}
 
 extern void adapter_stream() {
 
