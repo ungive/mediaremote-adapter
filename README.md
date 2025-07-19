@@ -144,7 +144,9 @@ or a dictionary with any of the following keys:
 `totalTrackCount`
 `trackNumber`
 `uniqueIdentifier`
+`contentItemIdentifier`
 `radioStationHash`
+`mediaType`
 
 The following mandatory keys never have a null value:
 `bundleIdentifier`
@@ -153,6 +155,12 @@ The following mandatory keys never have a null value:
 If any of the mandatory keys cannot be determined,
 the command prints `null`.
 Media without a title is considered invalid.
+
+The `mediaType` key is derived from `kMRMediaRemoteNowPlayingInfoMediaType`
+and has any `MRMediaRemoteMediaType` prefix in its value stripped away.
+The remaining value is converted to lowerCamelCase.
+Valid values may include: `music` and possibly others
+(this field is not documented anywhere).
 
 **Options**
 
