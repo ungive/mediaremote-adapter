@@ -304,7 +304,6 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    // Run the run loop so that we can wait for notifications.
     [[NSRunLoop currentRunLoop] run];
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
