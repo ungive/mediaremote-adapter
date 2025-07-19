@@ -110,7 +110,7 @@ static bool isProcessEntitledForMediaRemote(NSString *bundleIdentifier,
 }
 
 // FIXME This does not appear to work on all platforms, needs debugging.
-extern void _adapter_test() {
+extern void _adapter_is_it_broken_yet() {
     // Get the current process's PID.
     __block const int pid = [[NSProcessInfo processInfo] processIdentifier];
     if (pid <= 0) {
