@@ -18,6 +18,8 @@
 #define DEBOUNCE_DELAY_MILLIS 0
 #endif
 
+static CFRunLoopRef g_runLoop = NULL;
+
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
     return serializeJsonDictionarySafe(@{
         @"type" : @"data",
@@ -99,6 +101,12 @@ static void appForNotification(NSNotification *notification,
     }
     int pid = [pidValue intValue];
     appForPID(pid, block);
+}
+
+static void handleSignal(int signal) {
+    if (signal == SIGINT || signal == SIGTERM) {
+        _adapter_stream_cancel();
+    }
 }
 
 extern void adapter_stream() {
@@ -304,7 +312,12 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    [[NSRunLoop currentRunLoop] run];
+    g_runLoop = CFRunLoopGetCurrent();
+
+    signal(SIGINT, handleSignal);
+    signal(SIGTERM, handleSignal);
+
+    CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
 
@@ -317,17 +330,7 @@ extern void adapter_stream() {
 extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
-    CFRunLoopStop(CFRunLoopGetCurrent());
-}
-
-static void handleSignal(int signal) {
-    if (signal == SIGTERM) {
-        _adapter_stream_cancel();
-    }
-}
-
-__attribute__((constructor)) static void init() {
-    signal(SIGTERM, handleSignal);
+    if (g_runLoop) CFRunLoopStop(g_runLoop);
 }
 
 __attribute__((destructor)) static void teardown() { _adapter_stream_cancel(); }
