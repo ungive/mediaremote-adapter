@@ -50,7 +50,7 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
     return [diff copy];
 }
 
-static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
+static BOOL isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     NSArray<NSString *> *keys = identifyingPayloadKeys();
     for (NSString *key in keys) {
         id aValue = a[key];
