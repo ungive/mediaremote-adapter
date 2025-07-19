@@ -301,9 +301,17 @@ The value for `SPEED` must be a valid positive integer.
 
 ## Built-in fixes
 
-This library has some fixes built-in to accomodate for inconsistencies within the MediaRemote framework:
+This library has some fixes built-in
+to accomodate for inconsistencies within the MediaRemote framework:
 
-- The `stream` command reuses artwork data
+- Artwork data sometimes unloads for a brief moment,
+  e.g. when changing the current timeline position of a track.
+  To combat this, artwork data is reused when the track has not changed,
+  the track had artwork data before and the artwork data has disappeared.
+  This fix is applied when using the `stream` command
+
+If you need a way to disable any or all of these fixes,
+please open an issue or create a pull request.
 
 ---
 
