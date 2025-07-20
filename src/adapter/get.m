@@ -13,6 +13,7 @@
 
 #define GET_TIMEOUT_MILLIS 2000
 #define JSON_NULL @"null"
+#define SIMULATED_BUNDLE_ID @"com.example.bundle"
 
 void adapter_get() {
 
@@ -31,6 +32,9 @@ void adapter_get() {
 
     __block int calls = 0; // thread-safe because the dispatch queue is serial.
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
+
+    // Check if we're in test mode via environment variable
+    BOOL isTestMode = (getEnvOptionInt(@"ADAPTER_TEST_MODE")) ? YES : NO;
 
     // Note that this function MUST be called by all MediaRemote callbacks
     // below, even when invalid data is received or a recoverable error occurs.
