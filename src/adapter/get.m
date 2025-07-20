@@ -13,6 +13,7 @@
 
 #define GET_TIMEOUT_MILLIS 2000
 #define JSON_NULL @"null"
+#define SIMULATED_BUNDLE_ID @"com.example.bundle"
 
 void adapter_get() {
 
@@ -25,6 +26,9 @@ void adapter_get() {
 
     __block int calls = 0; // thread-safe because the dispatch queue is serial.
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
+
+    // Check if we're in test mode via environment variable
+    BOOL isTestMode = (getEnvOptionInt(@"ADAPTER_TEST_MODE")) ? YES : NO;
 
     void (^handle)() = ^{
       calls += 1;
@@ -51,7 +55,8 @@ void adapter_get() {
     g_mediaRemote.getNowPlayingApplicationPID(
         g_serialdispatchQueue, ^(int pid) {
           bool ok = appForPID(pid, ^(NSRunningApplication *process) {
-            liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+            // Use simulated bundle id in test mode
+            liveData[kMRABundleIdentifier] = (isTestMode) ? SIMULATED_BUNDLE_ID : process.bundleIdentifier;
             handle();
           });
           if (!ok) {
