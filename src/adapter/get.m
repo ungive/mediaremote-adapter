@@ -17,6 +17,13 @@
 
 void adapter_get() {
 
+    // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
+    BOOL isTestMode = NO;
+    char *testModeEnv = getenv("ADAPTER_TEST_MODE");
+    if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
+        isTestMode = YES;
+    }
+
     NSString *micros_option = getEnvOption(@"micros");
     __block const bool convert_micros = micros_option != nil;
 
@@ -81,6 +88,22 @@ void adapter_get() {
               handle();
           }
         });
+
+    if(isTestMode) {
+        liveData[kMRABundleIdentifier] = SIMULATED_BUNDLE_ID;
+        handle();
+    } else {
+        g_mediaRemote.getNowPlayingApplicationPID(
+            g_serialdispatchQueue, ^(int pid) {
+                bool ok = appForPID(pid, ^(NSRunningApplication *process) {
+                    liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+                    handle();
+                });
+                if (!ok) {
+                    handle();
+                }
+            });
+    }
 
     g_mediaRemote.getNowPlayingClient(g_serialdispatchQueue, ^(id client) {
       NSString *parentAppBundleID = nil;
