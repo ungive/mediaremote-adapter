@@ -33,7 +33,7 @@ extern void _adapter_is_it_broken_yet(void) {
             [nowPlayingClientHelperTask launch];
         } @catch (__unused NSException *exception) {
             unsetenv("ADAPTER_TEST_MODE");
-            printErrf(@"Exeption while trying to launch NowPlayingClient Task")
+            printErrf(@"Exeption while trying to launch NowPlayingClient Task");
             printOut(@"1");
             exit(1);
         }
