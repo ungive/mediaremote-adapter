@@ -1,40 +1,46 @@
-//
-//  NowPlayingTest.h
-//  mediaremote-adapter
-//
-//  Created by Alexander on 2024-07-19.
-//
+// Copyright (c) 2025 Alexander5015
+// This file is licensed under the BSD 3-Clause License.
 
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-@class NowPlayingTest;
-
 NS_ASSUME_NONNULL_BEGIN
 
-// Protocol for remote command callbacks
-@protocol NowPlayingRemoteCommandListener <NSObject>
+@protocol RemoteCommandCenterDelegateListener <NSObject>
 - (void)didReceivePlayCommand;
 - (void)didReceivePauseCommand;
 @end
 
-// Delegate to manage MPNowPlayingInfoCenter metadata
 @interface NowPlayingInfoDelegate : NSObject
-- (void)updateMetadataWithTitle:(NSString *)title artist:(NSString *)artist duration:(NSTimeInterval)duration;
+
+@property (nonatomic, readonly) MPNowPlayingInfoCenter *center;
+
+- (void)updateMetadataWithTitle:(NSString *)title 
+                         artist:(NSString *)artist 
+                       duration:(NSTimeInterval)duration;
 - (void)setPlaybackRate:(float)rate elapsedTime:(NSTimeInterval)time;
+
 @end
 
-// Delegate to handle remote command callbacks
-@interface NowPlayingRemoteCommandDelegate : NSObject
-- (instancetype)initWithListener:(id<NowPlayingRemoteCommandListener>)listener;
+@interface RemoteCommandCenterDelegate : NSObject
+
+@property (nonatomic, weak) id<RemoteCommandCenterDelegateListener> listener;
+
+- (instancetype)initWithListener:(id<RemoteCommandCenterDelegateListener>)listener;
+
 @end
 
-// Main test class that simulates a now playing client
-@interface NowPlayingTest : NSObject
-@end
+@interface NowPlayingPublishTest : NSObject <RemoteCommandCenterDelegateListener>
 
-// C-style functions for test setup and teardown
-NowPlayingTest *TestSetupNowPlaying(void);
-void TestCleanupNowPlaying(NowPlayingTest * _Nullable testInstance);
+@property (nonatomic, strong, readonly) NowPlayingInfoDelegate *nowPlayingDelegate;
+@property (nonatomic, strong, readonly) RemoteCommandCenterDelegate *commandDelegate;
+@property (nonatomic, assign, readonly) BOOL isPlaying;
+@property (nonatomic, assign, readonly) NSTimeInterval elapsedTime;
+@property (nonatomic, strong, nullable, readonly) NSDate *playbackStartDate;
+@property (nonatomic, assign, readonly) NSTimeInterval totalDuration;
+
+- (void)updateNowPlayingInfo;
+
+@end
 
 NS_ASSUME_NONNULL_END
