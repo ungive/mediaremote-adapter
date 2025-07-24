@@ -2,11 +2,9 @@
 // This file is licensed under the BSD 3-Clause License.
 
 #import <Foundation/Foundation.h>
-#import "adapter/globals.h"
+#import "MediaRemoteAdapter.h"
 #import "utility/helpers.h"
 #import "utility/NowPlayingTestClient/NowPlayingTest.h"
-
-extern void adapter_get(void);
 
 extern void _adapter_is_it_broken_yet(void) {
     @autoreleasepool {
