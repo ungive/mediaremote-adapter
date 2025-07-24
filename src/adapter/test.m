@@ -5,9 +5,30 @@
 #import "MediaRemoteAdapter.h"
 #import "utility/helpers.h"
 #import "utility/NowPlayingTestClient/NowPlayingTest.h"
+#include <signal.h>
+
+static NSTask *nowPlayingClientHelperTask = nil;
+
+void cleanup_and_exit() {
+    unsetenv("ADAPTER_TEST_MODE");
+    if (nowPlayingClientHelperTask) {
+        @try {
+            [nowPlayingClientHelperTask terminate];
+            [nowPlayingClientHelperTask waitUntilExit];
+        } @catch (__unused NSException *exception) {}
+    }
+    exit(1);
+}
+
+void handleSignal(int signal) {
+    if(signal == SIGINT || signal == SIGTERM) cleanup_and_exit();
+}
 
 extern void _adapter_is_it_broken_yet(void) {
     @autoreleasepool {
+        signal(SIGINT, handleSignal);
+        signal(SIGTERM, handleSignal);
+
         setenv("ADAPTER_TEST_MODE", "1", 1);
 
         NSString *helperPath = NSProcessInfo.processInfo.environment[@"NOWPLAYING_CLIENT"];
@@ -22,7 +43,7 @@ extern void _adapter_is_it_broken_yet(void) {
         NSPipe *inputPipe = [NSPipe pipe];
         NSPipe *outputPipe = [NSPipe pipe];
 
-        NSTask *nowPlayingClientHelperTask = [[NSTask alloc] init];
+        nowPlayingClientHelperTask = [[NSTask alloc] init];
         nowPlayingClientHelperTask.launchPath = helperPath;
         nowPlayingClientHelperTask.standardInput = inputPipe;
         nowPlayingClientHelperTask.standardOutput = outputPipe;
