@@ -31,6 +31,30 @@ extern void _adapter_is_it_broken_yet(void) {
 
         setenv("ADAPTER_TEST_MODE", "1", 1);
 
+        NSPipe *stdoutPipe = [NSPipe pipe];
+        int originalStdout = dup(STDOUT_FILENO);
+        dup2(stdoutPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO);
+
+        adapter_get();
+
+        fflush(stdout);
+        dup2(originalStdout, STDOUT_FILENO);
+        close(originalStdout);
+        [stdoutPipe.fileHandleForWriting closeFile];
+
+        NSData *adapterData = [stdoutPipe.fileHandleForReading readDataToEndOfFile];
+        NSString *adapterOutput = [[NSString alloc] initWithData:adapterData encoding:NSUTF8StringEncoding];
+        adapterOutput = [adapterOutput stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+
+        // If adapterOutput is not null, we know the adapter is working correctly
+        if (![adapterOutput isEqualToString:@"null"]) {
+            unsetenv("ADAPTER_TEST_MODE");
+            printOut(@"0");
+            exit(0);
+        }
+
+        // Instantiate helper to ensure MediaRemote has data
+        // We only do this if adapterOutput is null to minimize the impact on other apps using the adapter
         NSString *helperPath = NSProcessInfo.processInfo.environment[@"NOWPLAYING_CLIENT"];
         if (helperPath.length == 0) {
             unsetenv("ADAPTER_TEST_MODE");
@@ -71,21 +95,25 @@ extern void _adapter_is_it_broken_yet(void) {
             exit(1);
         }
 
-        // Capture stdout from adapter_get
-        NSPipe *stdoutPipe = [NSPipe pipe];
-        int originalStdout = dup(STDOUT_FILENO);
-        dup2(stdoutPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO);
+
+        // Repeat adapter_get with helper running
+        NSPipe *stdoutPipe2 = [NSPipe pipe];
+        int originalStdout2 = dup(STDOUT_FILENO);
+        dup2(stdoutPipe2.fileHandleForWriting.fileDescriptor, STDOUT_FILENO);
+
+        // Small delay to ensure new data is available, for some reason the first call to adapter_get slows down MediaRemote?
+        [NSThread sleepForTimeInterval:0.01];
 
         adapter_get();
 
         fflush(stdout);
-        dup2(originalStdout, STDOUT_FILENO);
-        close(originalStdout);
-        [stdoutPipe.fileHandleForWriting closeFile];
+        dup2(originalStdout2, STDOUT_FILENO);
+        close(originalStdout2);
+        [stdoutPipe2.fileHandleForWriting closeFile];
 
-        NSData *adapterData = [stdoutPipe.fileHandleForReading readDataToEndOfFile];
-        NSString *adapterOutput = [[NSString alloc] initWithData:adapterData encoding:NSUTF8StringEncoding];
-        adapterOutput = [adapterOutput stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        NSData *adapterData2 = [stdoutPipe2.fileHandleForReading readDataToEndOfFile];
+        NSString *adapterOutput2 = [[NSString alloc] initWithData:adapterData2 encoding:NSUTF8StringEncoding];
+        adapterOutput2 = [adapterOutput2 stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
 
         unsetenv("ADAPTER_TEST_MODE");
 
@@ -96,7 +124,7 @@ extern void _adapter_is_it_broken_yet(void) {
         [helperOutput closeFile];
         [nowPlayingClientHelperTask waitUntilExit];
 
-        BOOL isBroken = [adapterOutput isEqualToString:@"null"];
+        BOOL isBroken = [adapterOutput2 isEqualToString:@"null"];
         printOut(isBroken ? @"1" : @"0");
         exit(isBroken ? 1 : 0);
     }
