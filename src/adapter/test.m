@@ -75,8 +75,8 @@ extern void _adapter_is_it_broken_yet(void) {
         [helperOutput closeFile];
         [nowPlayingClientHelperTask waitUntilExit];
 
-        BOOL isBroken = ![adapterOutput isEqualToString:@"null"];
-        printOut(isBroken ? @"0" : @"1");
+        BOOL isBroken = [adapterOutput isEqualToString:@"null"];
+        printOut(isBroken ? @"1" : @"0");
         exit(isBroken ? 1 : 0);
     }
 }
