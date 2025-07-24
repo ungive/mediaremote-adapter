@@ -137,7 +137,7 @@ void adapter_get() {
     long result = dispatch_semaphore_wait(semaphore, timeout);
     if (result != 0) {
         printErrf(@"Reading now playing information timed out "
-                  @"after @d milliseconds",
+                  @"after %d milliseconds",
                   GET_TIMEOUT_MILLIS);
         exit(1);
     }
