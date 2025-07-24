@@ -4,7 +4,7 @@
 #import <Foundation/Foundation.h>
 #import "NowPlayingTest.h"
 
-static const NSTimeInterval kRunLoopInterval = 0.2;
+static const NSTimeInterval kRunLoopInterval = 0.1;
 static const size_t kInputBufferSize = 256;
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
