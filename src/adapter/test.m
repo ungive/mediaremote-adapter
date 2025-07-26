@@ -32,6 +32,21 @@ extern void _adapter_is_it_broken_yet(void) {
         setenv("ADAPTER_TEST_MODE", "1", 1);
 
         NSPipe *stdoutPipe = [NSPipe pipe];
+        NSMutableData *capturedData = [NSMutableData data];
+        
+        // Set up reading from pipe in the background
+        dispatch_group_t readGroup = dispatch_group_create();
+        dispatch_group_enter(readGroup);
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSFileHandle *readHandle = stdoutPipe.fileHandleForReading;
+            NSData *data = [readHandle readDataToEndOfFile];
+            @synchronized(capturedData) {
+                [capturedData appendData:data];
+            }
+            dispatch_group_leave(readGroup);
+        });
+
         int originalStdout = dup(STDOUT_FILENO);
         dup2(stdoutPipe.fileHandleForWriting.fileDescriptor, STDOUT_FILENO);
 
@@ -42,8 +57,15 @@ extern void _adapter_is_it_broken_yet(void) {
         close(originalStdout);
         [stdoutPipe.fileHandleForWriting closeFile];
 
-        NSData *adapterData = [stdoutPipe.fileHandleForReading readDataToEndOfFile];
-        NSString *adapterOutput = [[NSString alloc] initWithData:adapterData encoding:NSUTF8StringEncoding];
+        // Wait for all data to be read with 3-second timeout
+        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
+        long result = dispatch_group_wait(readGroup, timeout);
+        if (result != 0) {
+            printErrf(@"Reading adapter output timed out after 3 seconds");
+            cleanup_and_exit();
+        }
+        
+        NSString *adapterOutput = [[NSString alloc] initWithData:capturedData encoding:NSUTF8StringEncoding];
         adapterOutput = [adapterOutput stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
 
         // If adapterOutput is not null, we know the adapter is working correctly
@@ -98,6 +120,21 @@ extern void _adapter_is_it_broken_yet(void) {
 
         // Repeat adapter_get with helper running
         NSPipe *stdoutPipe2 = [NSPipe pipe];
+        NSMutableData *capturedData2 = [NSMutableData data];
+        
+        // Set up reading from pipe in the background
+        dispatch_group_t readGroup2 = dispatch_group_create();
+        dispatch_group_enter(readGroup2);
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSFileHandle *readHandle2 = stdoutPipe2.fileHandleForReading;
+            NSData *data = [readHandle2 readDataToEndOfFile];
+            @synchronized(capturedData2) {
+                [capturedData2 appendData:data];
+            }
+            dispatch_group_leave(readGroup2);
+        });
+
         int originalStdout2 = dup(STDOUT_FILENO);
         dup2(stdoutPipe2.fileHandleForWriting.fileDescriptor, STDOUT_FILENO);
 
@@ -111,8 +148,15 @@ extern void _adapter_is_it_broken_yet(void) {
         close(originalStdout2);
         [stdoutPipe2.fileHandleForWriting closeFile];
 
-        NSData *adapterData2 = [stdoutPipe2.fileHandleForReading readDataToEndOfFile];
-        NSString *adapterOutput2 = [[NSString alloc] initWithData:adapterData2 encoding:NSUTF8StringEncoding];
+        // Wait for all data to be read with 3-second timeout
+        dispatch_time_t timeout2 = dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC);
+        long result2 = dispatch_group_wait(readGroup2, timeout2);
+        if (result2 != 0) {
+            printErrf(@"Reading adapter output timed out after 3 seconds");
+            cleanup_and_exit();
+        }
+        
+        NSString *adapterOutput2 = [[NSString alloc] initWithData:capturedData2 encoding:NSUTF8StringEncoding];
         adapterOutput2 = [adapterOutput2 stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
 
         unsetenv("ADAPTER_TEST_MODE");
