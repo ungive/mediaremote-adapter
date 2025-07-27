@@ -18,8 +18,6 @@
 #define DEBOUNCE_DELAY_MILLIS 0
 #endif
 
-static const double INDEFINITELY = 1e10;
-
 static CFRunLoopRef g_runLoop = NULL;
 
 static NSString *serializeData(NSDictionary *data, BOOL diff) {
@@ -52,7 +50,7 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
     return [diff copy];
 }
 
-static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
+static BOOL isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
     NSArray<NSString *> *keys = identifyingPayloadKeys();
     for (NSString *key in keys) {
         id aValue = a[key];
@@ -61,27 +59,27 @@ static bool isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
             continue;
         }
         if (aValue == nil || bValue == nil) {
-            return false;
+            return NO;
         }
         if (![aValue isEqual:bValue]) {
-            return false;
+            return NO;
         }
     }
-    return true;
+    return YES;
 }
 
 static NSDictionary *previousData = nil;
 
-static void printData(NSDictionary *data, bool diff) {
+static void printData(NSDictionary *data, BOOL diff) {
     NSString *serialized = nil;
     if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
         NSDictionary *result = createDiff(previousData, data);
         if ([result count] == 0) {
             return;
         }
-        serialized = serializeData(result, true);
+        serialized = serializeData(result, YES);
     } else {
-        serialized = serializeData(data, false);
+        serialized = serializeData(data, NO);
     }
     if (serialized != nil) {
         if (diff) {
@@ -122,8 +120,8 @@ extern void adapter_stream() {
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_serialdispatchQueue];
-    __block const bool no_diff = no_diff_option != nil;
-    __block const bool convert_micros = micros_option != nil;
+    __block const BOOL no_diff = (no_diff_option != nil);
+    __block const BOOL convert_micros = (micros_option != nil);
 
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
       printData(data, !no_diff);
@@ -329,14 +327,9 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    // A little bit of a hack, but since CFRunLoopRun() returns without work,
-    // we need to create a timer that ensures it doesn't exit and just idles.
-    CFRunLoopTimerRef timer = CFRunLoopTimerCreate(
-        kCFAllocatorDefault, CFAbsoluteTimeGetCurrent() + INDEFINITELY, 0, 0, 0,
-        NULL, NULL);
-    CFRunLoopAddTimer(g_runLoop, timer, kCFRunLoopCommonModes);
-    CFRunLoopRunResult result =
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, INDEFINITELY, FALSE);
+    g_runLoop = CFRunLoopGetCurrent();
+
+    CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
 
@@ -349,23 +342,19 @@ extern void adapter_stream() {
 extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
-    if (g_runLoop) {
-        CFRunLoopStop(g_runLoop);
-        g_runLoop = NULL;
-    }
+    if (g_runLoop) CFRunLoopStop(g_runLoop);
 }
 
 static void handleSignal(int signal) {
-    if (signal == SIGTERM) {
+    if (signal == SIGINT || signal == SIGTERM) {
         _adapter_stream_cancel();
     }
 }
 
 __attribute__((constructor)) static void init() {
-    g_runLoop = CFRunLoopGetCurrent();
+    signal(SIGINT, handleSignal);
     signal(SIGTERM, handleSignal);
 }
-
 __attribute__((destructor)) static void teardown() { _adapter_stream_cancel(); }
 
 // FIXME Fix "peculiar media" (artist is updated later than title). Example:
