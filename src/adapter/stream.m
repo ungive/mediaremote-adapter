@@ -103,12 +103,6 @@ static void appForNotification(NSNotification *notification,
     appForPID(pid, block);
 }
 
-static void handleSignal(int signal) {
-    if (signal == SIGINT || signal == SIGTERM) {
-        _adapter_stream_cancel();
-    }
-}
-
 extern void adapter_stream() {
 
     int debounce_delay_millis = 0;
@@ -314,9 +308,6 @@ extern void adapter_stream() {
 
     g_runLoop = CFRunLoopGetCurrent();
 
-    signal(SIGINT, handleSignal);
-    signal(SIGTERM, handleSignal);
-
     CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
@@ -333,6 +324,16 @@ extern void _adapter_stream_cancel() {
     if (g_runLoop) CFRunLoopStop(g_runLoop);
 }
 
+static void handleSignal(int signal) {
+    if (signal == SIGINT || signal == SIGTERM) {
+        _adapter_stream_cancel();
+    }
+}
+
+__attribute__((constructor)) static void init() {
+    signal(SIGINT, handleSignal);
+    signal(SIGTERM, handleSignal);
+}
 __attribute__((destructor)) static void teardown() { _adapter_stream_cancel(); }
 
 // FIXME Fix "peculiar media" (artist is updated later than title). Example:
