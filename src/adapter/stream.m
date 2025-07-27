@@ -342,7 +342,9 @@ extern void adapter_stream() {
 extern void adapter_stream_env() { adapter_stream(); }
 
 extern void _adapter_stream_cancel() {
-    if (g_runLoop) CFRunLoopStop(g_runLoop);
+    if (g_runLoop) {
+        CFRunLoopStop(g_runLoop);
+    }
 }
 
 static void handleSignal(int signal) {
