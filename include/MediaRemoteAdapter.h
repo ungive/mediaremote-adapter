@@ -123,6 +123,6 @@ extern void _adapter_stream_cancel();
 // Tests whether the process is entitled to use the MediaRemote framework.
 // Prints "1" to stdout when it is entitled and "0" otherwise.
 // NOTE This does not work reliably yet.
-extern void _adapter_test();
+extern void _adapter_is_it_broken_yet();
 
 #endif // MEDIAREMOTEADAPTER_ADAPTER_H

@@ -24,7 +24,7 @@ static NSString *serializeData(NSDictionary *data, BOOL diff) {
     return serializeJsonDictionarySafe(@{
         @"type" : @"data",
         @"diff" : @(diff),
-        @"payload" : data,
+        @"payload" : data ?: @{},
     });
 }
 
@@ -96,12 +96,13 @@ static void appForNotification(NSNotification *notification,
                                void (^block)(NSRunningApplication *)) {
     NSDictionary *userInfo = notification.userInfo;
     id pidValue = userInfo[kMRMediaRemoteNowPlayingApplicationPIDUserInfoKey];
-    if (pidValue == nil) {
-        return;
+    if (pidValue != nil) {
+        int pid = [pidValue intValue];
+        appForPID(pid, block);
+    } else {
+        block(nil);
     }
-    int pid = [pidValue intValue];
-    appForPID(pid, block);
-}
+};
 
 extern void adapter_stream() {
 
@@ -129,6 +130,8 @@ extern void adapter_stream() {
     void (^handle)() = ^{
       if (allMandatoryPayloadKeysSet(liveData)) {
           localPrintData(liveData);
+      } else {
+          localPrintData(nil);
       }
     };
 
@@ -136,7 +139,7 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingApplicationPID(
           g_serialdispatchQueue, ^(int pid) {
             if (pid == 0) {
-                localPrintData([NSMutableDictionary dictionary]);
+                localPrintData(nil);
                 return;
             }
             appForPID(pid, ^(NSRunningApplication *process) {
@@ -234,23 +237,33 @@ extern void adapter_stream() {
                   dispatch_async(g_serialdispatchQueue, ^() {
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
+                      if (process == nil) {
+                          // The process for this notification could not be
+                          // determined. Assume that there is no now playing
+                          // application anymore.
+                          resetAll();
+                          handle();
+                          return;
+                      }
                       id isPlayingValue =
                           notification.userInfo
                               [kMRMediaRemoteNowPlayingApplicationIsPlayingUserInfoKey];
-                      if (isPlayingValue != nil) {
-                          if (liveData[kMRABundleIdentifier] != nil &&
-                              ![liveData[kMRABundleIdentifier]
-                                  isEqual:process.bundleIdentifier]) {
-                              // This is a different process, reset all data.
-                              resetAll();
-                          }
-                          liveData[kMRABundleIdentifier] =
-                              process.bundleIdentifier;
-                          requestNowPlayingParentApplicationBundleIdentifier();
-                          liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
-                          if (liveData[kMRATitle] == nil) {
-                              requestNowPlayingInfo();
-                          }
+                      if (isPlayingValue == nil) {
+                          return;
+                      }
+                      if (liveData[kMRABundleIdentifier] != nil &&
+                          ![liveData[kMRABundleIdentifier]
+                              isEqual:process.bundleIdentifier]) {
+                          // This is a different process, reset all data.
+                          resetAll();
+                      }
+                      liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+                      requestNowPlayingParentApplicationBundleIdentifier();
+                      liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
+                      if (liveData[kMRATitle] == nil) {
+                          requestNowPlayingInfo();
+                      } else {
+                          handle();
                       }
                     });
                   });
@@ -264,6 +277,14 @@ extern void adapter_stream() {
                   [debounce call:^{
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
+                      if (process == nil) {
+                          // The process for this notification could not be
+                          // determined. Assume that there is no now playing
+                          // application anymore.
+                          resetAll();
+                          handle();
+                          return;
+                      }
                       if (liveData[kMRABundleIdentifier] != nil &&
                           ![liveData[kMRABundleIdentifier]
                               isEqual:process.bundleIdentifier]) {
