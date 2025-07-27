@@ -264,6 +264,8 @@ extern void adapter_stream() {
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
                       if (liveData[kMRATitle] == nil) {
                           requestNowPlayingInfo();
+                      } else {
+                          handle();
                       }
                     });
                   });
