@@ -327,8 +327,6 @@ extern void adapter_stream() {
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
 
-    g_runLoop = CFRunLoopGetCurrent();
-
     CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
@@ -354,6 +352,7 @@ static void handleSignal(int signal) {
 }
 
 __attribute__((constructor)) static void init() {
+    g_runLoop = CFRunLoopGetCurrent();
     signal(SIGINT, handleSignal);
     signal(SIGTERM, handleSignal);
 }
