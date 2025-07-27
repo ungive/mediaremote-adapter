@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 
 void printOut(NSString *message);
+void printOutUnique(NSString *message);
 void printErr(NSString *message);
 void printErrf(NSString *format, ...);
 

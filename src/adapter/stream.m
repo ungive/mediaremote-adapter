@@ -85,7 +85,11 @@ static void printData(NSDictionary *data, BOOL diff) {
         if (diff) {
             previousData = [data copy];
         }
-        printOut(serialized);
+        // Print the serialized data without duplicates. Note that while this
+        // can fail when the key order in the serialized JSON output changes,
+        // it practically won't because if it did, there would also be a change
+        // in values that needs to be reported.
+        printOutUnique(serialized);
     }
     if (!diff) {
         previousData = nil;

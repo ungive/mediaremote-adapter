@@ -14,6 +14,14 @@ void printOut(NSString *message) {
     fflush(stdout);
 }
 
+void printOutUnique(NSString *message) {
+    static NSString *previous = nil;
+    if (![previous isEqualToString:message]) {
+        printOut(message);
+        previous = [message copy];
+    }
+}
+
 void printErr(NSString *message) {
     fprintf(stderr, "%s\n", [message UTF8String]);
     fflush(stderr);
