@@ -40,6 +40,9 @@ PARAMS:
     speed: The playback speed
 
 OPTIONS:
+  get
+    --now: Sets "elapsedTime" to the current elapsed time. By default,
+      this value is the elapsed time at the time of the given "timestamp".
   stream
     --no-diff: Disable diffing and always dump all metadata
     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
@@ -186,6 +189,9 @@ elsif ($function_name eq "get") {
     }
     elsif ($key eq "human-readable" || $key eq "h") {
       set_env_option($options, "human-readable");
+    }
+    elsif ($key eq "now") {
+      set_env_option($options, $key);
     }
     else {
       fail "Unrecognized option '$key'";

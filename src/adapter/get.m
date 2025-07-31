@@ -22,6 +22,9 @@ void adapter_get() {
     NSString *human_readable_option = getEnvOption(@"human-readable");
     __block const bool human_readable = human_readable_option != nil;
 
+    NSString *now_option = getEnvOption(@"now");
+    __block const bool calculate_now = now_option != nil;
+
     id semaphore = dispatch_semaphore_create(0);
 
     static const int expected_calls = 4;
@@ -96,8 +99,8 @@ void adapter_get() {
 
     g_mediaRemote.getNowPlayingInfo(
         g_serialdispatchQueue, ^(NSDictionary *information) {
-          NSDictionary *converted =
-              convertNowPlayingInformation(information, convert_micros);
+          NSDictionary *converted = convertNowPlayingInformation(
+              information, convert_micros, calculate_now);
           [liveData addEntriesFromDictionary:converted];
           handle();
         });

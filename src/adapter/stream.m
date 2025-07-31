@@ -198,7 +198,7 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
                                           NSDictionary *information) {
         NSMutableDictionary *converted =
-            convertNowPlayingInformation(information, convert_micros);
+            convertNowPlayingInformation(information, convert_micros, false);
         // Transfer anything over from the existing live data.
         if (liveData[kMRAProcessIdentifier] != nil) {
             converted[kMRAProcessIdentifier] = liveData[kMRAProcessIdentifier];

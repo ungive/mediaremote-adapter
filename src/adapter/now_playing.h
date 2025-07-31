@@ -13,6 +13,7 @@ void waitForCommandCompletion();
 // Converts raw MediaRemote now playing information to adapter keys.
 // Optionally replaces keys with time values with microseconds equivalents.
 NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
-                                                  bool convertMicros);
+                                                  bool convertMicros,
+                                                  bool calculateNow);
 
 #endif // MEDIAREMOTEADAPTER_UTILITY_NOW_PLAYING_H

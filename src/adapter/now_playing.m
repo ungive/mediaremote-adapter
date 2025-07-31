@@ -21,8 +21,38 @@ void waitForCommandCompletion() {
     dispatch_release(semaphore);
 }
 
+NSNumber *getElapsedTimeNow(NSDictionary *information) {
+    id elapsed = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+    if (![elapsed isKindOfClass:[NSNumber class]]) {
+        return nil;
+    }
+
+    id timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
+    if (![timestamp isKindOfClass:[NSDate class]]) {
+        return elapsed;
+    }
+
+    NSTimeInterval timestampEpoch = [(NSDate *)timestamp timeIntervalSince1970];
+    NSTimeInterval currentEpoch = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval timeDiff = currentEpoch - timestampEpoch;
+
+    int playbackRate = 0;
+    id playbackRateVal = information[kMRMediaRemoteNowPlayingInfoPlaybackRate];
+    if ([playbackRateVal isKindOfClass:[NSNumber class]]) {
+        playbackRate = [(NSNumber *)playbackRateVal doubleValue];
+    }
+
+    double realElapsed = [(NSNumber *)elapsed doubleValue];
+    if (playbackRate >= 0) {
+        realElapsed += timeDiff * playbackRate;
+    }
+
+    return @(realElapsed);
+}
+
 NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
-                                                  bool convertMicros) {
+                                                  bool convertMicros,
+                                                  bool calculateNow) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
@@ -56,7 +86,16 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
 
     if (!convertMicros) {
         setKey(kMRADuration, kMRMediaRemoteNowPlayingInfoDuration);
-        setKey(kMRAElapsedTime, kMRMediaRemoteNowPlayingInfoElapsedTime);
+        setValue(kMRAElapsedTime, ^id {
+          id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+          if (calculateNow) {
+              id nowValue = getElapsedTimeNow(information);
+              if (nowValue != nil) {
+                  elapsedTime = nowValue;
+              }
+          }
+          return elapsedTime;
+        });
         setKey(kMRATimestamp, kMRMediaRemoteNowPlayingInfoTimestamp);
     } else {
         setValue(kMRADurationMicros, ^id {
@@ -70,6 +109,9 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
         });
         setValue(kMRAElapsedTimeMicros, ^id {
           id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+          if (calculateNow) {
+              elapsedTime = getElapsedTimeNow(information);
+          }
           if (elapsedTime != nil &&
               [elapsedTime isKindOfClass:[NSNumber class]]) {
               NSTimeInterval elapsedTimeMicros =
