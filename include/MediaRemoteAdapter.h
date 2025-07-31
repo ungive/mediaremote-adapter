@@ -11,6 +11,7 @@
 // MEDIAREMOTEADAPTER_<FUNC_NAME>_<PARAM_INDEX>_<PARAM_NAME>
 // Example: MEDIAREMOTEADAPTER_adapter_send_0_command
 
+extern NSString *kMRAProcessIdentifier;
 extern NSString *kMRABundleIdentifier;
 extern NSString *kMRAParentApplicationBundleIdentifier;
 extern NSString *kMRAPlaying;

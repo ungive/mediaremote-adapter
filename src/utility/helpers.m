@@ -199,12 +199,6 @@ bool appForPID(int pid, void (^block)(NSRunningApplication *)) {
                                        pid]);
         return false;
     }
-    if (process.bundleIdentifier == nil) {
-        printErr([NSString
-            stringWithFormat:
-                @"The bundle identifier for process with PID %d is nil", pid]);
-        return false;
-    }
     block(process);
     return true;
 }

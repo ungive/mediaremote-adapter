@@ -143,13 +143,19 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingApplicationPID(
           g_serialdispatchQueue, ^(int pid) {
             if (pid == 0) {
-                localPrintData(nil);
+                handle();
                 return;
             }
-            appForPID(pid, ^(NSRunningApplication *process) {
-              liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+            liveData[kMRAProcessIdentifier] = @(pid);
+            bool ok = appForPID(pid, ^(NSRunningApplication *process) {
+              if (process.bundleIdentifier != nil) {
+                  liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+              }
               handle();
             });
+            if (!ok) {
+                handle();
+            }
           });
     };
 
@@ -184,6 +190,9 @@ extern void adapter_stream() {
         NSMutableDictionary *converted =
             convertNowPlayingInformation(information, convert_micros);
         // Transfer anything over from the existing live data.
+        if (liveData[kMRAProcessIdentifier] != nil) {
+            converted[kMRAProcessIdentifier] = liveData[kMRAProcessIdentifier];
+        }
         if (liveData[kMRABundleIdentifier] != nil) {
             converted[kMRABundleIdentifier] = liveData[kMRABundleIdentifier];
         }
@@ -232,6 +241,8 @@ extern void adapter_stream() {
     NSNotificationCenter *shared_workscape_notification_center =
         [[NSWorkspace sharedWorkspace] notificationCenter];
 
+    // TODO Refactor the below two callbacks. They share a lot of code.
+
     id is_playing_change_observer = [default_center
         addObserverForName:
             kMRMediaRemoteNowPlayingApplicationIsPlayingDidChangeNotification
@@ -256,8 +267,15 @@ extern void adapter_stream() {
                           return;
                       }
                       if (liveData[kMRABundleIdentifier] != nil &&
+                          process.bundleIdentifier != nil &&
                           ![liveData[kMRABundleIdentifier]
                               isEqual:process.bundleIdentifier]) {
+                          // This is a different process, reset all data.
+                          resetAll();
+                      }
+                      if (liveData[kMRAProcessIdentifier] != nil &&
+                          ![liveData[kMRAProcessIdentifier]
+                              isEqual:@(process.processIdentifier)]) {
                           // This is a different process, reset all data.
                           resetAll();
                       }
@@ -290,12 +308,19 @@ extern void adapter_stream() {
                           return;
                       }
                       if (liveData[kMRABundleIdentifier] != nil &&
+                          process.bundleIdentifier != nil &&
                           ![liveData[kMRABundleIdentifier]
                               isEqual:process.bundleIdentifier]) {
                           // This is a different process, reset all data.
                           resetAll();
                       }
-                      if (liveData[kMRABundleIdentifier] == nil) {
+                      if (liveData[kMRAProcessIdentifier] != nil &&
+                          ![liveData[kMRAProcessIdentifier]
+                              isEqual:@(process.processIdentifier)]) {
+                          // This is a different process, reset all data.
+                          resetAll();
+                      }
+                      if (liveData[kMRAProcessIdentifier] == nil) {
                           requestNowPlayingApplicationPID();
                       }
                       if (liveData[kMRAParentApplicationBundleIdentifier] ==

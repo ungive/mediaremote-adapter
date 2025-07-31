@@ -5,6 +5,7 @@
 
 #import "MediaRemoteAdapter.h"
 
+NSString *kMRAProcessIdentifier = @"processIdentifier";
 NSString *kMRABundleIdentifier = @"bundleIdentifier";
 NSString *kMRAParentApplicationBundleIdentifier =
     @"parentApplicationBundleIdentifier";
@@ -53,7 +54,7 @@ NSString *kMRARadioStationHash = @"radioStationHash";
 NSString *kMRAMediaType = @"mediaType";
 
 NSArray<NSString *> *mandatoryPayloadKeys(void) {
-    return @[ kMRABundleIdentifier, kMRATitle, kMRAPlaying ];
+    return @[ kMRAProcessIdentifier, kMRATitle, kMRAPlaying ];
 }
 
 bool allMandatoryPayloadKeysSet(NSDictionary *data) {
@@ -68,7 +69,7 @@ bool allMandatoryPayloadKeysSet(NSDictionary *data) {
 
 NSArray<NSString *> *identifyingPayloadKeys(void) {
     return @[
-        kMRABundleIdentifier, kMRAParentApplicationBundleIdentifier, kMRATitle,
-        kMRAArtist, kMRAAlbum
+        kMRAProcessIdentifier, kMRABundleIdentifier,
+        kMRAParentApplicationBundleIdentifier, kMRATitle, kMRAArtist, kMRAAlbum
     ];
 }

@@ -26,6 +26,8 @@ void adapter_get() {
     __block int calls = 0; // thread-safe because the dispatch queue is serial.
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
 
+    // Note that this function MUST be called by all MediaRemote callbacks
+    // below, even when invalid data is received or a recoverable error occurs.
     void (^handle)() = ^{
       calls += 1;
       if (calls < expected_calls) {
@@ -50,8 +52,15 @@ void adapter_get() {
 
     g_mediaRemote.getNowPlayingApplicationPID(
         g_serialdispatchQueue, ^(int pid) {
+          if (pid == 0) {
+              handle();
+              return;
+          }
+          liveData[kMRAProcessIdentifier] = @(pid);
           bool ok = appForPID(pid, ^(NSRunningApplication *process) {
-            liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+            if (process.bundleIdentifier != nil) {
+                liveData[kMRABundleIdentifier] = process.bundleIdentifier;
+            }
             handle();
           });
           if (!ok) {
