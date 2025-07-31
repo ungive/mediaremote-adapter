@@ -19,6 +19,9 @@ void adapter_get() {
     NSString *micros_option = getEnvOption(@"micros");
     __block const bool convert_micros = micros_option != nil;
 
+    NSString *human_readable_option = getEnvOption(@"human-readable");
+    __block const bool human_readable = human_readable_option != nil;
+
     id semaphore = dispatch_semaphore_create(0);
 
     static const int expected_calls = 4;
@@ -37,11 +40,15 @@ void adapter_get() {
           return;
       }
 
+      if (human_readable) {
+          makePayloadHumanReadable(liveData);
+      }
+
       NSString *result = nil;
       if (!allMandatoryPayloadKeysSet(liveData)) {
           result = JSON_NULL;
       } else {
-          result = serializeJsonDictionarySafe(liveData);
+          result = serializeJsonDictionarySafe(liveData, human_readable);
           if (!result) {
               fail(@"Failed to serialize now playing information");
           }

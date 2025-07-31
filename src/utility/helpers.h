@@ -18,8 +18,10 @@ void fail(NSString *message);
 void failf(NSString *format, ...);
 
 NSString *formatError(NSError *error);
-NSString *serializeJsonDictionarySafe(NSDictionary *any);
+NSString *serializeJsonDictionarySafe(NSDictionary *any, bool prettyPrint);
 
 bool appForPID(int pid, void (^block)(NSRunningApplication *));
+
+void makePayloadHumanReadable(NSMutableDictionary *dict);
 
 #endif // MEDIAREMOTEADAPTER_UTILITY_HELPERS_H

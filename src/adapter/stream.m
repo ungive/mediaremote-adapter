@@ -20,12 +20,14 @@
 
 static CFRunLoopRef g_runLoop = NULL;
 
-static NSString *serializeData(NSDictionary *data, BOOL diff) {
-    return serializeJsonDictionarySafe(@{
-        @"type" : @"data",
-        @"diff" : @(diff),
-        @"payload" : data ?: @{},
-    });
+static NSString *serializeData(NSDictionary *data, BOOL diff, BOOL pretty) {
+    return serializeJsonDictionarySafe(
+        @{
+            @"type" : @"data",
+            @"diff" : @(diff),
+            @"payload" : data ?: @{},
+        },
+        pretty);
 }
 
 static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
@@ -70,16 +72,16 @@ static BOOL isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
 
 static NSDictionary *previousData = nil;
 
-static void printData(NSDictionary *data, BOOL diff) {
+static void printData(NSDictionary *data, BOOL diff, BOOL pretty) {
     NSString *serialized = nil;
     if (diff && previousData != nil && isSameItemIdentity(previousData, data)) {
         NSDictionary *result = createDiff(previousData, data);
         if ([result count] == 0) {
             return;
         }
-        serialized = serializeData(result, YES);
+        serialized = serializeData(result, YES, pretty);
     } else {
-        serialized = serializeData(data, NO);
+        serialized = serializeData(data, NO, pretty);
     }
     if (serialized != nil) {
         if (diff) {
@@ -117,8 +119,8 @@ extern void adapter_stream() {
     }
 
     NSString *no_diff_option = getEnvOption(@"no_diff");
-
     NSString *micros_option = getEnvOption(@"micros");
+    NSString *human_readable_option = getEnvOption(@"human-readable");
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block const Debounce *const debounce =
@@ -126,14 +128,22 @@ extern void adapter_stream() {
                                   queue:g_serialdispatchQueue];
     __block const BOOL no_diff = (no_diff_option != nil);
     __block const BOOL convert_micros = (micros_option != nil);
+    __block const bool human_readable = (human_readable_option != nil);
 
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
-      printData(data, !no_diff);
+      printData(data, !no_diff, human_readable);
     };
 
     void (^handle)() = ^{
       if (allMandatoryPayloadKeysSet(liveData)) {
-          localPrintData(liveData);
+          if (human_readable) {
+              NSMutableDictionary *shallowClone =
+                  [NSMutableDictionary dictionaryWithDictionary:liveData];
+              makePayloadHumanReadable(shallowClone);
+              localPrintData(shallowClone);
+          } else {
+              localPrintData(liveData);
+          }
       } else {
           localPrintData(nil);
       }

@@ -48,6 +48,8 @@ OPTIONS:
       duration -> durationMicros
       elapsedTime -> elapsedTimeMicros
       timestamp -> timestampEpochMicros (converted to epoch time)
+    --human-readable, -h: Makes values human-readable. Use only for debugging
+      artworkData -> binary data is truncated to a shorter representation
 
 Examples (script name and framework path omitted):
   stream --no-diff --debounce=100
@@ -100,6 +102,11 @@ sub parse_options {
       my $key = $1;
       my $value = defined $2 ? $2 : undef;
       $arg_map{$key} = $value;
+      splice @ARGV, $i, 1;
+    }
+    elsif ($arg =~ /^-([a-zA-Z]+)$/) {
+      my @flags = split //, $1;
+      $arg_map{$_} = undef for @flags;
       splice @ARGV, $i, 1;
     }
     else {
@@ -162,6 +169,9 @@ elsif ($function_name eq "stream") {
     elsif ($key eq "micros") {
       set_env_option($options, $key);
     }
+    elsif ($key eq "human-readable" || $key eq "h") {
+      set_env_option($options, "human-readable");
+    }
     else {
       fail "Unrecognized option '$key'";
     }
@@ -173,6 +183,9 @@ elsif ($function_name eq "get") {
   foreach my $key (keys %{$options}) {
     if ($key eq "micros") {
       set_env_option($options, $key);
+    }
+    elsif ($key eq "human-readable" || $key eq "h") {
+      set_env_option($options, "human-readable");
     }
     else {
       fail "Unrecognized option '$key'";

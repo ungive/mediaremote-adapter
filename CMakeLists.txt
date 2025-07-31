@@ -50,6 +50,11 @@ set_target_properties(
 target_link_libraries(MediaRemoteAdapter "-framework Foundation"
                       "-framework AppKit" "-framework JavaScriptCore")
 
+find_library(UT_FRAMEWORK UniformTypeIdentifiers)
+if(UT_FRAMEWORK)
+    target_link_libraries(MediaRemoteAdapter ${UT_FRAMEWORK})
+endif()
+
 target_include_directories(MediaRemoteAdapter
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(MediaRemoteAdapter

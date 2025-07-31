@@ -23,7 +23,8 @@ static NSNumber *parseIntegerOrNil(NSString *str) {
 
 NSString *getEnvValue(NSString *name) {
     NSDictionary *env = [[NSProcessInfo processInfo] environment];
-    return env[name];
+    return env[[name stringByReplacingOccurrencesOfString:@"-"
+                                               withString:@"_"]];
 }
 
 NSString *getEnvFuncParam(NSString *func_name, int param_pos,

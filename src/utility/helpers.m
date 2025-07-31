@@ -1,11 +1,18 @@
 // Copyright (c) 2025 Jonas van den Berg
 // This file is licensed under the BSD 3-Clause License.
 
+#import "helpers.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#import "helpers.h"
+#import <ImageIO/ImageIO.h>
+#if __has_include(<UniformTypeIdentifiers/UniformTypeIdentifiers.h>)
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 
 #define JSON_NULL @"null";
 
@@ -132,7 +139,7 @@ static NSDictionary *sanitizeDictionaryForJsonEncoding(NSDictionary *data) {
     return sanitizeValueForJsonEncoding(data, nil);
 }
 
-NSString *serializeJsonDictionarySafe(NSDictionary *any) {
+NSString *serializeJsonDictionarySafe(NSDictionary *any, bool prettyPrint) {
     if (any == nil) {
         NSCAssert(false, @"Cannot serialize nil as JSON");
         return JSON_NULL;
@@ -146,8 +153,10 @@ NSString *serializeJsonDictionarySafe(NSDictionary *any) {
               @"Sanitized JSON dictionary is not a valid JSON object");
     @try {
         NSError *error;
+        NSJSONWritingOptions options =
+            prettyPrint ? NSJSONWritingPrettyPrinted : 0;
         NSData *serialized = [NSJSONSerialization dataWithJSONObject:any
-                                                             options:0
+                                                             options:options
                                                                error:&error];
         if (!serialized) {
             printErrf(@"Failed to serialize JSON: %@", error);
@@ -201,4 +210,41 @@ bool appForPID(int pid, void (^block)(NSRunningApplication *)) {
     }
     block(process);
     return true;
+}
+
+static NSString *guessImageMimeTypeFromData(NSData *data) {
+    if (!data)
+        return nil;
+    CGImageSourceRef src =
+        CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    if (!src)
+        return nil;
+    CFStringRef uti = CGImageSourceGetType(src);
+    CFRelease(src);
+    if (!uti)
+        return nil;
+#if __has_include(<UniformTypeIdentifiers/UniformTypeIdentifiers.h>)
+    UTType *type = [UTType typeWithIdentifier:(__bridge NSString *)uti];
+    return type.preferredMIMEType;
+#else
+    CFStringRef mime =
+        UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType);
+    if (!mime)
+        return nil;
+    NSString *mimeType = (__bridge_transfer NSString *)mime;
+    return mimeType;
+#endif
+}
+
+void makePayloadHumanReadable(NSMutableDictionary *dict) {
+    for (NSString *key in [dict allKeys]) {
+        id value = dict[key];
+        if ([value isKindOfClass:[NSData class]]) {
+            NSString *mimeType = guessImageMimeTypeFromData(value);
+            dict[key] = [NSString
+                stringWithFormat:@"<%@%@%lu bytes...>", mimeType ?: @"",
+                                 mimeType ? @" " : @"",
+                                 (unsigned long)[value length]];
+        }
+    }
 }
