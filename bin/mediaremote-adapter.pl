@@ -42,17 +42,18 @@ PARAMS:
 OPTIONS:
   get
     --now: Sets "elapsedTime" to the current elapsed time. By default,
-      this value is the elapsed time at the time of the given "timestamp".
+      this value is the elapsed time at the time of the given "timestamp"
   stream
     --no-diff: Disable diffing and always dump all metadata
     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
   get, stream
     --micros: Replaces the following time keys with microsecond equivalents
-      duration -> durationMicros
-      elapsedTime -> elapsedTimeMicros
-      timestamp -> timestampEpochMicros (converted to epoch time)
-    --human-readable, -h: Makes values human-readable. Use only for debugging
-      artworkData -> binary data is truncated to a shorter representation
+      "duration" -> "durationMicros"
+      "elapsedTime" -> "elapsedTimeMicros"
+      "timestamp" -> "timestampEpochMicros" (converted to epoch time)
+    --human-readable, -h: Makes values human-readable. Use only for debugging.
+      The JSON output is pretty-printed and the following keys are adapted:
+      "artworkData" -> binary data is truncated to a shorter representation
 
 Examples (script name and framework path omitted):
   stream --no-diff --debounce=100
