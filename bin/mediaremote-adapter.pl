@@ -53,7 +53,7 @@ OPTIONS:
       "timestamp" -> "timestampEpochMicros" (converted to epoch time)
     --human-readable, -h: Makes values human-readable. Use only for debugging.
       The JSON output is pretty-printed and the following keys are adapted:
-      "artworkData" -> binary data is truncated to a shorter representation
+      "artworkData" -> Binary data is truncated to a shorter representation
 
 Examples (script name and framework path omitted):
   stream --no-diff --debounce=100
