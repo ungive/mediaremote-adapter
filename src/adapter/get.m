@@ -18,11 +18,11 @@
 void adapter_get() {
 
     // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
-    BOOL isTestMode = NO;
-    char *testModeEnv = getenv("ADAPTER_TEST_MODE");
-    if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
-        isTestMode = YES;
-    }
+    // BOOL isTestMode = NO;
+    // char *testModeEnv = getenv("ADAPTER_TEST_MODE");
+    // if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
+    //     isTestMode = YES;
+    // }
 
     NSString *micros_option = getEnvOption(@"micros");
     __block const bool convert_micros = micros_option != nil;
@@ -50,6 +50,7 @@ void adapter_get() {
       if (calls < expected_calls) {
           return;
       } else if (calls > expected_calls) {
+            printErrf(@"Received more than %d calls to handle(), received %d calls", expected_calls, calls);
           assert(false);
           return;
       }
