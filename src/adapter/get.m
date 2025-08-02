@@ -84,7 +84,7 @@ void adapter_get() {
     dispatch_group_enter(group);
     g_mediaRemote.getNowPlayingInfo(
         g_serialdispatchQueue, ^(NSDictionary *information) {
-            NSString *serviceIdentifier = information[@"kMRMediaRemoteNowPlayingInfoServiceIdentifier"];
+            NSString *serviceIdentifier = information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
             if (!isTestMode && [serviceIdentifier isEqualToString:@"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
                 [liveData removeAllObjects];
                 dispatch_group_leave(group);
