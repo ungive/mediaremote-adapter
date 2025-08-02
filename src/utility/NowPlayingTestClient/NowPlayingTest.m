@@ -31,16 +31,16 @@ static const float kPausedRate = 0.0f;
                        duration:(NSTimeInterval)duration {
     NSDictionary *nowPlayingInfo = @{
         MPMediaItemPropertyTitle: title ?: @"Unknown Title",
+        MPMediaItemPropertyAlbumTitle: @"Unknown Album",
         MPMediaItemPropertyArtist: artist ?: @"Unknown Artist",
         MPMediaItemPropertyPlaybackDuration: @(duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: @0,
+        MPNowPlayingInfoPropertyCurrentPlaybackDate: [NSDate date],
         MPNowPlayingInfoPropertyPlaybackRate: @(kPlayingRate),
         MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio),
         MPNowPlayingInfoPropertyServiceIdentifier: @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
-
-
     };
-
+    self.center.playbackState = MPNowPlayingPlaybackStatePlaying;
     self.center.nowPlayingInfo = nowPlayingInfo;
 }
 
