@@ -112,6 +112,13 @@ static void appForNotification(NSNotification *notification,
 
 extern void adapter_stream() {
 
+    // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
+    BOOL isTestMode = NO;
+    char *testModeEnv = getenv("ADAPTER_TEST_MODE");
+    if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
+        isTestMode = YES;
+    }
+
     int debounce_delay_millis = 0;
     NSNumber *debounce_option = getEnvOptionInt(@"debounce");
     if (debounce_option != nil) {
@@ -197,6 +204,10 @@ extern void adapter_stream() {
     void (^requestNowPlayingInfo)() = ^{
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
                                           NSDictionary *information) {
+        NSString *serviceIdentifier = information[@"kMRMediaRemoteNowPlayingInfoServiceIdentifier"];
+        if (!isTestMode && [serviceIdentifier isEqualToString:@"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
+            return;
+        }
         NSMutableDictionary *converted =
             convertNowPlayingInformation(information, convert_micros, false);
         // Transfer anything over from the existing live data.

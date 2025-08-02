@@ -2,6 +2,7 @@
 // This file is licensed under the BSD 3-Clause License.
 
 #import "NowPlayingTest.h"
+#include <MediaPlayer/MediaPlayer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,7 +35,11 @@ static const float kPausedRate = 0.0f;
         MPMediaItemPropertyPlaybackDuration: @(duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: @0,
         MPNowPlayingInfoPropertyPlaybackRate: @(kPlayingRate),
-        MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio)
+        MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio),
+        MPNowPlayingInfoPropertyServiceIdentifier: @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
+        MPNowPlayingInfoPropertyExcludeFromSuggestions: @YES,
+
+
     };
 
     self.center.nowPlayingInfo = nowPlayingInfo;
