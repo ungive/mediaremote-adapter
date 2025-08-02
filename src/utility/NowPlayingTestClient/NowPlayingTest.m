@@ -37,7 +37,6 @@ static const float kPausedRate = 0.0f;
         MPNowPlayingInfoPropertyPlaybackRate: @(kPlayingRate),
         MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio),
         MPNowPlayingInfoPropertyServiceIdentifier: @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
-        MPNowPlayingInfoPropertyExcludeFromSuggestions: @YES,
 
 
     };
