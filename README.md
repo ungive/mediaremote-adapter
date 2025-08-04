@@ -331,13 +331,11 @@ Note that the `test` command requires the absolute path to the `NowPlayingTestCl
 
 **Output**
 
-The command outputs a single character to stdout:
-- `0` - MediaRemote Adapter is working correctly
-- `1` - MediaRemote Adapter is not working correctly
+The command returns with an exit code of `0` if the adapter is functioning correctly, or `1` if it is not.
 
 **How it works**
 
-1. First attempts to get now playing information normally
+1. First, it attempts to get now playing information normally
 2. If no media is detected, launches a helper process (`NowPlayingTestClient`) that simulates media playback
 3. Attempts to retrieve now playing information again
 4. Terminates the helper process

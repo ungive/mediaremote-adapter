@@ -33,11 +33,11 @@ extern void _adapter_is_it_broken_yet(void) {
 
         NSPipe *stdoutPipe = [NSPipe pipe];
         NSMutableData *capturedData = [NSMutableData data];
-        
+
         // Set up reading from pipe in the background
         dispatch_group_t readGroup = dispatch_group_create();
         dispatch_group_enter(readGroup);
-        
+
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSFileHandle *readHandle = stdoutPipe.fileHandleForReading;
             NSData *data = [readHandle readDataToEndOfFile];
@@ -64,14 +64,13 @@ extern void _adapter_is_it_broken_yet(void) {
             printErrf(@"Reading adapter output timed out after 3 seconds");
             cleanup_and_exit();
         }
-        
+
         NSString *adapterOutput = [[NSString alloc] initWithData:capturedData encoding:NSUTF8StringEncoding];
         adapterOutput = [adapterOutput stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
 
         // If adapterOutput is not null, we know the adapter is working correctly
         if (![adapterOutput isEqualToString:@"null"]) {
             unsetenv("ADAPTER_TEST_MODE");
-            printOut(@"0");
             exit(0);
         }
 
@@ -81,7 +80,6 @@ extern void _adapter_is_it_broken_yet(void) {
         if (helperPath.length == 0) {
             unsetenv("ADAPTER_TEST_MODE");
             printErrf(@"NowPlayingTestClient helper path is not set");
-            printOut(@"1");
             exit(1);
         }
 
@@ -99,7 +97,6 @@ extern void _adapter_is_it_broken_yet(void) {
         } @catch (__unused NSException *exception) {
             unsetenv("ADAPTER_TEST_MODE");
             printErrf(@"Exeption while trying to launch NowPlayingClient Task");
-            printOut(@"1");
             exit(1);
         }
 
@@ -113,7 +110,6 @@ extern void _adapter_is_it_broken_yet(void) {
             printErrf(@"NowPlayingTestClient did not signal setup_done");
             [nowPlayingClientHelperTask terminate];
             unsetenv("ADAPTER_TEST_MODE");
-            printOut(@"1");
             exit(1);
         }
 
@@ -121,11 +117,11 @@ extern void _adapter_is_it_broken_yet(void) {
         // Repeat adapter_get with helper running
         NSPipe *stdoutPipe2 = [NSPipe pipe];
         NSMutableData *capturedData2 = [NSMutableData data];
-        
+
         // Set up reading from pipe in the background
         dispatch_group_t readGroup2 = dispatch_group_create();
         dispatch_group_enter(readGroup2);
-        
+
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSFileHandle *readHandle2 = stdoutPipe2.fileHandleForReading;
             NSData *data = [readHandle2 readDataToEndOfFile];
@@ -155,7 +151,7 @@ extern void _adapter_is_it_broken_yet(void) {
             printErrf(@"Reading adapter output timed out after 3 seconds");
             cleanup_and_exit();
         }
-        
+
         NSString *adapterOutput2 = [[NSString alloc] initWithData:capturedData2 encoding:NSUTF8StringEncoding];
         adapterOutput2 = [adapterOutput2 stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
 
@@ -169,7 +165,6 @@ extern void _adapter_is_it_broken_yet(void) {
         [nowPlayingClientHelperTask waitUntilExit];
 
         BOOL isBroken = [adapterOutput2 isEqualToString:@"null"];
-        printOut(isBroken ? @"1" : @"0");
         exit(isBroken ? 1 : 0);
     }
 }
