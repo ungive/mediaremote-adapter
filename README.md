@@ -341,7 +341,7 @@ The command returns with an exit code of `0` if the adapter is functioning corre
 4. Terminates the helper process
 5. Reports whether the adapter can successfully detect the simulated media
 
-**IMPORTANT: May interfere with other apps using MediaRemote**: The test can create a fake media entry that will briefly appear as the now playing app. This only happens when no other media is playing. Since the helper process has no bundle identifier, it is mostly ignored by the `stream` and `get` commands — `stream` won't update, and `get` will print `null`. However, both commands will also print error messages to stderr about the missing bundle identifier.
+**IMPORTANT: May interfere with other apps using MediaRemote**: The test can create a fake media entry that will briefly appear as the now playing app. This only happens when no other media is playing. Since the helper process has no bundle identifier, it is mostly ignored by the `stream` and `get` commands — `stream` won't update, and `get` will print `null`.
 
 ---
 
