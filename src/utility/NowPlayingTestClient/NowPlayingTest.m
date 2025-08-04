@@ -29,7 +29,7 @@ static const float kPausedRate = 0.0f;
 - (void)updateMetadataWithTitle:(NSString *)title
                          artist:(NSString *)artist
                        duration:(NSTimeInterval)duration {
-    NSDictionary *nowPlayingInfo = @{
+    NSMutableDictionary *nowPlayingInfo = [@{
         MPMediaItemPropertyTitle: title ?: @"Unknown Title",
         MPMediaItemPropertyAlbumTitle: @"Unknown Album",
         MPMediaItemPropertyArtist: artist ?: @"Unknown Artist",
@@ -39,9 +39,14 @@ static const float kPausedRate = 0.0f;
         MPNowPlayingInfoPropertyPlaybackRate: @(kPlayingRate),
         MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio),
         MPNowPlayingInfoPropertyServiceIdentifier: @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
-    };
+    } mutableCopy];
+
+    if (@available(macOS 15, *)) {
+        nowPlayingInfo[MPNowPlayingInfoPropertyExcludeFromSuggestions] = @YES;
+    }
+
     self.center.playbackState = MPNowPlayingPlaybackStatePlaying;
-    self.center.nowPlayingInfo = nowPlayingInfo;
+    self.center.nowPlayingInfo = [nowPlayingInfo copy];
 }
 
 - (void)setPlaybackRate:(float)rate elapsedTime:(NSTimeInterval)time {
