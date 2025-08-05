@@ -60,6 +60,12 @@ The script must then be invoked like this:
 /usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework COMMAND
 ```
 
+For the `test` command, an additional helper path is required:
+
+```
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
+```
+
 Where `COMMAND` is one of the commands listed below.
 
 > [!NOTE]
@@ -91,6 +97,15 @@ and must merely be passed as a script argument.
 The framework is built for all of the following architectures:
 `x86_64` `arm64` `arm64e`
 
+The build process also creates the `NowPlayingTestClient` executable
+in the build directory, which is required for the `test` command:
+
+```
+$ HELPER_PATH=$(realpath ./build/NowPlayingTestClient)
+$ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" "$HELPER_PATH" test
+```
+
+
 ## Commands
 
 - [get](#get)
@@ -100,6 +115,7 @@ The framework is built for all of the following architectures:
 - [shuffle MODE](#shuffle-mode)
 - [repeat MODE](#repeat-mode)
 - [speed SPEED](#speed-speed)
+- [test](#test)
 
 ### get
 
@@ -306,6 +322,36 @@ The value for `SPEED` must be a valid positive integer.
 
 ---
 
+### test
+
+Verifies if the MediaRemote Adapter is functioning correctly.
+
+This can be integrated into your app to help confirm that our adapter is still effective and select fallback options if necessary since future macOS updates may break it again.
+
+**Usage**
+
+```
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
+```
+
+Note that the `test` command requires the absolute path to the `NowPlayingTestClient` helper executable as the second argument (before the command name).
+
+**Output**
+
+The command returns with an exit code of `0` if the adapter is functioning correctly, or `1` if it is not.
+
+**How it works**
+
+1. First, it attempts to get now playing information normally
+2. If no media is detected, launches a helper process (`NowPlayingTestClient`) that simulates media playback
+3. Attempts to retrieve now playing information again
+4. Terminates the helper process
+5. Reports whether the adapter can successfully detect the simulated media
+
+**IMPORTANT: May interfere with other apps using MediaRemote**: The test can create a fake media entry that will briefly appear as the now playing app. This only happens when no other media is playing. Since the helper process has no bundle identifier, it is mostly ignored by the `stream` and `get` commands — `stream` won't update, and `get` will print `null`.
+
+---
+
 ## Built-in fixes
 
 This library has some fixes built-in
@@ -331,10 +377,11 @@ please open an issue or create a pull request.
 - Every line printed to stderr is an error message.
   If the script did not exit with a non-zero exit code,
   then any of these errors are non-fatal and can be safely ignored
+- Other apps using MediaRemote Adapter may run `test` which should not interfere with the `stream` and `get` commands, but will generate a missing bundle identifier error message, which can be ignored. See the `test` command section for more information.
 - You should not reinvoke the script when a fatal error occurs
   (non-zero exit code)
-- Make sure to pass the absolute path of the bundled framework
-  as the first argument and not a relative path
+- Make sure to pass the absolute path of the bundled framework and helper executable
+  as arguments and not a relative path
 
 ## Why this works
 

@@ -49,6 +49,7 @@ NSString *kMRMediaRemoteNowPlayingInfoUniqueIdentifier = @"kMRMediaRemoteNowPlay
 NSString *kMRMediaRemoteNowPlayingInfoContentItemIdentifier = @"kMRMediaRemoteNowPlayingInfoContentItemIdentifier";
 NSString *kMRMediaRemoteNowPlayingInfoRadioStationHash = @"kMRMediaRemoteNowPlayingInfoRadioStationHash";
 NSString *kMRMediaRemoteNowPlayingInfoMediaType = @"kMRMediaRemoteNowPlayingInfoMediaType";
+NSString *kMRMediaRemoteNowPlayingInfoServiceIdentifier = @"kMRMediaRemoteNowPlayingInfoServiceIdentifier";
 NSString *kMRMediaRemoteOptionMediaType = @"kMRMediaRemoteOptionMediaType";
 NSString *kMRMediaRemoteOptionSourceID = @"kMRMediaRemoteOptionSourceID";
 NSString *kMRMediaRemoteOptionTrackID = @"kMRMediaRemoteOptionTrackID";

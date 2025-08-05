@@ -202,10 +202,6 @@ bool appForPID(int pid, void (^block)(NSRunningApplication *)) {
     NSRunningApplication *process =
         [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     if (process == nil) {
-        printErr(
-            [NSString stringWithFormat:@"Failed to determine bundle identifier "
-                                       @"for process with PID %d",
-                                       pid]);
         return false;
     }
     block(process);
