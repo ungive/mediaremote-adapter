@@ -15,6 +15,9 @@ NSString *kMRADurationMicros = @"durationMicros";
 NSString *kMRAElapsedTimeMicros = @"elapsedTimeMicros";
 NSString *kMRATimestampEpochMicros = @"timestampEpochMicros";
 
+NSString *kMRAElapsedTimeNow = @"elapsedTimeNow";
+NSString *kMRAElapsedTimeNowMicros = @"elapsedTimeNowMicros";
+
 NSString *kMRATitle = @"title";
 NSString *kMRAArtist = @"artist";
 NSString *kMRAAlbum = @"album";

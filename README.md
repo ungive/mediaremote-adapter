@@ -172,13 +172,20 @@ to ensure you get the artwork data *eventually*.
 
 **Options**
 
+`--now`&ensp;Adds an `elapsedTimeNow` key with an estimation of the current
+elapsed playback time. This estimation may be off by up to a second.
+To determine a more accurate time without polling `get` continuously,
+calculate it using the `elapsedTime` and `timestamp` keys. `elapsedTime`
+contains the elapsed time at the time that is stored in `timestamp`.
+
 `--micros`&ensp;Replaces the following keys with microsecond equivalents:
 
-| Original key  | Converted key name     | Comment                 |
-| ------------- | ---------------------- | ----------------------- |
-| `duration`    | `durationMicros`       | -                       |
-| `elapsedTime` | `elapsedTimeMicros`    | -                       |
-| `timestamp`   | `timestampEpochMicros` | Converted to epoch time |
+| Original key     | Converted key name     | Comment                   |
+|------------------|------------------------|---------------------------|
+| `duration`       | `durationMicros`       | -                         |
+| `elapsedTime`    | `elapsedTimeMicros`    | -                         |
+| `elapsedTimeNow` | `elapsedTimeNowMicros` | Only present with `--now` |
+| `timestamp`      | `timestampEpochMicros` | Converted to epoch time   |
 
 ---
 
@@ -235,22 +242,22 @@ Sends a MediaRemote command to the now playing application.
 
 The value for `COMMAND` must be a valid ID from the table below.
 
-|  ID   | MediaRemote key         | Description                   |
-| :---: | ----------------------- | ----------------------------- |
-|   0   | kMRPlay                 | Start playback                |
-|   1   | kMRPause                | Pause playback                |
-|   2   | kMRTogglePlayPause      | Toggle between play and pause |
-|   3   | kMRStop                 | Stop playback                 |
-|   4   | kMRNextTrack            | Skip to the next track        |
-|   5   | kMRPreviousTrack        | Return to the previous track  |
-|   6   | kMRToggleShuffle        | Toggle shuffle mode           |
-|   7   | kMRToggleRepeat         | Toggle repeat mode            |
-|   8   | kMRStartForwardSeek     | Start seeking forward         |
-|   9   | kMREndForwardSeek       | Stop seeking forward          |
-|  10   | kMRStartBackwardSeek    | Start seeking backward        |
-|  11   | kMREndBackwardSeek      | Stop seeking backward         |
-|  12   | kMRGoBackFifteenSeconds | Go back 15 seconds            |
-|  13   | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
+| ID | MediaRemote key         | Description                   |
+|:--:|-------------------------|-------------------------------|
+| 0  | kMRPlay                 | Start playback                |
+| 1  | kMRPause                | Pause playback                |
+| 2  | kMRTogglePlayPause      | Toggle between play and pause |
+| 3  | kMRStop                 | Stop playback                 |
+| 4  | kMRNextTrack            | Skip to the next track        |
+| 5  | kMRPreviousTrack        | Return to the previous track  |
+| 6  | kMRToggleShuffle        | Toggle shuffle mode           |
+| 7  | kMRToggleRepeat         | Toggle repeat mode            |
+| 8  | kMRStartForwardSeek     | Start seeking forward         |
+| 9  | kMREndForwardSeek       | Stop seeking forward          |
+| 10 | kMRStartBackwardSeek    | Start seeking backward        |
+| 11 | kMREndBackwardSeek      | Stop seeking backward         |
+| 12 | kMRGoBackFifteenSeconds | Go back 15 seconds            |
+| 13 | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
 
 ---
 
@@ -269,11 +276,11 @@ Sets the shuffle mode.
 
 The value for `MODE` must be a valid ID from the table below.
 
-|  ID   | Description    |
-| :---: | -------------- |
-|   1   | Disable        |
-|   2   | Shuffle albums |
-|   3   | Shuffle tracks |
+| ID | Description    |
+|:--:|----------------|
+| 1  | Disable        |
+| 2  | Shuffle albums |
+| 3  | Shuffle tracks |
 
 ---
 
@@ -283,11 +290,11 @@ Sets the repeat mode.
 
 The value for `MODE` must be a valid ID from the table below.
 
-|  ID   | Description     |
-| :---: | --------------- |
-|   1   | Disable         |
-|   2   | Repeat track    |
-|   3   | Repeat playlist |
+| ID | Description     |
+|:--:|-----------------|
+| 1  | Disable         |
+| 2  | Repeat track    |
+| 3  | Repeat playlist |
 
 ---
 

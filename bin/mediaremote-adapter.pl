@@ -41,8 +41,11 @@ PARAMS:
 
 OPTIONS:
   get
-    --now: Sets "elapsedTime" to the current elapsed time. By default,
-      this value is the elapsed time at the time of the given "timestamp"
+    --now: Adds an "elapsedTimeNow" key with an estimation of the current
+      elapsed playback time. This estimation may be off by up to a second.
+      To determine a more accurate time without polling "get" continuously,
+      calculate it using the "elapsedTime" and "timestamp" keys. "elapsedTime"
+      contains the elapsed time at the time that is stored in "timestamp".
   stream
     --no-diff: Disable diffing and always dump all metadata
     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
@@ -50,6 +53,7 @@ OPTIONS:
     --micros: Replaces the following time keys with microsecond equivalents
       "duration" -> "durationMicros"
       "elapsedTime" -> "elapsedTimeMicros"
+      "elapsedTimeNow" -> "elapsedTimeNowMicros"
       "timestamp" -> "timestampEpochMicros" (converted to epoch time)
     --human-readable, -h: Makes values human-readable. Use only for debugging.
       The JSON output is pretty-printed and the following keys are adapted:

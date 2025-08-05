@@ -20,6 +20,9 @@ extern NSString *kMRADurationMicros;
 extern NSString *kMRAElapsedTimeMicros;
 extern NSString *kMRATimestampEpochMicros;
 
+extern NSString *kMRAElapsedTimeNow;
+extern NSString *kMRAElapsedTimeNowMicros;
+
 extern NSString *kMRATitle;
 extern NSString *kMRAArtist;
 extern NSString *kMRAAlbum;

@@ -86,18 +86,24 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
 
     if (!convertMicros) {
         setKey(kMRADuration, kMRMediaRemoteNowPlayingInfoDuration);
-        setValue(kMRAElapsedTime, ^id {
-          id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
-          if (calculateNow) {
+        setKey(kMRAElapsedTime, kMRMediaRemoteNowPlayingInfoElapsedTime);
+        setKey(kMRATimestamp, kMRMediaRemoteNowPlayingInfoTimestamp);
+        if (calculateNow) {
+            // This key is added and does not replace the original because it
+            // is just a rough estimation, meant to be used for convenience.
+            setValue(kMRAElapsedTimeNow, ^id {
+              id elapsedTime =
+                  information[kMRMediaRemoteNowPlayingInfoElapsedTime];
               id nowValue = getElapsedTimeNow(information);
               if (nowValue != nil) {
                   elapsedTime = nowValue;
               }
-          }
-          return elapsedTime;
-        });
-        setKey(kMRATimestamp, kMRMediaRemoteNowPlayingInfoTimestamp);
+              return elapsedTime;
+            });
+        }
     } else {
+        // These keys replace their original counterparts because semantics
+        // don't change and no accuracy is lost, merely the time unit changes.
         setValue(kMRADurationMicros, ^id {
           id duration = information[kMRMediaRemoteNowPlayingInfoDuration];
           if (duration != nil && [duration isKindOfClass:[NSNumber class]]) {
@@ -109,9 +115,6 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
         });
         setValue(kMRAElapsedTimeMicros, ^id {
           id elapsedTime = information[kMRMediaRemoteNowPlayingInfoElapsedTime];
-          if (calculateNow) {
-              elapsedTime = getElapsedTimeNow(information);
-          }
           if (elapsedTime != nil &&
               [elapsedTime isKindOfClass:[NSNumber class]]) {
               NSTimeInterval elapsedTimeMicros =
@@ -120,6 +123,24 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
           }
           return nil;
         });
+        if (calculateNow) {
+            // This key is added and does not replace the original because it
+            // is just a rough estimation, meant to be used for convenience.
+            setValue(kMRAElapsedTimeNowMicros, ^id {
+              id elapsedTime =
+                  information[kMRMediaRemoteNowPlayingInfoElapsedTime];
+              if (calculateNow) {
+                  elapsedTime = getElapsedTimeNow(information);
+              }
+              if (elapsedTime != nil &&
+                  [elapsedTime isKindOfClass:[NSNumber class]]) {
+                  NSTimeInterval elapsedTimeMicros =
+                      [elapsedTime doubleValue] * 1000 * 1000;
+                  return @(floor(elapsedTimeMicros));
+              }
+              return nil;
+            });
+        }
         setValue(kMRATimestampEpochMicros, ^id {
           id timestamp = information[kMRMediaRemoteNowPlayingInfoTimestamp];
           if (timestamp != nil && [timestamp isKindOfClass:[NSDate class]]) {
