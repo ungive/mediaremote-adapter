@@ -13,17 +13,8 @@
 
 #define GET_TIMEOUT_MILLIS 2000
 #define JSON_NULL @"null"
-#define SIMULATED_BUNDLE_ID @"com.example.bundle"
 
-void adapter_get() {
-
-    // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
-    BOOL isTestMode = NO;
-    char *testModeEnv = getenv("ADAPTER_TEST_MODE");
-    if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
-        isTestMode = YES;
-    }
-
+NSDictionary *internal_get(BOOL isTestMode) {
     NSString *micros_option = getEnvOption(@"micros");
     __block const bool convert_micros = micros_option != nil;
 
@@ -34,8 +25,7 @@ void adapter_get() {
     __block const bool calculate_now = now_option != nil;
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-
-
+    __block BOOL shouldAbort = NO;
 
     dispatch_group_t group = dispatch_group_create();
 
@@ -80,15 +70,13 @@ void adapter_get() {
             dispatch_group_leave(group);
         });
 
-
     dispatch_group_enter(group);
     g_mediaRemote.getNowPlayingInfo(
         g_serialdispatchQueue, ^(NSDictionary *information) {
             NSString *serviceIdentifier = information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
             if (!isTestMode && [serviceIdentifier isEqualToString:@"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
-                [liveData removeAllObjects];
+                shouldAbort = YES;
                 dispatch_group_leave(group);
-                return;
             }
             NSDictionary *converted = convertNowPlayingInformation(
                 information, convert_micros, calculate_now);
@@ -103,15 +91,39 @@ void adapter_get() {
     if (result != 0) {
         printErrf(@"Reading now playing information timed out after %d milliseconds", GET_TIMEOUT_MILLIS);
         dispatch_release(group);
-        return;
+        return nil;
+    }
+
+    if (shouldAbort) {
+        dispatch_release(group);
+        return nil;
     }
 
     if (human_readable) {
         makePayloadHumanReadable(liveData);
     }
 
-    NSString *resultStr = nil;
     if (!allMandatoryPayloadKeysSet(liveData)) {
+        dispatch_release(group);
+        return nil;
+    }
+
+    dispatch_release(group);
+
+    return liveData;
+}
+
+void adapter_get() {
+    NSDictionary *liveData = internal_get(NO);
+
+    NSString *micros_option = getEnvOption(@"micros");
+    const bool convert_micros = micros_option != nil;
+
+    NSString *human_readable_option = getEnvOption(@"human-readable");
+    const bool human_readable = human_readable_option != nil;
+
+    NSString *resultStr = nil;
+    if (!liveData) {
         resultStr = JSON_NULL;
     } else {
         resultStr = serializeJsonDictionarySafe(liveData, human_readable);
@@ -121,8 +133,6 @@ void adapter_get() {
     }
 
     printOut(resultStr);
-
-    dispatch_release(group);
 }
 
 extern void adapter_get_env() { adapter_get(); }
