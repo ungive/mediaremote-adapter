@@ -49,7 +49,7 @@ static NSDictionary *createDiff(NSDictionary *a, NSDictionary *b) {
             diff[key] = newValue ?: [NSNull null];
         }
     }
-    return [diff copy];
+    return [[diff copy] autorelease];
 }
 
 static BOOL isSameItemIdentity(NSDictionary *a, NSDictionary *b) {
@@ -85,6 +85,7 @@ static void printData(NSDictionary *data, BOOL diff, BOOL pretty) {
     }
     if (serialized != nil) {
         if (diff) {
+            [previousData release];
             previousData = [data copy];
         }
         // Print the serialized data without duplicates. Note that while this
@@ -94,6 +95,7 @@ static void printData(NSDictionary *data, BOOL diff, BOOL pretty) {
         printOutUnique(serialized);
     }
     if (!diff) {
+        [previousData release];
         previousData = nil;
     }
 }
@@ -259,7 +261,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_serialdispatchQueue, ^() {
+                  dispatch_async(g_serialdispatchQueue, ^() { @autoreleasepool {
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
                       if (process == nil) {
@@ -298,7 +300,7 @@ extern void adapter_stream() {
                           handle();
                       }
                     });
-                  });
+                  } });
                 }];
 
     id info_change_observer = [default_center
@@ -306,7 +308,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  [debounce call:^{
+                  [debounce call:^{ @autoreleasepool {
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
                       if (process == nil) {
@@ -342,7 +344,7 @@ extern void adapter_stream() {
                       }
                       requestNowPlayingInfo();
                     });
-                  }];
+                  } }];
                 }];
 
     // Register notifications for when applications are closed.
@@ -351,7 +353,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_serialdispatchQueue, ^() {
+                  dispatch_async(g_serialdispatchQueue, ^() { @autoreleasepool {
                     NSDictionary *userInfo = [notification userInfo];
                     id bundleIdentifier =
                         userInfo[@"NSApplicationBundleIdentifier"];
@@ -361,7 +363,7 @@ extern void adapter_stream() {
                         // Refresh all data, since the application terminated.
                         refreshAll();
                     }
-                  });
+                  } });
                 }];
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
@@ -374,6 +376,7 @@ extern void adapter_stream() {
     [default_center removeObserver:info_change_observer];
     [shared_workscape_notification_center
         removeObserver:app_termination_observer];
+    [debounce release];
 }
 
 extern void adapter_stream_env() { adapter_stream(); }

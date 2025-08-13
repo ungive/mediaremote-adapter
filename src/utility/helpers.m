@@ -25,6 +25,7 @@ void printOutUnique(NSString *message) {
     static NSString *previous = nil;
     if (![previous isEqualToString:message]) {
         printOut(message);
+        [previous release];
         previous = [message copy];
     }
 }
@@ -41,6 +42,7 @@ void printErrf(NSString *format, ...) {
                                                         arguments:args];
     va_end(args);
     fprintf(stderr, "%s\n", [formattedMessage UTF8String]);
+    [formattedMessage release];
     fflush(stderr);
 }
 
@@ -162,8 +164,8 @@ NSString *serializeJsonDictionarySafe(NSDictionary *any, bool prettyPrint) {
             printErrf(@"Failed to serialize JSON: %@", error);
             return nil;
         }
-        return [[NSString alloc] initWithData:serialized
-                                     encoding:NSUTF8StringEncoding];
+        return [[[NSString alloc] initWithData:serialized
+                                      encoding:NSUTF8StringEncoding] autorelease];
     } @catch (NSException *exception) {
         if ([exception.name isEqualToString:NSInvalidArgumentException]) {
             printErrf(@"Exception during JSON serialization: %@: %@", exception,
