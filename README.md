@@ -117,7 +117,7 @@ $ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" "$HELPER_PATH" te
 An exit code of `0` then means the adapter is functional and safe to use.
 
 The framework and test executable are built for the following architectures:
-`x86_64` `arm64` `arm64e`
+`x86_64` `arm64`
 
 ## Commands
 
