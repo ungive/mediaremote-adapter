@@ -100,12 +100,10 @@ NSDictionary *internal_get(BOOL isTestMode) {
         printErrf(
             @"Reading now playing information timed out after %d milliseconds",
             GET_TIMEOUT_MILLIS);
-        dispatch_release(group);
         return nil;
     }
 
     if (isFromTestClient) {
-        dispatch_release(group);
         return nil;
     }
 
@@ -114,11 +112,8 @@ NSDictionary *internal_get(BOOL isTestMode) {
     }
 
     if (!allMandatoryPayloadKeysSet(liveData)) {
-        dispatch_release(group);
         return nil;
     }
-
-    dispatch_release(group);
 
     return liveData;
 }

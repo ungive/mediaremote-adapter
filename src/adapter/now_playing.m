@@ -18,7 +18,6 @@ void waitForCommandCompletion() {
     dispatch_time_t timeout =
         dispatch_time(DISPATCH_TIME_NOW, WAIT_TIMEOUT_MILLIS * NSEC_PER_MSEC);
     dispatch_semaphore_wait(semaphore, timeout);
-    dispatch_release(semaphore);
 }
 
 NSNumber *getElapsedTimeNow(NSDictionary *information) {

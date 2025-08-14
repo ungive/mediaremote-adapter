@@ -62,6 +62,8 @@ target_include_directories(MediaRemoteAdapter
 target_include_directories(MediaRemoteAdapter
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+target_compile_options(MediaRemoteAdapter PRIVATE "-fobjc-arc")
+
 add_custom_command(
     TARGET MediaRemoteAdapter
     POST_BUILD
