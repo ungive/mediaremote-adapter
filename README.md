@@ -477,6 +477,9 @@ to read now playing information and control media playback on the device
 
 ## Acknowledgements
 
+Thank you [@Alexander5015](https://github.com/Alexander5015) for implementing the `test` command,
+so we're able to detect when the adapter stops working!
+
 Thank you [@EinTim23](https://github.com/EinTim23) for bringing
 a [similar workaround](https://github.com/EinTim23/PlayerLink/commit/9821b6a294873f975852f06419a0baf2fe404800) to my attention!
 Without your hint I most likely would not have dug into this anytime soon
