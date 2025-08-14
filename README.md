@@ -51,7 +51,8 @@ in order to read now playing information and control media players.
 The [mediaremote-adapter.pl](./bin/mediaremote-adapter.pl) script
 needs to be bundled with your app,
 alongside the `MediaRemoteAdapter.framework`
-which is exposed as a CMake target in [CMakeLists.txt](./CMakeLists.txt).
+and optionally the `NowPlayingTestClient`
+which are exposed as CMake targets in [CMakeLists.txt](./CMakeLists.txt).
 You can find instructions to build the framework in the next section.
 
 The script must then be invoked like this:
@@ -60,21 +61,30 @@ The script must then be invoked like this:
 /usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework COMMAND
 ```
 
-For the `test` command, an additional helper path is required:
+`COMMAND` is a placeholder for one of the commands documented below.
+
+For the `test` command the `NowPlayingTestClient` must be passed
+as an additional argument:
 
 ```
 /usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
 ```
 
-Where `COMMAND` is one of the commands listed below.
+For ease of use you can also always pass the path to the test client:
 
-> [!NOTE]
-> A Swift package and an Objective-C library
-> that you can directly include in your project is underway.
+```
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient COMMAND
+```
+
+For more help on available commands read below or omit the `COMMAND` argument.
 
 > [!WARNING]
 > This project is still in development
 > and the API may experience breaking changes across minor revisions.
+
+> [!NOTE]
+> A Swift package and an Objective-C library
+> that you can directly include in your project is underway.
 
 ## Build from source
 
@@ -94,17 +104,20 @@ which must be *bundled* with your app, but *not linked against*.
 The framework is only used by the script
 and must merely be passed as a script argument.
 
-The framework is built for all of the following architectures:
-`x86_64` `arm64` `arm64e`
-
-The build process also creates the `NowPlayingTestClient` executable
-in the build directory, which is required for the `test` command:
+If you want to be able to test whether the adapter still works,
+which can be useful to e.g. automatically fall back to AppleScript,
+you need to also bundle the `NowPlayingTestClient` executable with your app
+and pass it as an additional argument:
 
 ```
 $ HELPER_PATH=$(realpath ./build/NowPlayingTestClient)
 $ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" "$HELPER_PATH" test
 ```
 
+An exit code of `0` then means the adapter is functional and safe to use.
+
+The framework and test executable are built for the following architectures:
+`x86_64` `arm64` `arm64e`
 
 ## Commands
 
@@ -324,31 +337,52 @@ The value for `SPEED` must be a valid positive integer.
 
 ### test
 
-Verifies if the MediaRemote Adapter is functioning correctly.
+Tests if the adapter is entitled to use the MediaRemote framework
+and if it is able to execute any of the supported commands without failure.
+An exit code of 0 means the adapter is functional and safe to use.
 
-This can be integrated into your app to help confirm that our adapter is still effective and select fallback options if necessary since future macOS updates may break it again.
+This can be integrated into your app
+to help confirm that the adapter is still functional and if not,
+fall back to other methods for media detection (e.g. AppleScript),
+since future macOS updates may break MediaRemote access again.
 
-**Usage**
+#### Usage
 
 ```
 /usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
 ```
 
-Note that the `test` command requires the absolute path to the `NowPlayingTestClient` helper executable as the second argument (before the command name).
+Note that the `test` command requires the absolute path
+to the `NowPlayingTestClient` executable after the framework path.
+For ease of use you can always pass the path to the test client executable,
+even when using other commands, like `get` or `stream`.
 
-**Output**
+#### Output
 
-The command returns with an exit code of `0` if the adapter is functioning correctly, or `1` if it is not.
+An exit code of `0` indicates that the adapter is still functional
+and can safely be used to detect media.
+Any other exit indicates that the adapter is likely broken.
 
-**How it works**
+If you ever get an exit code other than `0`,
+please [report this](https://github.com/ungive/mediaremote-adapter/issues). Thank you!
 
-1. First, it attempts to get now playing information normally
-2. If no media is detected, launches a helper process (`NowPlayingTestClient`) that simulates media playback
-3. Attempts to retrieve now playing information again
-4. Terminates the helper process
-5. Reports whether the adapter can successfully detect the simulated media
+#### How this works
 
-**IMPORTANT: May interfere with other apps using MediaRemote**: The test can create a fake media entry that will briefly appear as the now playing app. This only happens when no other media is playing. Since the helper process has no bundle identifier, it is mostly ignored by the `stream` and `get` commands — `stream` won't update, and `get` will print `null`.
+1. Now playing information is attempted to be read normally using `get`
+2. If no media is detected, the `NowPlayingTestClient` helper process is launched to simulate media playback
+3. While the helper process is running, now playing information is attempted to be read again using `get`
+4. Afterwards the helper process is terminated
+5. If any of the `get` attempts yielded media information, the command exits with an exit code of `0`
+6. Otherwise the command exits with an exit code of `1`
+
+> [!WARNING]
+> **May interfere with other apps using MediaRemote**  
+> The test can create a fake media entry that will briefly appear
+as the now playing application.
+This only happens when no other media is playing.
+Since the helper process has no bundle identifier,
+it is mostly ignored by the `stream` and `get` commands —
+`stream` won't update, and `get` will print `null`.
 
 ---
 

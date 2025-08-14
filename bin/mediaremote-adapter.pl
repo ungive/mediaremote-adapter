@@ -16,10 +16,10 @@ Usage:
   mediaremote-adapter.pl FRAMEWORK_PATH [NOWPLAYING_CLIENT_PATH] [FUNCTION [PARAMS|OPTIONS...]]
 
 FRAMEWORK_PATH:
-  Absolute path to MediaRemoteAdapter.framework
+  Absolute path to the MediaRemoteAdapter.framework directory
 
-NOWPLAYING_CLIENT_PATH (optional):
-  Path to the NowPlayingTestClient executable (used for test mode)
+NOWPLAYING_CLIENT_PATH: (optional)
+  Absolute path to the NowPlayingTestClient executable. Only needed for "test"
 
 FUNCTION:
   stream   Streams now playing information (as diff by default)
@@ -29,6 +29,8 @@ FUNCTION:
   shuffle  Sets the shuffle mode
   repeat   Sets the repeat mode
   speed    Sets the playback speed
+  test     Tests if the adapter is entitled to use the MediaRemote framework.
+           An exit code other than 0 indicates the adapter is non-functional
 
 PARAMS:
   send(command)
