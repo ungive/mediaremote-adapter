@@ -135,8 +135,8 @@ static const float kPausedRate = 0.0f;
 }
 
 - (void)setupInitialTrack {
-    [self.nowPlayingDelegate updateMetadataWithTitle:@"Lost Cause"
-                                              artist:@"ungive"
+    [self.nowPlayingDelegate updateMetadataWithTitle:@"Is It Broken Yet?"
+                                              artist:@"Alexander5015, ungive"
                                             duration:self.totalDuration];
     [self updateNowPlayingInfo];
 }
