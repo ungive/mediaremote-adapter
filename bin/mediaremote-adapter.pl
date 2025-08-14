@@ -242,7 +242,7 @@ elsif ($function_name eq "speed") {
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "test") {
-  $symbol_name = "_adapter_is_it_broken_yet";
+  $symbol_name = "adapter_test";
 }
 
 if (defined shift @ARGV) {

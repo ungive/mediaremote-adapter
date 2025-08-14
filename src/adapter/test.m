@@ -43,7 +43,7 @@ void handleSignal(int signal) {
         cleanup_and_exit();
 }
 
-extern void _adapter_is_it_broken_yet(void) {
+extern void adapter_test(void) {
     @autoreleasepool {
         signal(SIGINT, handleSignal);
         signal(SIGTERM, handleSignal);
