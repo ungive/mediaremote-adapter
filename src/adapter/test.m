@@ -5,6 +5,7 @@
 #include <signal.h>
 
 #import "MediaRemoteAdapter.h"
+#import "adapter/get.h"
 #import "utility/NowPlayingTestClient/NowPlayingTest.h"
 #import "utility/helpers.h"
 

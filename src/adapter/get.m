@@ -6,6 +6,7 @@
 
 #import "MediaRemoteAdapter.h"
 #import "adapter/env.h"
+#import "adapter/get.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"

@@ -63,7 +63,6 @@ extern NSString *kMRAMediaType;
 
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.
-extern NSDictionary *internal_get(BOOL isTestMode);
 extern void adapter_get();
 extern void adapter_get_env();
 
