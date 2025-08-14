@@ -495,4 +495,4 @@ for providing insight into the changes made since macOS 15.4:
 This project is licensed under the BSD 3-Clause License.
 See [LICENSE](./LICENSE) for details.
 
-Copyright (c) 2025 Jonas van den Berg
+Copyright (c) 2025 Jonas van den Berg and contributors
