@@ -12,7 +12,7 @@ int main(int argc, const char *argv[]) {
         dup2(STDOUT_FILENO, STDERR_FILENO);
 
         NowPlayingPublishTest *test = [[NowPlayingPublishTest alloc] init];
-        puts("setup_done");
+        puts("setup_done\n");
         fflush(stdout);
 
         BOOL shouldExit = NO;
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
                         break;
                     } else {
 
-                        puts("unknown_command");
+                        puts("unknown_command\n");
                         fflush(stdout);
                     }
                 }
