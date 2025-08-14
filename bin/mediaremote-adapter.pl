@@ -20,7 +20,7 @@ FRAMEWORK_PATH:
   Absolute path to the MediaRemoteAdapter.framework directory
 
 TEST_CLIENT_PATH: (optional)
-  Absolute path to the NowPlayingTestClient executable. Only needed for "test"
+  Absolute path to the MediaRemoteAdapterTestClient executable. Only for "test"
 
 FUNCTION:
   stream   Streams now playing information (as diff by default)
@@ -88,12 +88,11 @@ fail "Framework path not provided" unless @ARGV >= 1;
 
 my $framework_path = shift @ARGV;
 
-# Optionally accept NOWPLAYING_CLIENT path as second argument
+# Optionally accept MEDIAREMOTEADAPTER_TEST_CLIENT_PATH path as second argument
 my $maybe_helper_path = $ARGV[0] // '';
-if ($maybe_helper_path =~ m{NowPlayingTestClient} || $maybe_helper_path =~ m{/})
-{
+if ($maybe_helper_path =~ m{/}){
   my $helper_path = shift @ARGV;
-  $ENV{NOWPLAYING_CLIENT} = $helper_path;
+  $ENV{MEDIAREMOTEADAPTER_TEST_CLIENT_PATH} = $helper_path;
 }
 
 if (!defined $ARGV[0]) {

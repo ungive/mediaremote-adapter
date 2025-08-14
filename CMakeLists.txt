@@ -11,6 +11,8 @@ set(ADAPTER_VERSION
 
 set(MEDIAREMOTEADAPTER_FRAMEWORK_NAME "MediaRemoteAdapter"
     CACHE STRING "The output name of the adapter framework")
+set(MEDIAREMOTEADAPTER_TEST_CLIENT_NAME "MediaRemoteAdapterTestClient"
+    CACHE STRING "The output name of the adapter test client")
 
 set(SOURCES
     src/adapter/env.m
@@ -30,23 +32,25 @@ set(SOURCES
     src/utility/helpers.m)
 set(HEADERS include/MediaRemoteAdapter.h)
 
-# Add NowPlayingTestClient executable for isolated NowPlaying testing
-add_executable(
-    NowPlayingTestClient src/utility/NowPlayingTestClient/main.m
-                         src/utility/NowPlayingTestClient/NowPlayingTest.m)
-target_link_libraries(NowPlayingTestClient PRIVATE "-framework Foundation"
-                                                   "-framework MediaPlayer")
-target_include_directories(
-    NowPlayingTestClient
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/utility/NowPlayingTestClient)
-set_target_properties(NowPlayingTestClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                                                      "${CMAKE_BINARY_DIR}")
+# Add MediaRemoteAdapterTestClient executable for isolated NowPlaying testing
+add_executable(MediaRemoteAdapterTestClient src/test/main.m
+                                            src/test/NowPlayingTest.m)
+target_link_libraries(MediaRemoteAdapterTestClient
+                      PRIVATE "-framework Foundation" "-framework MediaPlayer")
+target_include_directories(MediaRemoteAdapterTestClient
+                           PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/test)
+set_target_properties(MediaRemoteAdapterTestClient
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
-# Enable ARC for NowPlayingTestClient
-set_source_files_properties(src/utility/NowPlayingTestClient/main.m
-                            PROPERTIES COMPILE_FLAGS "-fobjc-arc")
-set_source_files_properties(src/utility/NowPlayingTestClient/NowPlayingTest.m
-                            PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+# Enable ARC for MediaRemoteAdapterTestClient
+set_source_files_properties(src/test/main.m PROPERTIES COMPILE_FLAGS
+                                                       "-fobjc-arc")
+set_source_files_properties(src/test/NowPlayingTest.m PROPERTIES COMPILE_FLAGS
+                                                                 "-fobjc-arc")
+
+set_target_properties(
+    MediaRemoteAdapterTestClient
+    PROPERTIES OUTPUT_NAME "${MEDIAREMOTEADAPTER_TEST_CLIENT_NAME}")
 
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
 

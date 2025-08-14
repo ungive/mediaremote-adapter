@@ -80,8 +80,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
           information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
       if (!isTestMode &&
           [serviceIdentifier
-              isEqualToString:
-                  @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
+              isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
           isFromTestClient = YES;
           dispatch_group_leave(group);
           return;

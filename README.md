@@ -51,7 +51,7 @@ in order to read now playing information and control media players.
 The [mediaremote-adapter.pl](./bin/mediaremote-adapter.pl) script
 needs to be bundled with your app,
 alongside the `MediaRemoteAdapter.framework`
-and optionally the `NowPlayingTestClient`
+and optionally the `MediaRemoteAdapterTestClient`
 which are exposed as CMake targets in [CMakeLists.txt](./CMakeLists.txt).
 You can find instructions to build the framework in the next section.
 
@@ -63,17 +63,17 @@ The script must then be invoked like this:
 
 `COMMAND` is a placeholder for one of the commands documented below.
 
-For the `test` command the `NowPlayingTestClient` must be passed
+For the `test` command the `NowPlayingTestCMediaRemoteAdapterTestClientlient` must be passed
 as an additional argument:
 
 ```
-/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/MediaRemoteAdapterTestClient test
 ```
 
 For ease of use you can also always pass the path to the test client:
 
 ```
-/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient COMMAND
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/MediaRemoteAdapterTestClient COMMAND
 ```
 
 For more help on available commands read below or omit the `COMMAND` argument.
@@ -106,11 +106,11 @@ and must merely be passed as a script argument.
 
 If you want to be able to test whether the adapter still works,
 which can be useful to e.g. automatically fall back to AppleScript,
-you need to also bundle the `NowPlayingTestClient` executable with your app
+you need to also bundle the `MediaRemoteAdapterTestClient` executable with your app
 and pass it as an additional argument:
 
 ```
-$ HELPER_PATH=$(realpath ./build/NowPlayingTestClient)
+$ HELPER_PATH=$(realpath ./build/MediaRemoteAdapterTestClient)
 $ /usr/bin/perl ./bin/mediaremote-adapter.pl "$FRAMEWORK_PATH" "$HELPER_PATH" test
 ```
 
@@ -349,11 +349,11 @@ since future macOS updates may break MediaRemote access again.
 #### Usage
 
 ```
-/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/NowPlayingTestClient test
+/usr/bin/perl /path/to/mediaremote-adapter.pl /path/to/MediaRemoteAdapter.framework /path/to/MediaRemoteAdapterTestClient test
 ```
 
 Note that the `test` command requires the absolute path
-to the `NowPlayingTestClient` executable after the framework path.
+to the `MediaRemoteAdapterTestClient` executable after the framework path.
 For ease of use you can always pass the path to the test client executable,
 even when using other commands, like `get` or `stream`.
 
@@ -369,7 +369,7 @@ please [report this](https://github.com/ungive/mediaremote-adapter/issues). Than
 #### How this works
 
 1. Now playing information is attempted to be read normally using `get`
-2. If no media is detected, the `NowPlayingTestClient` helper process is launched to simulate media playback
+2. If no media is detected, the `MediaRemoteAdapterTestClient` helper process is launched to simulate media playback
 3. While the helper process is running, now playing information is attempted to be read again using `get`
 4. Afterwards the helper process is terminated
 5. If any of the `get` attempts yielded media information, the command exits with an exit code of `0`

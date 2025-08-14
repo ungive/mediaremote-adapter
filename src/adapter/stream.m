@@ -210,7 +210,7 @@ extern void adapter_stream() {
         if (!isTestMode &&
             [serviceIdentifier
                 isEqualToString:
-                    @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
+                    @"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
             return;
         }
         NSMutableDictionary *converted =

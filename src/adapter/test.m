@@ -6,7 +6,7 @@
 
 #import "MediaRemoteAdapter.h"
 #import "adapter/get.h"
-#import "utility/NowPlayingTestClient/NowPlayingTest.h"
+#import "test/NowPlayingTest.h"
 #import "utility/helpers.h"
 
 static NSTask *nowPlayingClientHelperTask = nil;
@@ -60,9 +60,10 @@ extern void adapter_test(void) {
         // We only do this if adapterOutput is null to minimize the impact on
         // other apps using the adapter
         NSString *helperPath =
-            NSProcessInfo.processInfo.environment[@"NOWPLAYING_CLIENT"];
+            NSProcessInfo.processInfo
+                .environment[@"MEDIAREMOTEADAPTER_TEST_CLIENT_PATH"];
         if (helperPath.length == 0) {
-            printErrf(@"NowPlayingTestClient helper path is not set");
+            printErrf(@"Test client path is missing");
             cleanup_helper();
             exit(1);
         }
@@ -79,9 +80,9 @@ extern void adapter_test(void) {
         @try {
             [nowPlayingClientHelperTask launch];
         } @catch (NSException *exception) {
-            printErrf(@"Exeption while trying to launch NowPlayingClient "
-                      @"task: %@: %@",
-                      exception.name, exception.reason);
+            printErrf(
+                @"Exeption while trying to launch test client task: %@: %@",
+                exception.name, exception.reason);
             cleanup_helper();
             exit(1);
         }
@@ -95,7 +96,7 @@ extern void adapter_test(void) {
             [[NSString alloc] initWithData:setupData
                                   encoding:NSUTF8StringEncoding];
         if (![setupMsg containsString:@"setup_done"]) {
-            printErrf(@"NowPlayingTestClient did not signal setup_done");
+            printErrf(@"The test client did not signal setup_done");
             cleanup_helper();
             exit(1);
         }
