@@ -78,8 +78,10 @@ extern void adapter_test(void) {
 
         @try {
             [nowPlayingClientHelperTask launch];
-        } @catch (__unused NSException *exception) {
-            printErrf(@"Exeption while trying to launch NowPlayingClient Task");
+        } @catch (NSException *exception) {
+            printErrf(@"Exeption while trying to launch NowPlayingClient "
+                      @"task: %@: %@",
+                      exception.name, exception.reason);
             cleanup_helper();
             exit(1);
         }
