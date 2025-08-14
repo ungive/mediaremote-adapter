@@ -2,11 +2,12 @@
 // This file is licensed under the BSD 3-Clause License.
 
 #import <Foundation/Foundation.h>
+
 #import "NowPlayingTest.h"
 
 static const NSTimeInterval kRunLoopInterval = 0.1;
 static const size_t kInputBufferSize = 256;
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[]) {
     @autoreleasepool {
         dup2(STDOUT_FILENO, STDERR_FILENO);
 
@@ -16,8 +17,10 @@ int main(int argc, const char * argv[]) {
 
         BOOL shouldExit = NO;
         while (!shouldExit) {
-            NSDate *waitUntil = [NSDate dateWithTimeIntervalSinceNow:kRunLoopInterval];
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:waitUntil];
+            NSDate *waitUntil =
+                [NSDate dateWithTimeIntervalSinceNow:kRunLoopInterval];
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                     beforeDate:waitUntil];
 
             fd_set fds;
             struct timeval tv = {0, 0};
@@ -27,8 +30,11 @@ int main(int argc, const char * argv[]) {
             if (ret > 0 && FD_ISSET(STDIN_FILENO, &fds)) {
                 char buf[kInputBufferSize];
                 if (fgets(buf, sizeof(buf), stdin)) {
-                    NSString *command = [[NSString alloc] initWithUTF8String:buf];
-                    command = [command stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                    NSString *command =
+                        [[NSString alloc] initWithUTF8String:buf];
+                    command = [command
+                        stringByTrimmingCharactersInSet:
+                            [NSCharacterSet whitespaceAndNewlineCharacterSet]];
                     if ([command isEqualToString:@"cleanup"]) {
                         printf("cleanup_done\n");
                         fflush(stdout);

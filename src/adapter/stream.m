@@ -115,7 +115,8 @@ extern void adapter_stream() {
     // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
     BOOL isTestMode = NO;
     char *testModeEnv = getenv("ADAPTER_TEST_MODE");
-    if (testModeEnv && strcmp(testModeEnv, "0") != 0 && strlen(testModeEnv) > 0) {
+    if (testModeEnv && strcmp(testModeEnv, "0") != 0 &&
+        strlen(testModeEnv) > 0) {
         isTestMode = YES;
     }
 
@@ -204,8 +205,12 @@ extern void adapter_stream() {
     void (^requestNowPlayingInfo)() = ^{
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
                                           NSDictionary *information) {
-        NSString *serviceIdentifier = information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
-        if (!isTestMode && [serviceIdentifier isEqualToString:@"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
+        NSString *serviceIdentifier =
+            information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
+        if (!isTestMode &&
+            [serviceIdentifier
+                isEqualToString:
+                    @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
             return;
         }
         NSMutableDictionary *converted =

@@ -87,9 +87,10 @@ my $framework_path = shift @ARGV;
 
 # Optionally accept NOWPLAYING_CLIENT path as second argument
 my $maybe_helper_path = $ARGV[0] // '';
-if ($maybe_helper_path =~ m{NowPlayingTestClient} || $maybe_helper_path =~ m{/}) {
-    my $helper_path = shift @ARGV;
-    $ENV{NOWPLAYING_CLIENT} = $helper_path;
+if ($maybe_helper_path =~ m{NowPlayingTestClient} || $maybe_helper_path =~ m{/})
+{
+  my $helper_path = shift @ARGV;
+  $ENV{NOWPLAYING_CLIENT} = $helper_path;
 }
 
 my $framework_basename = File::Basename::basename($framework_path);

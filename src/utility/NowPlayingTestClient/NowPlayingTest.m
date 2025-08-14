@@ -1,8 +1,9 @@
 // Copyright (c) 2025 Alexander5015
 // This file is licensed under the BSD 3-Clause License.
 
-#import "NowPlayingTest.h"
 #include <MediaPlayer/MediaPlayer.h>
+
+#import "NowPlayingTest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,15 +31,16 @@ static const float kPausedRate = 0.0f;
                          artist:(NSString *)artist
                        duration:(NSTimeInterval)duration {
     NSMutableDictionary *nowPlayingInfo = [@{
-        MPMediaItemPropertyTitle: title ?: @"Unknown Title",
-        MPMediaItemPropertyAlbumTitle: @"Unknown Album",
-        MPMediaItemPropertyArtist: artist ?: @"Unknown Artist",
-        MPMediaItemPropertyPlaybackDuration: @(duration),
-        MPNowPlayingInfoPropertyElapsedPlaybackTime: @0,
-        MPNowPlayingInfoPropertyCurrentPlaybackDate: [NSDate date],
-        MPNowPlayingInfoPropertyPlaybackRate: @(kPlayingRate),
-        MPNowPlayingInfoPropertyMediaType: @(MPNowPlayingInfoMediaTypeAudio),
-        MPNowPlayingInfoPropertyServiceIdentifier: @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
+        MPMediaItemPropertyTitle : title ?: @"Unknown Title",
+        MPMediaItemPropertyAlbumTitle : @"Unknown Album",
+        MPMediaItemPropertyArtist : artist ?: @"Unknown Artist",
+        MPMediaItemPropertyPlaybackDuration : @(duration),
+        MPNowPlayingInfoPropertyElapsedPlaybackTime : @0,
+        MPNowPlayingInfoPropertyCurrentPlaybackDate : [NSDate date],
+        MPNowPlayingInfoPropertyPlaybackRate : @(kPlayingRate),
+        MPNowPlayingInfoPropertyMediaType : @(MPNowPlayingInfoMediaTypeAudio),
+        MPNowPlayingInfoPropertyServiceIdentifier :
+            @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient",
     } mutableCopy];
 
     if (@available(macOS 15, *)) {
@@ -62,11 +64,10 @@ static const float kPausedRate = 0.0f;
 
 @end
 
-
-
 @implementation RemoteCommandCenterDelegate
 
-- (instancetype)initWithListener:(id<RemoteCommandCenterDelegateListener>)listener {
+- (instancetype)initWithListener:
+    (id<RemoteCommandCenterDelegateListener>)listener {
     if (self = [super init]) {
         _listener = listener;
         [self setupRemoteCommandHandlers];
@@ -75,33 +76,38 @@ static const float kPausedRate = 0.0f;
 }
 
 - (void)setupRemoteCommandHandlers {
-    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    MPRemoteCommandCenter *commandCenter =
+        [MPRemoteCommandCenter sharedCommandCenter];
 
-    [commandCenter.playCommand addTarget:self action:@selector(handlePlayCommand:)];
-    [commandCenter.pauseCommand addTarget:self action:@selector(handlePauseCommand:)];
+    [commandCenter.playCommand addTarget:self
+                                  action:@selector(handlePlayCommand:)];
+    [commandCenter.pauseCommand addTarget:self
+                                   action:@selector(handlePauseCommand:)];
 }
 
-- (MPRemoteCommandHandlerStatus)handlePlayCommand:(MPRemoteCommandEvent *)event {
+- (MPRemoteCommandHandlerStatus)handlePlayCommand:
+    (MPRemoteCommandEvent *)event {
     [self.listener didReceivePlayCommand];
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
-- (MPRemoteCommandHandlerStatus)handlePauseCommand:(MPRemoteCommandEvent *)event {
+- (MPRemoteCommandHandlerStatus)handlePauseCommand:
+    (MPRemoteCommandEvent *)event {
     [self.listener didReceivePauseCommand];
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
 @end
 
-
-
 @interface NowPlayingPublishTest ()
-@property (nonatomic, strong, readwrite) NowPlayingInfoDelegate *nowPlayingDelegate;
-@property (nonatomic, strong, readwrite) RemoteCommandCenterDelegate *commandDelegate;
-@property (nonatomic, assign, readwrite) BOOL isPlaying;
-@property (nonatomic, assign, readwrite) NSTimeInterval elapsedTime;
-@property (nonatomic, strong, nullable, readwrite) NSDate *playbackStartDate;
-@property (nonatomic, assign, readwrite) NSTimeInterval totalDuration;
+@property(nonatomic, strong, readwrite)
+    NowPlayingInfoDelegate *nowPlayingDelegate;
+@property(nonatomic, strong, readwrite)
+    RemoteCommandCenterDelegate *commandDelegate;
+@property(nonatomic, assign, readwrite) BOOL isPlaying;
+@property(nonatomic, assign, readwrite) NSTimeInterval elapsedTime;
+@property(nonatomic, strong, nullable, readwrite) NSDate *playbackStartDate;
+@property(nonatomic, assign, readwrite) NSTimeInterval totalDuration;
 @end
 
 @implementation NowPlayingPublishTest
@@ -117,7 +123,8 @@ static const float kPausedRate = 0.0f;
 
 - (void)setupDelegates {
     self.nowPlayingDelegate = [[NowPlayingInfoDelegate alloc] init];
-    self.commandDelegate = [[RemoteCommandCenterDelegate alloc] initWithListener:self];
+    self.commandDelegate =
+        [[RemoteCommandCenterDelegate alloc] initWithListener:self];
 }
 
 - (void)initializePlaybackState {
@@ -134,8 +141,6 @@ static const float kPausedRate = 0.0f;
     [self updateNowPlayingInfo];
 }
 
-
-
 - (void)didReceivePlayCommand {
     if (self.isPlaying) {
         return; // Already playing
@@ -151,8 +156,6 @@ static const float kPausedRate = 0.0f;
 
     [self pausePlayback];
 }
-
-
 
 - (void)startPlayback {
     self.isPlaying = YES;
@@ -172,7 +175,8 @@ static const float kPausedRate = 0.0f;
         return;
     }
 
-    NSTimeInterval playedInterval = [[NSDate date] timeIntervalSinceDate:self.playbackStartDate];
+    NSTimeInterval playedInterval =
+        [[NSDate date] timeIntervalSinceDate:self.playbackStartDate];
     self.elapsedTime += playedInterval;
 
     // Ensure elapsed time doesn't exceed total duration
@@ -181,20 +185,20 @@ static const float kPausedRate = 0.0f;
     }
 }
 
-
-
 - (void)updateNowPlayingInfo {
     NSTimeInterval currentElapsedTime = [self calculateCurrentElapsedTime];
     float playbackRate = [self calculatePlaybackRate:currentElapsedTime];
 
-    [self.nowPlayingDelegate setPlaybackRate:playbackRate elapsedTime:currentElapsedTime];
+    [self.nowPlayingDelegate setPlaybackRate:playbackRate
+                                 elapsedTime:currentElapsedTime];
 }
 
 - (NSTimeInterval)calculateCurrentElapsedTime {
     NSTimeInterval currentElapsed = self.elapsedTime;
 
     if (self.isPlaying && self.playbackStartDate) {
-        NSTimeInterval intervalSinceStart = [[NSDate date] timeIntervalSinceDate:self.playbackStartDate];
+        NSTimeInterval intervalSinceStart =
+            [[NSDate date] timeIntervalSinceDate:self.playbackStartDate];
         currentElapsed += intervalSinceStart;
 
         // Cap at total duration

@@ -33,63 +33,72 @@ NSDictionary *internal_get(BOOL isTestMode) {
     dispatch_group_enter(group);
     g_mediaRemote.getNowPlayingApplicationPID(
         g_serialdispatchQueue, ^(int pid) {
-            if (pid != 0) {
-                liveData[kMRAProcessIdentifier] = @(pid);
-                bool ok = appForPID(pid, ^(NSRunningApplication *process) {
-                    if (process.bundleIdentifier != nil) {
-                        liveData[kMRABundleIdentifier] = process.bundleIdentifier;
-                    }
-                    dispatch_group_leave(group);
-                });
-                if (!ok) {
-                    dispatch_group_leave(group);
+          if (pid != 0) {
+              liveData[kMRAProcessIdentifier] = @(pid);
+              bool ok = appForPID(pid, ^(NSRunningApplication *process) {
+                if (process.bundleIdentifier != nil) {
+                    liveData[kMRABundleIdentifier] = process.bundleIdentifier;
                 }
-            } else {
                 dispatch_group_leave(group);
-            }
+              });
+              if (!ok) {
+                  dispatch_group_leave(group);
+              }
+          } else {
+              dispatch_group_leave(group);
+          }
         });
 
     // Now Playing Client
     dispatch_group_enter(group);
     g_mediaRemote.getNowPlayingClient(g_serialdispatchQueue, ^(id client) {
-        NSString *parentAppBundleID = nil;
-        if (client && [client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
-            parentAppBundleID = [client performSelector:@selector(parentApplicationBundleIdentifier)];
-        }
-        if (parentAppBundleID) {
-            liveData[kMRAParentApplicationBundleIdentifier] = parentAppBundleID;
-        }
-        dispatch_group_leave(group);
+      NSString *parentAppBundleID = nil;
+      if (client && [client respondsToSelector:@selector
+                            (parentApplicationBundleIdentifier)]) {
+          parentAppBundleID = [client
+              performSelector:@selector(parentApplicationBundleIdentifier)];
+      }
+      if (parentAppBundleID) {
+          liveData[kMRAParentApplicationBundleIdentifier] = parentAppBundleID;
+      }
+      dispatch_group_leave(group);
     });
 
     // Is Playing
     dispatch_group_enter(group);
     g_mediaRemote.getNowPlayingApplicationIsPlaying(
         g_serialdispatchQueue, ^(bool isPlaying) {
-            liveData[kMRAPlaying] = @(isPlaying);
-            dispatch_group_leave(group);
+          liveData[kMRAPlaying] = @(isPlaying);
+          dispatch_group_leave(group);
         });
 
     dispatch_group_enter(group);
-    g_mediaRemote.getNowPlayingInfo(
-        g_serialdispatchQueue, ^(NSDictionary *information) {
-            NSString *serviceIdentifier = information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
-            if (!isTestMode && [serviceIdentifier isEqualToString:@"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
-                shouldAbort = YES;
-                dispatch_group_leave(group);
-            }
-            NSDictionary *converted = convertNowPlayingInformation(
-                information, convert_micros, calculate_now);
-            [liveData addEntriesFromDictionary:converted];
-            dispatch_group_leave(group);
-        });
+    g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
+                                        NSDictionary *information) {
+      NSString *serviceIdentifier =
+          information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
+      if (!isTestMode &&
+          [serviceIdentifier
+              isEqualToString:
+                  @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
+          shouldAbort = YES;
+          dispatch_group_leave(group);
+      }
+      NSDictionary *converted = convertNowPlayingInformation(
+          information, convert_micros, calculate_now);
+      [liveData addEntriesFromDictionary:converted];
+      dispatch_group_leave(group);
+    });
 
     // Wait for all async callbacks or timeout
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, GET_TIMEOUT_MILLIS * NSEC_PER_MSEC);
+    dispatch_time_t timeout =
+        dispatch_time(DISPATCH_TIME_NOW, GET_TIMEOUT_MILLIS * NSEC_PER_MSEC);
     long result = dispatch_group_wait(group, timeout);
 
     if (result != 0) {
-        printErrf(@"Reading now playing information timed out after %d milliseconds", GET_TIMEOUT_MILLIS);
+        printErrf(
+            @"Reading now playing information timed out after %d milliseconds",
+            GET_TIMEOUT_MILLIS);
         dispatch_release(group);
         return nil;
     }

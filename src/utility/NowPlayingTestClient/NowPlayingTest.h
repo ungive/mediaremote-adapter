@@ -13,10 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NowPlayingInfoDelegate : NSObject
 
-@property (nonatomic, readonly) MPNowPlayingInfoCenter *center;
+@property(nonatomic, readonly) MPNowPlayingInfoCenter *center;
 
-- (void)updateMetadataWithTitle:(NSString *)title 
-                         artist:(NSString *)artist 
+- (void)updateMetadataWithTitle:(NSString *)title
+                         artist:(NSString *)artist
                        duration:(NSTimeInterval)duration;
 - (void)setPlaybackRate:(float)rate elapsedTime:(NSTimeInterval)time;
 
@@ -24,20 +24,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RemoteCommandCenterDelegate : NSObject
 
-@property (nonatomic, weak) id<RemoteCommandCenterDelegateListener> listener;
+@property(nonatomic, weak) id<RemoteCommandCenterDelegateListener> listener;
 
-- (instancetype)initWithListener:(id<RemoteCommandCenterDelegateListener>)listener;
+- (instancetype)initWithListener:
+    (id<RemoteCommandCenterDelegateListener>)listener;
 
 @end
 
-@interface NowPlayingPublishTest : NSObject <RemoteCommandCenterDelegateListener>
+@interface NowPlayingPublishTest
+    : NSObject <RemoteCommandCenterDelegateListener>
 
-@property (nonatomic, strong, readonly) NowPlayingInfoDelegate *nowPlayingDelegate;
-@property (nonatomic, strong, readonly) RemoteCommandCenterDelegate *commandDelegate;
-@property (nonatomic, assign, readonly) BOOL isPlaying;
-@property (nonatomic, assign, readonly) NSTimeInterval elapsedTime;
-@property (nonatomic, strong, nullable, readonly) NSDate *playbackStartDate;
-@property (nonatomic, assign, readonly) NSTimeInterval totalDuration;
+@property(nonatomic, strong, readonly)
+    NowPlayingInfoDelegate *nowPlayingDelegate;
+@property(nonatomic, strong, readonly)
+    RemoteCommandCenterDelegate *commandDelegate;
+@property(nonatomic, assign, readonly) BOOL isPlaying;
+@property(nonatomic, assign, readonly) NSTimeInterval elapsedTime;
+@property(nonatomic, strong, nullable, readonly) NSDate *playbackStartDate;
+@property(nonatomic, assign, readonly) NSTimeInterval totalDuration;
 
 - (void)updateNowPlayingInfo;
 
