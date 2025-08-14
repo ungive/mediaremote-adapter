@@ -26,7 +26,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
     __block const bool calculate_now = now_option != nil;
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-    __block BOOL shouldAbort = NO;
+    __block BOOL isFromTestClient = NO;
 
     dispatch_group_t group = dispatch_group_create();
 
@@ -82,7 +82,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
           [serviceIdentifier
               isEqualToString:
                   @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
-          shouldAbort = YES;
+          isFromTestClient = YES;
           dispatch_group_leave(group);
           return;
       }
@@ -105,7 +105,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
         return nil;
     }
 
-    if (shouldAbort) {
+    if (isFromTestClient) {
         dispatch_release(group);
         return nil;
     }
