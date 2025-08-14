@@ -31,17 +31,22 @@ set(SOURCES
 set(HEADERS include/MediaRemoteAdapter.h)
 
 # Add NowPlayingTestClient executable for isolated NowPlaying testing
-add_executable(NowPlayingTestClient
-    src/utility/NowPlayingTestClient/main.m
-    src/utility/NowPlayingTestClient/NowPlayingTest.m
-)
-target_link_libraries(NowPlayingTestClient PRIVATE "-framework Foundation" "-framework MediaPlayer")
-target_include_directories(NowPlayingTestClient PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/utility/NowPlayingTestClient)
-set_target_properties(NowPlayingTestClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+add_executable(
+    NowPlayingTestClient src/utility/NowPlayingTestClient/main.m
+                         src/utility/NowPlayingTestClient/NowPlayingTest.m)
+target_link_libraries(NowPlayingTestClient PRIVATE "-framework Foundation"
+                                                   "-framework MediaPlayer")
+target_include_directories(
+    NowPlayingTestClient
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/utility/NowPlayingTestClient)
+set_target_properties(NowPlayingTestClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                                      "${CMAKE_BINARY_DIR}")
 
 # Enable ARC for NowPlayingTestClient
-set_source_files_properties(src/utility/NowPlayingTestClient/main.m PROPERTIES COMPILE_FLAGS "-fobjc-arc")
-set_source_files_properties(src/utility/NowPlayingTestClient/NowPlayingTest.m PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+set_source_files_properties(src/utility/NowPlayingTestClient/main.m
+                            PROPERTIES COMPILE_FLAGS "-fobjc-arc")
+set_source_files_properties(src/utility/NowPlayingTestClient/NowPlayingTest.m
+                            PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
 
@@ -60,11 +65,8 @@ set_target_properties(
                PUBLIC_HEADER "${HEADERS}"
                OUTPUT_NAME "${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}")
 
-target_link_libraries(MediaRemoteAdapter
-    "-framework Foundation"
-    "-framework AppKit"
-    "-framework JavaScriptCore"
-)
+target_link_libraries(MediaRemoteAdapter "-framework Foundation"
+                      "-framework AppKit" "-framework JavaScriptCore")
 
 find_library(UT_FRAMEWORK UniformTypeIdentifiers)
 if(UT_FRAMEWORK)
