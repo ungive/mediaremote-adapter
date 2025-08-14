@@ -13,12 +13,13 @@ use File::Basename;
 sub print_help() {
   print <<'HELP';
 Usage:
-  mediaremote-adapter.pl FRAMEWORK_PATH [NOWPLAYING_CLIENT_PATH] [FUNCTION [PARAMS|OPTIONS...]]
+  mediaremote-adapter.pl FRAMEWORK_PATH [TEST_CLIENT_PATH]
+                         [FUNCTION [PARAMS|OPTIONS...]]
 
 FRAMEWORK_PATH:
   Absolute path to the MediaRemoteAdapter.framework directory
 
-NOWPLAYING_CLIENT_PATH: (optional)
+TEST_CLIENT_PATH: (optional)
   Absolute path to the NowPlayingTestClient executable. Only needed for "test"
 
 FUNCTION:
