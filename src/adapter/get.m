@@ -84,6 +84,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
                   @"com.vandenbe.MediaRemoteAdapter.NowPlayingTestClient"]) {
           shouldAbort = YES;
           dispatch_group_leave(group);
+          return;
       }
       NSDictionary *converted = convertNowPlayingInformation(
           information, convert_micros, calculate_now);
