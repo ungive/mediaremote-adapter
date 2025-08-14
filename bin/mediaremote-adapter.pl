@@ -93,6 +93,10 @@ if ($maybe_helper_path =~ m{NowPlayingTestClient} || $maybe_helper_path =~ m{/})
   $ENV{NOWPLAYING_CLIENT} = $helper_path;
 }
 
+if (!defined $ARGV[0]) {
+  print_help();
+}
+
 my $framework_basename = File::Basename::basename($framework_path);
 fail "Provided path is not a framework: $framework_path"
   unless $framework_basename =~ s/\.framework$//;
