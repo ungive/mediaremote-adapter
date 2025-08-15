@@ -19,18 +19,52 @@ void cleanup_helper() {
             [helperInput writeData:[@"cleanup\n"
                                        dataUsingEncoding:NSUTF8StringEncoding]];
             [helperInput closeFile];
-            [helperOutput availableData];
-            [helperOutput closeFile];
-            [nowPlayingClientHelperTask waitUntilExit];
-        } @catch (__unused NSException *exception) {
+        } @catch (NSException *exception) {}
+
+        // Graceful shutdown with timeout
+        NSTimeInterval timeout = 2.0;
+        NSDate *cleanupDeadline = [NSDate dateWithTimeIntervalSinceNow:timeout];
+        while (nowPlayingClientHelperTask.isRunning &&
+               [cleanupDeadline timeIntervalSinceNow] > 0) {
+            [NSThread sleepForTimeInterval:0.1];
         }
+
+        if (nowPlayingClientHelperTask.isRunning) {
+            @try {
+                [nowPlayingClientHelperTask terminate];
+            } @catch (NSException *exception) {}
+
+            NSDate *terminationDeadline = [NSDate dateWithTimeIntervalSinceNow:1.0];
+            while (nowPlayingClientHelperTask.isRunning &&
+                   [terminationDeadline timeIntervalSinceNow] > 0) {
+                [NSThread sleepForTimeInterval:0.1];
+            }
+        }
+
+        if (nowPlayingClientHelperTask.isRunning) {
+            // Force kill as last resort
+            kill(nowPlayingClientHelperTask.processIdentifier, SIGKILL);
+        }
+
+        @try {
+            if (helperOutput.readabilityHandler) {
+                helperOutput.readabilityHandler = nil;
+            }
+            [helperOutput closeFile];
+        } @catch (__unused NSException *exception) {}
+
+        @try {
+            [nowPlayingClientHelperTask waitUntilExit];
+        } @catch (__unused NSException *exception) {}
     } else if (nowPlayingClientHelperTask) {
         @try {
             [nowPlayingClientHelperTask terminate];
             [nowPlayingClientHelperTask waitUntilExit];
-        } @catch (__unused NSException *exception) {
-        }
+        } @catch (__unused NSException *exception) {}
     }
+    nowPlayingClientHelperTask = nil;
+    helperInput = nil;
+    helperOutput = nil;
 }
 
 void cleanup_and_exit() {
@@ -47,6 +81,7 @@ extern void adapter_test(void) {
     @autoreleasepool {
         signal(SIGINT, handleSignal);
         signal(SIGTERM, handleSignal);
+        signal(SIGPIPE, SIG_IGN);
 
         // If adapterOutput is not null, we know the adapter is working
         // correctly
@@ -90,13 +125,63 @@ extern void adapter_test(void) {
         helperInput = inputPipe.fileHandleForWriting;
         helperOutput = outputPipe.fileHandleForReading;
 
-        // Wait for setup signal from helper
-        NSData *setupData = [helperOutput availableData];
-        NSString *setupMsg =
-            [[NSString alloc] initWithData:setupData
-                                  encoding:NSUTF8StringEncoding];
-        if (![setupMsg containsString:@"setup_done"]) {
-            printErrf(@"The test client did not signal setup_done");
+    dispatch_semaphore_t setupSem = dispatch_semaphore_create(0);
+    NSMutableString *lineBuffer = [[NSMutableString alloc] init];
+    helperOutput.readabilityHandler = ^(NSFileHandle *fh) {
+            @autoreleasepool {
+                NSData *chunk = [fh availableData];
+                if (chunk.length == 0) {
+                    fh.readabilityHandler = nil;
+                    return;
+                }
+                
+                // Validate UTF-8 encoding with graceful degradation
+                NSString *chunkStr = [[NSString alloc] initWithData:chunk 
+                                                           encoding:NSUTF8StringEncoding];
+                if (!chunkStr) { return; }
+
+                [lineBuffer appendString:chunkStr];
+
+                NSUInteger bufferLength = [lineBuffer length];
+                NSUInteger searchStart = 0;
+                
+                while (searchStart < bufferLength) {
+                    NSRange remainingRange = NSMakeRange(searchStart, bufferLength - searchStart);
+                    NSRange nlRange = [lineBuffer rangeOfString:@"\n" 
+                                                        options:0 
+                                                          range:remainingRange];
+                    
+                    if (nlRange.location == NSNotFound) {
+                        break;
+                    }
+                    
+                    NSUInteger lineLength = nlRange.location - searchStart;
+                    NSString *line = [lineBuffer substringWithRange:NSMakeRange(searchStart, lineLength)];
+                    
+                    if ([line isEqualToString:@"setup_done"]) {
+                        fh.readabilityHandler = nil;
+                        dispatch_semaphore_signal(setupSem);
+                        return;
+                    }
+
+                    searchStart = nlRange.location + nlRange.length;
+                }
+                if (searchStart > 0) {
+                    [lineBuffer deleteCharactersInRange:NSMakeRange(0, searchStart)];
+                }
+            }
+        };
+        // Wait for setup_done or timeout
+        NSTimeInterval setupTimeout = 3.0;
+        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(setupTimeout * NSEC_PER_SEC));
+        long result_wait = dispatch_semaphore_wait(setupSem, timeout);
+
+        if (helperOutput.readabilityHandler) {
+            helperOutput.readabilityHandler = nil;
+        }
+
+        if (result_wait != 0) {
+            printErrf(@"The test client did not signal setup_done within %.1fs", setupTimeout);
             cleanup_helper();
             exit(1);
         }
