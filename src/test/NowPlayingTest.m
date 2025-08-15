@@ -43,9 +43,11 @@ static const float kPausedRate = 0.0f;
             @"com.vandenbe.MediaRemoteAdapter.TestClient",
     } mutableCopy];
 
+#if defined(__MAC_15_0) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_15_0
     if (@available(macOS 15, *)) {
         nowPlayingInfo[MPNowPlayingInfoPropertyExcludeFromSuggestions] = @YES;
     }
+#endif
 
     self.center.playbackState = MPNowPlayingPlaybackStatePlaying;
     self.center.nowPlayingInfo = [nowPlayingInfo copy];
