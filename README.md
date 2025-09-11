@@ -230,23 +230,29 @@ a dictionary with the following keys:
 `diff`
 `payload`
 
-The value of `type` is always set to `"data"`.
-
-`diff` is a boolean that indicates whether the `payload`
-contains only fields whose values have been updated.
-If set to `false`,
-the payload is to be considered the current now playing state,
-regardless of any payloads that were sent in the past.
-If set to `true` on the other hand,
-the last sent non-diff payload must be updated with these new values,
-in order to have a representation of the the current now playing state.
-**Diffing is enabled by default, but can be disabled with a command line flag.**
+`type` is always a string with the value `"data"`.
 
 `payload` contains the now playing information and is a dictionary
 that is structurally identical to the output of the `get` command,
-with the same keys. It is never `null` though.
+with the same keys. The dictionary itself is never `null`.
 No keys are set at all,
 when no media player is reporting now playing information.
+Some keys may have a `null` value,
+when the media player reports `null` for them (this happens rarely, if ever).
+Any key may be `null`, when `diff` is set to true and the key vanishes.
+
+`diff` is a boolean that indicates whether the `payload`
+contains only fields whose values have been updated.
+When set to `false`,
+the payload is to be considered the current now playing state
+with all available keys and their values,
+regardless of any payloads that have been sent in the past.
+When set to `true` on the other hand,
+the last sent non-diff payload must be updated with these new values,
+in order to have a representation of the the current now playing state.
+When a key is not present anymore, it's set to `null` in the payload
+and its previous value should be removed.
+**Diffing is enabled by default, but can be disabled with a command line flag.**
 
 **Options**
 
