@@ -161,6 +161,7 @@ extern void adapter_stream() {
       g_mediaRemote.getNowPlayingApplicationPID(
           g_serialdispatchQueue, ^(int pid) {
             if (pid == 0) {
+                liveData[kMRAProcessIdentifier] = nil;
                 handle();
                 return;
             }
