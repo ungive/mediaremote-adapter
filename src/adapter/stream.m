@@ -182,8 +182,11 @@ extern void adapter_stream() {
         NSString *parentAppBundleID = nil;
         if (client && [client respondsToSelector:@selector
                               (parentApplicationBundleIdentifier)]) {
-            parentAppBundleID = [client
+            id result = [client
                 performSelector:@selector(parentApplicationBundleIdentifier)];
+            if ([result isKindOfClass:[NSString class]]) {
+                parentAppBundleID = result;
+            }
         }
         if (parentAppBundleID) {
             liveData[kMRAParentApplicationBundleIdentifier] = parentAppBundleID;
