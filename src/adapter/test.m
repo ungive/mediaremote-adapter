@@ -119,7 +119,7 @@ extern void adapter_test(void) {
                 @"Exeption while trying to launch test client task: %@: %@",
                 exception.name, exception.reason);
             cleanup_helper();
-            exit(1);
+            exit(2);
         }
 
         helperInput = inputPipe.fileHandleForWriting;
@@ -183,7 +183,7 @@ extern void adapter_test(void) {
         if (result_wait != 0) {
             printErrf(@"The test client did not signal setup_done within %.1fs", setupTimeout);
             cleanup_helper();
-            exit(1);
+            exit(3);
         }
 
         // Small delay to ensure new data is available, for some reason the
@@ -197,6 +197,6 @@ extern void adapter_test(void) {
         }
 
         cleanup_helper();
-        exit(1);
+        exit(4);
     }
 }
