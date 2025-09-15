@@ -19,7 +19,8 @@ void cleanup_helper() {
             [helperInput writeData:[@"cleanup\n"
                                        dataUsingEncoding:NSUTF8StringEncoding]];
             [helperInput closeFile];
-        } @catch (NSException *exception) {}
+        } @catch (NSException *exception) {
+        }
 
         // Graceful shutdown with timeout
         NSTimeInterval timeout = 2.0;
@@ -32,9 +33,11 @@ void cleanup_helper() {
         if (nowPlayingClientHelperTask.isRunning) {
             @try {
                 [nowPlayingClientHelperTask terminate];
-            } @catch (NSException *exception) {}
+            } @catch (NSException *exception) {
+            }
 
-            NSDate *terminationDeadline = [NSDate dateWithTimeIntervalSinceNow:1.0];
+            NSDate *terminationDeadline =
+                [NSDate dateWithTimeIntervalSinceNow:1.0];
             while (nowPlayingClientHelperTask.isRunning &&
                    [terminationDeadline timeIntervalSinceNow] > 0) {
                 [NSThread sleepForTimeInterval:0.1];
@@ -51,16 +54,20 @@ void cleanup_helper() {
                 helperOutput.readabilityHandler = nil;
             }
             [helperOutput closeFile];
-        } @catch (__unused NSException *exception) {}
+        } @catch (__unused NSException *exception) {
+        }
 
-        @try {
+        @
+        try {
             [nowPlayingClientHelperTask waitUntilExit];
-        } @catch (__unused NSException *exception) {}
+        } @catch (__unused NSException *exception) {
+        }
     } else if (nowPlayingClientHelperTask) {
         @try {
             [nowPlayingClientHelperTask terminate];
             [nowPlayingClientHelperTask waitUntilExit];
-        } @catch (__unused NSException *exception) {}
+        } @catch (__unused NSException *exception) {
+        }
     }
     nowPlayingClientHelperTask = nil;
     helperInput = nil;
@@ -125,55 +132,62 @@ extern void adapter_test(void) {
         helperInput = inputPipe.fileHandleForWriting;
         helperOutput = outputPipe.fileHandleForReading;
 
-    dispatch_semaphore_t setupSem = dispatch_semaphore_create(0);
-    NSMutableString *lineBuffer = [[NSMutableString alloc] init];
-    helperOutput.readabilityHandler = ^(NSFileHandle *fh) {
-            @autoreleasepool {
-                NSData *chunk = [fh availableData];
-                if (chunk.length == 0) {
-                    fh.readabilityHandler = nil;
-                    return;
-                }
-                
-                // Validate UTF-8 encoding with graceful degradation
-                NSString *chunkStr = [[NSString alloc] initWithData:chunk 
-                                                           encoding:NSUTF8StringEncoding];
-                if (!chunkStr) { return; }
+        dispatch_semaphore_t setupSem = dispatch_semaphore_create(0);
+        NSMutableString *lineBuffer = [[NSMutableString alloc] init];
+        helperOutput.readabilityHandler = ^(NSFileHandle *fh) {
+          @autoreleasepool {
+              NSData *chunk = [fh availableData];
+              if (chunk.length == 0) {
+                  fh.readabilityHandler = nil;
+                  return;
+              }
 
-                [lineBuffer appendString:chunkStr];
+              // Validate UTF-8 encoding with graceful degradation
+              NSString *chunkStr =
+                  [[NSString alloc] initWithData:chunk
+                                        encoding:NSUTF8StringEncoding];
+              if (!chunkStr) {
+                  return;
+              }
 
-                NSUInteger bufferLength = [lineBuffer length];
-                NSUInteger searchStart = 0;
-                
-                while (searchStart < bufferLength) {
-                    NSRange remainingRange = NSMakeRange(searchStart, bufferLength - searchStart);
-                    NSRange nlRange = [lineBuffer rangeOfString:@"\n" 
-                                                        options:0 
-                                                          range:remainingRange];
-                    
-                    if (nlRange.location == NSNotFound) {
-                        break;
-                    }
-                    
-                    NSUInteger lineLength = nlRange.location - searchStart;
-                    NSString *line = [lineBuffer substringWithRange:NSMakeRange(searchStart, lineLength)];
-                    
-                    if ([line isEqualToString:@"setup_done"]) {
-                        fh.readabilityHandler = nil;
-                        dispatch_semaphore_signal(setupSem);
-                        return;
-                    }
+              [lineBuffer appendString:chunkStr];
 
-                    searchStart = nlRange.location + nlRange.length;
-                }
-                if (searchStart > 0) {
-                    [lineBuffer deleteCharactersInRange:NSMakeRange(0, searchStart)];
-                }
-            }
+              NSUInteger bufferLength = [lineBuffer length];
+              NSUInteger searchStart = 0;
+
+              while (searchStart < bufferLength) {
+                  NSRange remainingRange =
+                      NSMakeRange(searchStart, bufferLength - searchStart);
+                  NSRange nlRange = [lineBuffer rangeOfString:@"\n"
+                                                      options:0
+                                                        range:remainingRange];
+
+                  if (nlRange.location == NSNotFound) {
+                      break;
+                  }
+
+                  NSUInteger lineLength = nlRange.location - searchStart;
+                  NSString *line = [lineBuffer
+                      substringWithRange:NSMakeRange(searchStart, lineLength)];
+
+                  if ([line isEqualToString:@"setup_done"]) {
+                      fh.readabilityHandler = nil;
+                      dispatch_semaphore_signal(setupSem);
+                      return;
+                  }
+
+                  searchStart = nlRange.location + nlRange.length;
+              }
+              if (searchStart > 0) {
+                  [lineBuffer
+                      deleteCharactersInRange:NSMakeRange(0, searchStart)];
+              }
+          }
         };
         // Wait for setup_done or timeout
         NSTimeInterval setupTimeout = 3.0;
-        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(setupTimeout * NSEC_PER_SEC));
+        dispatch_time_t timeout = dispatch_time(
+            DISPATCH_TIME_NOW, (int64_t)(setupTimeout * NSEC_PER_SEC));
         long result_wait = dispatch_semaphore_wait(setupSem, timeout);
 
         if (helperOutput.readabilityHandler) {
@@ -181,7 +195,8 @@ extern void adapter_test(void) {
         }
 
         if (result_wait != 0) {
-            printErrf(@"The test client did not signal setup_done within %.1fs", setupTimeout);
+            printErrf(@"The test client did not signal setup_done within %.1fs",
+                      setupTimeout);
             cleanup_helper();
             exit(3);
         }
