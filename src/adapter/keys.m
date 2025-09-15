@@ -66,6 +66,11 @@ bool allMandatoryPayloadKeysSet(NSDictionary *data) {
         if (data[key] == nil || data[key] == [NSNull null]) {
             return false;
         }
+        id value = data[key];
+        if ([value isKindOfClass:[NSString class]] &&
+            [(NSString *)value length] == 0) {
+            return false;
+        }
     }
     return true;
 }
