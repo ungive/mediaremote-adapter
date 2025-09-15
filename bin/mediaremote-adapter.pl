@@ -125,7 +125,7 @@ sub parse_options {
   my $i = $start_index;
   while ($i <= $#ARGV) {
     my $arg = $ARGV[$i];
-    if ($arg =~ /^--([a-z\\-]+)(?:=(.*))?$/) {
+    if ($arg =~ /^--([a-z:\.\\-]+)(?:=(.*))?$/) {
       my $key = $1;
       my $value = defined $2 ? $2 : undef;
       $arg_map{$key} = $value;
@@ -198,6 +198,9 @@ elsif ($function_name eq "stream") {
     }
     elsif ($key eq "human-readable" || $key eq "h") {
       set_env_option($options, "human-readable");
+    }
+    elsif ($key eq "experimental-peculiar-debounce:com.tidal.desktop") {
+      set_env_option_value($options, $key);
     }
     else {
       fail "Unrecognized option '$key'";

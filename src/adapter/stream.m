@@ -110,6 +110,21 @@ static void appForNotification(NSNotification *notification,
     }
 };
 
+typedef struct MetadataStats {
+    BOOL trackTitleChanged;
+    int identifyingTrackKeysIdentical;
+    int identifyingTrackKeysChanged;
+} MetadataStats;
+
+static MetadataStats createMetadataStats() {
+    MetadataStats stats = {
+        .trackTitleChanged = NO,
+        .identifyingTrackKeysIdentical = 0,
+        .identifyingTrackKeysChanged = 0,
+    };
+    return stats;
+}
+
 extern void adapter_stream() {
 
     // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
@@ -130,7 +145,29 @@ extern void adapter_stream() {
     NSString *micros_option = getEnvOption(@"micros");
     NSString *human_readable_option = getEnvOption(@"human-readable");
 
+    // This option is needed for media players which, when changing tracks,
+    // update the artist and/or other fields later than e.g. the title, the
+    // invalid in-between metadata therefore representing "peculiar" media. The
+    // only known player that does this is the TIDAL desktop player with the
+    // bundle ID "com.tidal.desktop". This is easy to reproduce when playing
+    // media from a playlist with tracks from different artists.
+    // FIXME Implement this for any bundle ID, should other players need it.
+    // In that case parse any "experimental-peculiar-debounce:*" option.
+    NSNumber *peculiar_debounce_option =
+        getEnvOptionInt(@"experimental-peculiar-debounce:com.tidal.desktop");
+    __block NSString *peculiar_bundle_id = nil;
+    __block Debounce *peculiar_debounce = nil;
+    __block BOOL did_peculiar_debounce = NO;
+    if (peculiar_debounce_option != nil) {
+        peculiar_bundle_id = @"com.tidal.desktop";
+        int debounce_millis = [peculiar_debounce_option intValue];
+        peculiar_debounce =
+            [[Debounce alloc] initWithDelay:(debounce_millis / 1000.0)
+                                      queue:g_serialdispatchQueue];
+    }
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
+    __block MetadataStats liveDataStats = createMetadataStats();
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_serialdispatchQueue];
@@ -142,7 +179,7 @@ extern void adapter_stream() {
       printData(data, !no_diff, human_readable);
     };
 
-    void (^handle)() = ^{
+    void (^directHandle)() = ^() {
       if (allMandatoryPayloadKeysSet(liveData)) {
           if (human_readable) {
               NSMutableDictionary *shallowClone =
@@ -155,6 +192,38 @@ extern void adapter_stream() {
       } else {
           localPrintData(nil);
       }
+    };
+
+    void (^internalHandle)(bool) = ^(bool updatedStats) {
+      if (peculiar_debounce == nil ||
+          ![peculiar_bundle_id isEqual:liveData[kMRABundleIdentifier]]) {
+          directHandle();
+          return;
+      }
+      if (updatedStats && liveDataStats.trackTitleChanged &&
+          liveDataStats.identifyingTrackKeysIdentical > 0) {
+          did_peculiar_debounce = true;
+          [peculiar_debounce call:^{
+            did_peculiar_debounce = false;
+            directHandle();
+          }];
+      } else if (did_peculiar_debounce &&
+                 (!updatedStats ||
+                  liveDataStats.identifyingTrackKeysChanged == 0)) {
+          // Ignore this handle call, since there is an active debounce call.
+      } else {
+          [peculiar_debounce cancel];
+          did_peculiar_debounce = false;
+          directHandle();
+      }
+    };
+
+    void (^handle)() = ^() {
+      internalHandle(false);
+    };
+
+    void (^handleWithUpdatedStats)() = ^() {
+      internalHandle(true);
     };
 
     void (^requestNowPlayingApplicationPID)() = ^{
@@ -242,8 +311,35 @@ extern void adapter_stream() {
             converted[kMRAArtworkData] == nil) {
             converted[kMRAArtworkData] = liveData[kMRAArtworkData];
         }
+
+        // FIXME Make this neater.
+        MetadataStats stats = createMetadataStats();
+        if (liveData[kMRATitle] != nil && converted[kMRATitle] != nil) {
+            if ([liveData[kMRATitle] isEqual:converted[kMRATitle]]) {
+                stats.identifyingTrackKeysIdentical += 1;
+            } else {
+                stats.identifyingTrackKeysChanged += 1;
+                stats.trackTitleChanged = YES;
+            }
+        }
+        if (liveData[kMRAArtist] != nil && converted[kMRAArtist] != nil) {
+            if ([liveData[kMRAArtist] isEqual:converted[kMRAArtist]]) {
+                stats.identifyingTrackKeysIdentical += 1;
+            } else {
+                stats.identifyingTrackKeysChanged += 1;
+            }
+        }
+        if (liveData[kMRAAlbum] != nil && converted[kMRAAlbum] != nil) {
+            if ([liveData[kMRAAlbum] isEqual:converted[kMRAAlbum]]) {
+                stats.identifyingTrackKeysIdentical += 1;
+            } else {
+                stats.identifyingTrackKeysChanged += 1;
+            }
+        }
+
         [liveData setDictionary:converted];
-        handle();
+        liveDataStats = stats;
+        handleWithUpdatedStats();
       });
     };
 

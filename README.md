@@ -269,6 +269,21 @@ The default is 0.
 
 `--micros`&ensp;Identical to the `--micros` option of the `get` command.
 
+**Experimental options**
+
+`--experimental-peculiar-debounce:BUNDLE_ID=N`&ensp;
+Adds a debounce delay in milliseconds for the case when the media player
+with the given bundle identifier (`BUNDLE_ID`) reports metadata that
+contains parts of the previous track and parts of the next track,
+but doesn't contain the full metadata of the next track.
+Whenever the track title changes,
+the update for it is either delayed for the given debounce delay
+or the update is printed when all other metadata updated as well,
+whichever happens earlier.
+Currently only `com.tidal.desktop` can be passed for `BUNDLE_ID`,
+since it is the only media player that is known to have this issue.
+A value of `1000` for `N` is recommended for TIDAL specifically.
+
 ---
 
 ### send COMMAND

@@ -24,13 +24,18 @@
 }
 
 - (void)call:(dispatch_block_t)block {
-    if (self.pendingBlock) {
-        dispatch_block_cancel(self.pendingBlock);
-    }
+    [self cancel];
     self.pendingBlock = dispatch_block_create(DISPATCH_BLOCK_BARRIER, block);
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delay * NSEC_PER_SEC)),
         self.queue, self.pendingBlock);
+}
+
+- (void)cancel {
+    if (self.pendingBlock) {
+        dispatch_block_cancel(self.pendingBlock);
+        self.pendingBlock = nil;
+    }
 }
 
 @end

@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDelay:(NSTimeInterval)delay
                         queue:(nullable dispatch_queue_t)queue;
 - (void)call:(dispatch_block_t)block;
+- (void)cancel;
 
 @end
 
