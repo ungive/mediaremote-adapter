@@ -64,6 +64,10 @@ target_include_directories(MediaRemoteAdapter
 
 target_compile_options(MediaRemoteAdapter PRIVATE "-fobjc-arc")
 
+# Ensure that symbols are visible, otherwise the Perl script can't call into
+# functions that are exported by the framework.
+target_compile_options(MediaRemoteAdapter PRIVATE -fvisibility=default)
+
 add_custom_command(
     TARGET MediaRemoteAdapter
     POST_BUILD
