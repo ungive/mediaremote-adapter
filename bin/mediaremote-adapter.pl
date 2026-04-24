@@ -56,7 +56,7 @@ OPTIONS:
     --no-diff: Disable diffing and always dump all metadata
     --debounce=N: Delay in milliseconds to prevent spam (0 by default)
   get, stream
-    --micros: Replaces the following time keys with microsecond equivalents
+    --micros: Replaces the following time keys with microsecond equivalents:
       "duration" -> "durationMicros"
       "elapsedTime" -> "elapsedTimeMicros"
       "elapsedTimeNow" -> "elapsedTimeNowMicros"
