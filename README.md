@@ -275,8 +275,8 @@ The default is 0.
 `--micros`&ensp;Identical to the `--micros` option of the `get` command.
 
 `--no-artwork`&ensp;Identical to the `--no-artwork` option of the `get`
-command. Particularly useful with `stream`, since it otherwise re-emits
-the full artwork payload on every update.
+command. Particularly useful with `stream` with the `--no-diff` parameter,
+since it otherwise re-emits the full artwork payload on every update.
 
 **Experimental options**
 
