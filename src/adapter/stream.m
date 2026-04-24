@@ -142,6 +142,7 @@ extern void adapter_stream() {
     }
 
     NSString *no_diff_option = getEnvOption(@"no_diff");
+    NSString *no_artwork_option = getEnvOption(@"no-artwork");
     NSString *micros_option = getEnvOption(@"micros");
     NSString *human_readable_option = getEnvOption(@"human-readable");
 
@@ -172,6 +173,7 @@ extern void adapter_stream() {
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
                                   queue:g_serialdispatchQueue];
     __block const BOOL no_diff = (no_diff_option != nil);
+    __block const BOOL no_artwork = (no_artwork_option != nil);
     __block const BOOL convert_micros = (micros_option != nil);
     __block const bool human_readable = (human_readable_option != nil);
 
@@ -288,6 +290,10 @@ extern void adapter_stream() {
         }
         NSMutableDictionary *converted =
             convertNowPlayingInformation(information, convert_micros, false);
+        if (no_artwork) {
+            [converted removeObjectForKey:kMRAArtworkData];
+            [converted removeObjectForKey:kMRAArtworkMimeType];
+        }
         // Transfer anything over from the existing live data.
         if (liveData[kMRAProcessIdentifier] != nil) {
             converted[kMRAProcessIdentifier] = liveData[kMRAProcessIdentifier];

@@ -216,6 +216,11 @@ contains the elapsed time at the time that is stored in `timestamp`.
 | `elapsedTimeNow` | `elapsedTimeNowMicros` | Only present with `--now` |
 | `timestamp`      | `timestampEpochMicros` | Converted to epoch time   |
 
+`--no-artwork`&ensp;Omits the `artworkData` and `artworkMimeType` keys
+from the payload. Useful for consumers that do not render artwork,
+since this avoids emitting several hundred kilobytes of base64-encoded
+image data per update.
+
 ---
 
 ### stream
@@ -268,6 +273,10 @@ This is useful to prevent bursts of smaller updates.
 The default is 0.
 
 `--micros`&ensp;Identical to the `--micros` option of the `get` command.
+
+`--no-artwork`&ensp;Identical to the `--no-artwork` option of the `get`
+command. Particularly useful with `stream`, since it otherwise re-emits
+the full artwork payload on every update.
 
 **Experimental options**
 

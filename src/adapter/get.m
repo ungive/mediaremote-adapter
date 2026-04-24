@@ -25,6 +25,9 @@ NSDictionary *internal_get(BOOL isTestMode) {
     NSString *now_option = getEnvOption(@"now");
     __block const bool calculate_now = now_option != nil;
 
+    NSString *no_artwork_option = getEnvOption(@"no-artwork");
+    const bool no_artwork = no_artwork_option != nil;
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block BOOL isFromTestClient = NO;
 
@@ -105,6 +108,11 @@ NSDictionary *internal_get(BOOL isTestMode) {
 
     if (isFromTestClient) {
         return nil;
+    }
+
+    if (no_artwork) {
+        [liveData removeObjectForKey:kMRAArtworkData];
+        [liveData removeObjectForKey:kMRAArtworkMimeType];
     }
 
     if (human_readable) {
