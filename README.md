@@ -83,8 +83,8 @@ For more help on available commands read below or omit the `COMMAND` argument.
 > and the API may experience breaking changes across minor revisions.
 
 > [!NOTE]
-> A Swift package and an Objective-C library
-> that you can directly include in your project is underway.
+> For a maintained Swift package look at this excellent fork:
+> https://github.com/ejbills/mediaremote-adapter
 
 ## Build from source
 
