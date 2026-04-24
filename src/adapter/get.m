@@ -89,7 +89,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
           return;
       }
       NSDictionary *converted = convertNowPlayingInformation(
-          information, convert_micros, calculate_now);
+          information, convert_micros, calculate_now, no_artwork);
       [liveData addEntriesFromDictionary:converted];
       dispatch_group_leave(group);
     });
@@ -108,11 +108,6 @@ NSDictionary *internal_get(BOOL isTestMode) {
 
     if (isFromTestClient) {
         return nil;
-    }
-
-    if (no_artwork) {
-        [liveData removeObjectForKey:kMRAArtworkData];
-        [liveData removeObjectForKey:kMRAArtworkMimeType];
     }
 
     if (human_readable) {

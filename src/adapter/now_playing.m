@@ -54,7 +54,8 @@ NSNumber *getElapsedTimeNow(NSDictionary *information) {
 
 NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
                                                   bool convertMicros,
-                                                  bool calculateNow) {
+                                                  bool calculateNow,
+                                                  bool withoutArtwork) {
     NSMutableDictionary *data = [NSMutableDictionary dictionary];
 
     void (^setKey)(id, id) = ^(id key, id fromKey) {
@@ -83,8 +84,11 @@ NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
     setKey(kMRATitle, kMRMediaRemoteNowPlayingInfoTitle);
     setKey(kMRAArtist, kMRMediaRemoteNowPlayingInfoArtist);
     setKey(kMRAAlbum, kMRMediaRemoteNowPlayingInfoAlbum);
-    setKey(kMRAArtworkMimeType, kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
-    setKey(kMRAArtworkData, kMRMediaRemoteNowPlayingInfoArtworkData);
+    if (!withoutArtwork) {
+        setKey(kMRAArtworkMimeType,
+               kMRMediaRemoteNowPlayingInfoArtworkMIMEType);
+        setKey(kMRAArtworkData, kMRMediaRemoteNowPlayingInfoArtworkData);
+    }
 
     if (!convertMicros) {
         setKey(kMRADuration, kMRMediaRemoteNowPlayingInfoDuration);

@@ -14,6 +14,7 @@ void waitForCommandCompletion();
 // Optionally replaces keys with time values with microseconds equivalents.
 NSMutableDictionary *convertNowPlayingInformation(NSDictionary *information,
                                                   bool convertMicros,
-                                                  bool calculateNow);
+                                                  bool calculateNow,
+                                                  bool withoutArtwork);
 
 #endif // MEDIAREMOTEADAPTER_UTILITY_NOW_PLAYING_H
