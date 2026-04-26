@@ -38,7 +38,7 @@ NSNumber *getElapsedTimeNow(NSDictionary *information) {
     NSTimeInterval currentEpoch = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval timeDiff = currentEpoch - timestampEpoch;
 
-    int playbackRate = 0;
+    double playbackRate = 0;
     id playbackRateVal = information[kMRMediaRemoteNowPlayingInfoPlaybackRate];
     if ([playbackRateVal isKindOfClass:[NSNumber class]]) {
         playbackRate = [(NSNumber *)playbackRateVal doubleValue];
