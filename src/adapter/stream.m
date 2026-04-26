@@ -128,20 +128,7 @@ static MetadataStats createMetadataStats() {
 static MetadataStats compareIdentifyingTrackKeys(NSDictionary *prev,
                                                  NSDictionary *next) {
     MetadataStats stats = createMetadataStats();
-
-    // The title is the only identifying key whose change additionally flags
-    // trackTitleChanged, so handle it inline before the uniform counter loop.
-    id prevTitle = prev[kMRATitle], nextTitle = next[kMRATitle];
-    if (prevTitle != nil && nextTitle != nil) {
-        if ([prevTitle isEqual:nextTitle]) {
-            stats.identifyingTrackKeysIdentical++;
-        } else {
-            stats.identifyingTrackKeysChanged++;
-            stats.trackTitleChanged = YES;
-        }
-    }
-
-    for (NSString *key in @[ kMRAArtist, kMRAAlbum ]) {
+    for (NSString *key in @[ kMRATitle, kMRAArtist, kMRAAlbum ]) {
         id a = prev[key], b = next[key];
         if (a == nil || b == nil)
             continue;
@@ -149,6 +136,9 @@ static MetadataStats compareIdentifyingTrackKeys(NSDictionary *prev,
             stats.identifyingTrackKeysIdentical++;
         } else {
             stats.identifyingTrackKeysChanged++;
+            if ([key isEqualToString:kMRATitle]) {
+                stats.trackTitleChanged = YES;
+            }
         }
     }
     return stats;
