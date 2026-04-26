@@ -125,6 +125,25 @@ static MetadataStats createMetadataStats() {
     return stats;
 }
 
+static MetadataStats compareIdentifyingTrackKeys(NSDictionary *prev,
+                                                 NSDictionary *next) {
+    MetadataStats stats = createMetadataStats();
+    for (NSString *key in @[ kMRATitle, kMRAArtist, kMRAAlbum ]) {
+        id a = prev[key], b = next[key];
+        if (a == nil || b == nil)
+            continue;
+        if ([a isEqual:b]) {
+            stats.identifyingTrackKeysIdentical++;
+        } else {
+            stats.identifyingTrackKeysChanged++;
+            if ([key isEqualToString:kMRATitle]) {
+                stats.trackTitleChanged = YES;
+            }
+        }
+    }
+    return stats;
+}
+
 extern void adapter_stream() {
 
     // Get ADAPTER_TEST_MODE as a boolean and set BOOL isTestMode
@@ -314,33 +333,8 @@ extern void adapter_stream() {
             converted[kMRAArtworkData] = liveData[kMRAArtworkData];
         }
 
-        // FIXME Make this neater.
-        MetadataStats stats = createMetadataStats();
-        if (liveData[kMRATitle] != nil && converted[kMRATitle] != nil) {
-            if ([liveData[kMRATitle] isEqual:converted[kMRATitle]]) {
-                stats.identifyingTrackKeysIdentical += 1;
-            } else {
-                stats.identifyingTrackKeysChanged += 1;
-                stats.trackTitleChanged = YES;
-            }
-        }
-        if (liveData[kMRAArtist] != nil && converted[kMRAArtist] != nil) {
-            if ([liveData[kMRAArtist] isEqual:converted[kMRAArtist]]) {
-                stats.identifyingTrackKeysIdentical += 1;
-            } else {
-                stats.identifyingTrackKeysChanged += 1;
-            }
-        }
-        if (liveData[kMRAAlbum] != nil && converted[kMRAAlbum] != nil) {
-            if ([liveData[kMRAAlbum] isEqual:converted[kMRAAlbum]]) {
-                stats.identifyingTrackKeysIdentical += 1;
-            } else {
-                stats.identifyingTrackKeysChanged += 1;
-            }
-        }
-
+        liveDataStats = compareIdentifyingTrackKeys(liveData, converted);
         [liveData setDictionary:converted];
-        liveDataStats = stats;
         handleWithUpdatedStats();
       });
     };
