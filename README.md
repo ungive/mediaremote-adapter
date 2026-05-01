@@ -475,16 +475,17 @@ to read now playing information and control media playback on the device
 
 ## Projects that use this library
 
+- [Now Playing Display](https://www.gxlabs.co/now-playing/): A macOS "now playing" hardware display for the Seeed XIAO ESP32-C6 paired with the Seeed Round Display for XIAO. Shows album art, track info, progress, and playback controls on a 240x240 circular TFT — connected over USB. Source code: https://github.com/gxlabs/now-playing-device
 - [Music Presence](https://musicpresence.app) is a cross-platform desktop application
   for showing what you are listening to in your Discord status.
   It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
-  to detect media from all media players again.
+  to detect media from all media players again. Website: https://musicpresence.app
 - [media-control](https://github.com/ungive/media-control)
   is a CLI tool to control and observe media playback on any macOS version.
-  You can install it directly via brew: `$ brew tap ungive/media-control && brew install media-control`
+  You can install it directly via brew: `$ brew tap ungive/media-control && brew install media-control`. Source code: https://github.com/ungive/media-control
 
 *If you use this library in your project, please
-[let me know](https://github.com/ungive/mediaremote-adapter/issues)!*
+[let me know](https://github.com/ungive/mediaremote-adapter/issues) and I'll add it to the list!*
 
 ## Useful links
 
