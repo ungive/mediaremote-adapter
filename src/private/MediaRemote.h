@@ -105,8 +105,8 @@ extern CFStringRef MRMediaRemoteSetShuffleMode;
 extern CFStringRef MRMediaRemoteSetRepeatMode;
 typedef void (*MRMediaRemoteSetPlaybackSpeed_t)(int speed);
 typedef void (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
-typedef bool (*MRMediaRemoteSetShuffleMode_t)(int mode);
-typedef bool (*MRMediaRemoteSetRepeatMode_t)(int mode);
+typedef void (*MRMediaRemoteSetShuffleMode_t)(int mode);
+typedef void (*MRMediaRemoteSetRepeatMode_t)(int mode);
 
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
