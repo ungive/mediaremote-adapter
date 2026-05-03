@@ -18,10 +18,7 @@ void adapter_speed(int speed) {
         failf(@"Negative values are not allowed: %d", speed);
     }
 
-    bool result = g_mediaRemote.setPlaybackSpeed(speed);
-    if (!result) {
-        failf(@"Failed to set playback speed to %d", speed);
-    }
+    g_mediaRemote.setPlaybackSpeed(speed);
 
     waitForCommandCompletion();
 }
