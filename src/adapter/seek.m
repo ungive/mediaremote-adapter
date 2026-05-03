@@ -18,10 +18,7 @@ void adapter_seek(long position) {
         failf(@"Negative values are not allowed: %d", position);
     }
 
-    bool result = g_mediaRemote.setElapsedTime(position / 1000000.0);
-    if (!result) {
-        failf(@"Failed to seek to %d", position);
-    }
+    g_mediaRemote.setElapsedTime(position / 1000000.0);
 
     waitForCommandCompletion();
 }
