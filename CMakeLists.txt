@@ -50,7 +50,7 @@ set_target_properties(
                OUTPUT_NAME "${MEDIAREMOTEADAPTER_FRAMEWORK_NAME}")
 
 target_link_libraries(MediaRemoteAdapter "-framework Foundation"
-                      "-framework AppKit" "-framework JavaScriptCore")
+                      "-framework AppKit")
 
 find_library(UT_FRAMEWORK UniformTypeIdentifiers)
 if(UT_FRAMEWORK)
