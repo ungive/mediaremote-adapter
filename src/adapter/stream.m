@@ -312,6 +312,11 @@ extern void adapter_stream() {
             liveData[kMRAArtworkData] != [NSNull null] &&
             converted[kMRAArtworkData] == nil) {
             converted[kMRAArtworkData] = liveData[kMRAArtworkData];
+            if (liveData[kMRAArtworkMimeType] != nil &&
+                liveData[kMRAArtworkMimeType] != [NSNull null] &&
+                converted[kMRAArtworkMimeType] == nil) {
+                converted[kMRAArtworkMimeType] = liveData[kMRAArtworkMimeType];
+            }
         }
 
         // FIXME Make this neater.
