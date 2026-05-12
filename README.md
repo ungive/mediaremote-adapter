@@ -289,9 +289,10 @@ Whenever the track title changes,
 the update for it is either delayed for the given debounce delay
 or the update is printed when all other metadata updated as well,
 whichever happens earlier.
-Currently only `com.tidal.desktop` can be passed for `BUNDLE_ID`,
-since it is the only media player that is known to have this issue.
-A value of `1000` for `N` is recommended for TIDAL specifically.
+Any bundle identifier may be passed for `BUNDLE_ID`,
+and the option may be repeated to enable the behaviour for several players
+at once. The TIDAL desktop player (`com.tidal.desktop`) is a known case
+where this is needed, and a value of `1000` for `N` is recommended there.
 
 ---
 

@@ -128,7 +128,7 @@ sub parse_options {
   my $i = $start_index;
   while ($i <= $#ARGV) {
     my $arg = $ARGV[$i];
-    if ($arg =~ /^--([a-z:\.\\-]+)(?:=(.*))?$/) {
+    if ($arg =~ /^--([A-Za-z0-9_:\.\-]+)(?:=(.*))?$/) {
       my $key = $1;
       my $value = defined $2 ? $2 : undef;
       $arg_map{$key} = $value;
@@ -158,8 +158,12 @@ sub set_env_param {
 
 sub set_env_option_unsafe {
   my ($name, $value) = @_;
-  $name =~ s/-/_/g;
-  $ENV{"MEDIAREMOTEADAPTER_OPTION_${name}"} = defined $value ? "$value" : "";
+  # Mangle dashes only in the option name; preserve bundle IDs after a colon.
+  my ($prefix, $suffix) = $name =~ /^([^:]*)(:.*)?$/;
+  $suffix //= '';
+  $prefix =~ s/-/_/g;
+  $ENV{"MEDIAREMOTEADAPTER_OPTION_${prefix}${suffix}"} =
+    defined $value ? "$value" : "";
 }
 
 sub set_env_option {
@@ -205,7 +209,7 @@ elsif ($function_name eq "stream") {
     elsif ($key eq "human-readable" || $key eq "h") {
       set_env_option($options, "human-readable");
     }
-    elsif ($key eq "experimental-peculiar-debounce:com.tidal.desktop") {
+    elsif ($key =~ /^experimental-peculiar-debounce:.+$/) {
       set_env_option_value($options, $key);
     }
     else {

@@ -23,8 +23,18 @@ static NSNumber *parseIntegerOrNil(NSString *str) {
 
 NSString *getEnvValue(NSString *name) {
     NSDictionary *env = [[NSProcessInfo processInfo] environment];
-    return env[[name stringByReplacingOccurrencesOfString:@"-"
-                                               withString:@"_"]];
+    // Mangle dashes only in the option name; preserve bundle IDs after a colon.
+    NSRange colon = [name rangeOfString:@":"];
+    NSString *prefix = (colon.location == NSNotFound)
+                           ? name
+                           : [name substringToIndex:colon.location];
+    NSString *suffix = (colon.location == NSNotFound)
+                           ? @""
+                           : [name substringFromIndex:colon.location];
+    NSString *key = [[prefix stringByReplacingOccurrencesOfString:@"-"
+                                                       withString:@"_"]
+        stringByAppendingString:suffix];
+    return env[key];
 }
 
 NSString *getEnvFuncParam(NSString *func_name, int param_pos,
