@@ -64,6 +64,14 @@ OPTIONS:
     --no-artwork: Omits "artworkData" and "artworkMimeType" from the payload.
       Useful for consumers that do not render artwork, since this avoids
       emitting several hundred kilobytes of base64 data per update.
+    --allow-missing-title: Emits sessions whose metadata carries no title,
+      instead of reporting them as "nothing is playing". Some players register
+      a now playing client with an empty metadata dictionary for untagged
+      audio: the PID, the bundle identifier and the playback state are known,
+      only the title is absent. Control Center shows these using the
+      application name; without this option they are indistinguishable from
+      no playback at all. The "title" key is absent from such payloads, so
+      consumers that opt in must handle it being missing.
     --human-readable, -h: Makes values human-readable. Use only for debugging.
       The JSON output is pretty-printed and the following keys are adapted:
       "artworkData" -> Binary data is truncated to a shorter representation
@@ -202,6 +210,9 @@ elsif ($function_name eq "stream") {
     elsif ($key eq "no-artwork") {
       set_env_option($options, $key);
     }
+    elsif ($key eq "allow-missing-title") {
+      set_env_option($options, $key);
+    }
     elsif ($key eq "human-readable" || $key eq "h") {
       set_env_option($options, "human-readable");
     }
@@ -221,6 +232,9 @@ elsif ($function_name eq "get") {
       set_env_option($options, $key);
     }
     elsif ($key eq "no-artwork") {
+      set_env_option($options, $key);
+    }
+    elsif ($key eq "allow-missing-title") {
       set_env_option($options, $key);
     }
     elsif ($key eq "human-readable" || $key eq "h") {

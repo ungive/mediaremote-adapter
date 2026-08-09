@@ -60,8 +60,19 @@ NSArray<NSString *> *mandatoryPayloadKeys(void) {
     return @[ kMRAProcessIdentifier, kMRATitle, kMRAPlaying ];
 }
 
+NSArray<NSString *> *mandatoryPayloadKeysWithoutTitle(void) {
+    return @[ kMRAProcessIdentifier, kMRAPlaying ];
+}
+
 bool allMandatoryPayloadKeysSet(NSDictionary *data) {
-    NSArray<NSString *> *keys = mandatoryPayloadKeys();
+    return allMandatoryPayloadKeysSetAllowingMissingTitle(data, false);
+}
+
+bool allMandatoryPayloadKeysSetAllowingMissingTitle(NSDictionary *data,
+                                                    bool allowMissingTitle) {
+    NSArray<NSString *> *keys = allowMissingTitle
+                                    ? mandatoryPayloadKeysWithoutTitle()
+                                    : mandatoryPayloadKeys();
     for (NSString *key in keys) {
         if (data[key] == nil || data[key] == [NSNull null]) {
             return false;

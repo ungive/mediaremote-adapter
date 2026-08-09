@@ -114,7 +114,10 @@ NSDictionary *internal_get(BOOL isTestMode) {
         makePayloadHumanReadable(liveData);
     }
 
-    if (!allMandatoryPayloadKeysSet(liveData)) {
+    NSString *allow_missing_title_option =
+        getEnvOption(@"allow-missing-title");
+    if (!allMandatoryPayloadKeysSetAllowingMissingTitle(
+            liveData, allow_missing_title_option != nil)) {
         return nil;
     }
 
