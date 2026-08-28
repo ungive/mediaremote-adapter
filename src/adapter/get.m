@@ -28,6 +28,9 @@ NSDictionary *internal_get(BOOL isTestMode) {
     NSString *no_artwork_option = getEnvOption(@"no-artwork");
     const bool no_artwork = no_artwork_option != nil;
 
+    NSString *allow_missing_title_option = getEnvOption(@"allow-missing-title");
+    const bool allow_missing_title = allow_missing_title_option != nil;
+
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
     __block BOOL isFromTestClient = NO;
 
@@ -114,10 +117,7 @@ NSDictionary *internal_get(BOOL isTestMode) {
         makePayloadHumanReadable(liveData);
     }
 
-    NSString *allow_missing_title_option =
-        getEnvOption(@"allow-missing-title");
-    if (!allMandatoryPayloadKeysSetAllowingMissingTitle(
-            liveData, allow_missing_title_option != nil)) {
+    if (!allMandatoryPayloadKeysSet(liveData, allow_missing_title)) {
         return nil;
     }
 

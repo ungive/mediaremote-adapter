@@ -16,12 +16,8 @@ NSArray<NSString *> *mandatoryPayloadKeys(bool excludeTitle);
 
 // Checks whether all mandatory payload keys returned by mandatoryPayloadKeys()
 // are present in the given payload dictionary and have a non-null value.
-bool allMandatoryPayloadKeysSet(NSDictionary *data);
-
-// Same as allMandatoryPayloadKeysSet(), but the title is not required when
-// allowMissingTitle is true.
-bool allMandatoryPayloadKeysSetAllowingMissingTitle(NSDictionary *data,
-                                                    bool allowMissingTitle);
+// If allowMissingTitle is true, the title is not required.
+bool allMandatoryPayloadKeysSet(NSDictionary *data, bool allowMissingTitle);
 
 // These keys identify a now playing item uniquely.
 NSArray<NSString *> *identifyingPayloadKeys(void);

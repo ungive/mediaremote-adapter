@@ -209,8 +209,7 @@ extern void adapter_stream() {
     };
 
     void (^directHandle)() = ^() {
-      if (allMandatoryPayloadKeysSetAllowingMissingTitle(liveData,
-                                                        allow_missing_title)) {
+      if (allMandatoryPayloadKeysSet(liveData, allow_missing_title)) {
           if (human_readable) {
               NSMutableDictionary *shallowClone =
                   [NSMutableDictionary dictionaryWithDictionary:liveData];

@@ -65,12 +65,7 @@ NSArray<NSString *> *mandatoryPayloadKeys(bool excludeTitle) {
     return keys;
 }
 
-bool allMandatoryPayloadKeysSet(NSDictionary *data) {
-    return allMandatoryPayloadKeysSetAllowingMissingTitle(data, false);
-}
-
-bool allMandatoryPayloadKeysSetAllowingMissingTitle(NSDictionary *data,
-                                                    bool allowMissingTitle) {
+bool allMandatoryPayloadKeysSet(NSDictionary *data, bool allowMissingTitle) {
     NSArray<NSString *> *keys = mandatoryPayloadKeys(allowMissingTitle);
     for (NSString *key in keys) {
         if (data[key] == nil || data[key] == [NSNull null]) {
