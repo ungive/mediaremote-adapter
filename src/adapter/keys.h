@@ -7,15 +7,12 @@
 #import <Foundation/Foundation.h>
 
 // These keys are mandatory and must never be null, empty or missing.
-NSArray<NSString *> *mandatoryPayloadKeys(void);
-
-// The mandatory keys for media without a title, i.e. everything returned by
-// mandatoryPayloadKeys() except the title. Used when the caller opts into
-// receiving sessions whose metadata carries no title (see the
-// "allow-missing-title" option), which some players produce for untagged
-// audio: the now playing client, its PID and its playback state are all
-// known, only the metadata dictionary is empty.
-NSArray<NSString *> *mandatoryPayloadKeysWithoutTitle(void);
+// If excludeTitle is true, the title is omitted from the mandatory keys.
+// This is used when the caller opts into receiving sessions whose metadata
+// carries no title (see the "allow-missing-title" option), which some players
+// produce for untagged audio: the now playing client, its PID and its
+// playback state are all known, only the metadata dictionary is empty.
+NSArray<NSString *> *mandatoryPayloadKeys(bool excludeTitle);
 
 // Checks whether all mandatory payload keys returned by mandatoryPayloadKeys()
 // are present in the given payload dictionary and have a non-null value.

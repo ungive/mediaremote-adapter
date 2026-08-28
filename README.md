@@ -184,6 +184,7 @@ The following mandatory keys never have a null value:
 If any of the mandatory keys cannot be determined,
 the command prints `null`.
 Media without a title is considered invalid.
+Note that the `--allow-missing-title` option marks an exception to this rule for the `title` key.
 
 The `mediaType` may contain one of the following values:
 - `MRMediaRemoteMediaTypeMusic`
@@ -215,6 +216,11 @@ contains the elapsed time at the time that is stored in `timestamp`.
 | `elapsedTime`    | `elapsedTimeMicros`    | -                         |
 | `elapsedTimeNow` | `elapsedTimeNowMicros` | Only present with `--now` |
 | `timestamp`      | `timestampEpochMicros` | Converted to epoch time   |
+
+`--allow-missing-title`&ensp;By default, media with a null or absent title is
+ignored. This flag leads to media with a null or absent title being
+emitted. The consumer needs to explicitly handle the possibility of the
+title being null or absent.
 
 `--no-artwork`&ensp;Omits the `artworkData` and `artworkMimeType` keys
 from the payload. Useful for consumers that do not render artwork,
@@ -273,6 +279,8 @@ This is useful to prevent bursts of smaller updates.
 The default is 0.
 
 `--micros`&ensp;Identical to the `--micros` option of the `get` command.
+
+`--allow-missing-title`&ensp;Identical to the `--allow-missing-title` option of the `get` command.
 
 `--no-artwork`&ensp;Identical to the `--no-artwork` option of the `get`
 command. Particularly useful with `stream` with the `--no-diff` parameter,
