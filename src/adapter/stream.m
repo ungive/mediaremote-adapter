@@ -164,6 +164,8 @@ extern void adapter_stream() {
     NSString *no_artwork_option = getEnvOption(@"no-artwork");
     NSString *micros_option = getEnvOption(@"micros");
     NSString *human_readable_option = getEnvOption(@"human-readable");
+    NSString *allow_missing_title_option =
+        getEnvOption(@"allow-missing-title");
 
     // This option is needed for media players which, when changing tracks,
     // update the artist and/or other fields later than e.g. the title, the
@@ -195,13 +197,19 @@ extern void adapter_stream() {
     __block const BOOL no_artwork = (no_artwork_option != nil);
     __block const BOOL convert_micros = (micros_option != nil);
     __block const bool human_readable = (human_readable_option != nil);
+    // Players that hand MediaRemote an empty metadata dictionary (untagged
+    // audio, e.g. a file shared in a chat client) still register a now playing
+    // client with a PID and a playback state. Without this option such a
+    // session is indistinguishable from "nothing is playing", even though
+    // Control Center shows it, using the application name as the label.
+    __block const bool allow_missing_title = (allow_missing_title_option != nil);
 
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
       printData(data, !no_diff, human_readable);
     };
 
     void (^directHandle)() = ^() {
-      if (allMandatoryPayloadKeysSet(liveData)) {
+      if (allMandatoryPayloadKeysSet(liveData, allow_missing_title)) {
           if (human_readable) {
               NSMutableDictionary *shallowClone =
                   [NSMutableDictionary dictionaryWithDictionary:liveData];

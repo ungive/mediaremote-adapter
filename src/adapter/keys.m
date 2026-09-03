@@ -56,12 +56,17 @@ NSString *kMRAContentItemIdentifier = @"contentItemIdentifier";
 NSString *kMRARadioStationHash = @"radioStationHash";
 NSString *kMRAMediaType = @"mediaType";
 
-NSArray<NSString *> *mandatoryPayloadKeys(void) {
-    return @[ kMRAProcessIdentifier, kMRATitle, kMRAPlaying ];
+NSArray<NSString *> *mandatoryPayloadKeys(bool excludeTitle) {
+    NSMutableArray<NSString *> *keys =
+        [NSMutableArray arrayWithArray:@[ kMRAProcessIdentifier, kMRAPlaying ]];
+    if (!excludeTitle) {
+        [keys addObject:kMRATitle];
+    }
+    return keys;
 }
 
-bool allMandatoryPayloadKeysSet(NSDictionary *data) {
-    NSArray<NSString *> *keys = mandatoryPayloadKeys();
+bool allMandatoryPayloadKeysSet(NSDictionary *data, bool allowMissingTitle) {
+    NSArray<NSString *> *keys = mandatoryPayloadKeys(allowMissingTitle);
     for (NSString *key in keys) {
         if (data[key] == nil || data[key] == [NSNull null]) {
             return false;

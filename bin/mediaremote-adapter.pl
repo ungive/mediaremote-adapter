@@ -64,6 +64,10 @@ OPTIONS:
     --no-artwork: Omits "artworkData" and "artworkMimeType" from the payload.
       Useful for consumers that do not render artwork, since this avoids
       emitting several hundred kilobytes of base64 data per update.
+    --allow-missing-title: By default, media with a null or absent title is
+      ignored. This flag leads to media with a null or absent title being
+      emitted. The consumer needs to explicitly handle the possibility of the
+      title being null or absent.
     --human-readable, -h: Makes values human-readable. Use only for debugging.
       The JSON output is pretty-printed and the following keys are adapted:
       "artworkData" -> Binary data is truncated to a shorter representation
@@ -202,6 +206,9 @@ elsif ($function_name eq "stream") {
     elsif ($key eq "no-artwork") {
       set_env_option($options, $key);
     }
+    elsif ($key eq "allow-missing-title") {
+      set_env_option($options, $key);
+    }
     elsif ($key eq "human-readable" || $key eq "h") {
       set_env_option($options, "human-readable");
     }
@@ -221,6 +228,9 @@ elsif ($function_name eq "get") {
       set_env_option($options, $key);
     }
     elsif ($key eq "no-artwork") {
+      set_env_option($options, $key);
+    }
+    elsif ($key eq "allow-missing-title") {
       set_env_option($options, $key);
     }
     elsif ($key eq "human-readable" || $key eq "h") {
