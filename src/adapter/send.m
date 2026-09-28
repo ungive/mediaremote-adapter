@@ -10,6 +10,7 @@
 #import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/now_playing.h"
+#import "adapter/target.h"
 #import "utility/helpers.h"
 
 static NSArray<NSNumber *> *acceptedCommands;
@@ -66,4 +67,8 @@ static inline int send_0_command() {
     return getEnvFuncParamIntSafe(@"adapter_send", 0, @"command");
 }
 
-void adapter_send_env() { adapter_send((MRACommand)send_0_command()); }
+void adapter_send_env() {
+    beginTargetApplication();
+    adapter_send((MRACommand)send_0_command());
+    endTargetApplication();
+}

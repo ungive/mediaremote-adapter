@@ -326,6 +326,22 @@ The value for `COMMAND` must be a valid ID from the table below.
 | 12 | kMRGoBackFifteenSeconds | Go back 15 seconds            |
 | 13 | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
 
+**Options**
+
+`--bundle-id=ID`&ensp;Sends the command to the application with the given
+bundle identifier instead of the one the system elected as the now playing
+application.
+MediaRemote delivers every command to the elected application,
+whichever player the command names,
+so the adapter overrides the election for the duration of the command:
+it waits until the daemon elects the given application, sends the command
+and then restores the system's own election.
+Fails without sending anything if the application is not registered
+with MediaRemote.
+The override is also cleared when the process exits early or is terminated
+with `SIGINT`, `SIGTERM` or `SIGHUP`.
+`seek`, `shuffle`, `repeat` and `speed` accept the same option.
+
 ---
 
 ### seek POSITION

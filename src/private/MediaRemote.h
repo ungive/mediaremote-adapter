@@ -108,6 +108,11 @@ typedef void (*MRMediaRemoteSetElapsedTime_t)(double elapsedTime);
 typedef void (*MRMediaRemoteSetShuffleMode_t)(int mode);
 typedef void (*MRMediaRemoteSetRepeatMode_t)(int mode);
 
+extern CFStringRef MRMediaRemoteSetNowPlayingApplicationOverrideEnabled;
+extern CFStringRef MRMediaRemoteSetOverriddenNowPlayingApplication;
+typedef void (*MRMediaRemoteSetNowPlayingApplicationOverrideEnabled_t)(Boolean enabled);
+typedef void (*MRMediaRemoteSetOverriddenNowPlayingApplication_t)(NSString *bundleIdentifier);
+
 extern CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications;
 extern CFStringRef MRMediaRemoteGetNowPlayingApplicationPID;
@@ -148,6 +153,9 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteSetElapsedTime_t setElapsedTime;
 @property(readonly) MRMediaRemoteSetShuffleMode_t setShuffleMode;
 @property(readonly) MRMediaRemoteSetRepeatMode_t setRepeatMode;
+// Now playing application override
+@property(readonly) MRMediaRemoteSetNowPlayingApplicationOverrideEnabled_t setNowPlayingApplicationOverrideEnabled;
+@property(readonly) MRMediaRemoteSetOverriddenNowPlayingApplication_t setOverriddenNowPlayingApplication;
 // Observers
 @property(readonly) MRMediaRemoteRegisterForNowPlayingNotifications_t registerForNowPlayingNotifications;
 @property(readonly) MRMediaRemoteUnregisterForNowPlayingNotifications_t unregisterForNowPlayingNotifications;

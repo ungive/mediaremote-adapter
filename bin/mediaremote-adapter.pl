@@ -46,6 +46,12 @@ PARAMS:
     speed: The playback speed
 
 OPTIONS:
+  send, seek, shuffle, repeat, speed
+    --bundle-id=ID: Directs the command at the application with the given
+      bundle identifier instead of the one the system elected as the now
+      playing application. The election is overridden for the duration of
+      the command and restored afterwards. Fails without sending anything if
+      no such application is registered.
   get
     --now: Adds an "elapsedTimeNow" key with an estimation of the current
       elapsed playback time. This estimation may be off by up to a second.
@@ -184,8 +190,21 @@ sub set_env_option_value {
   set_env_option_unsafe($key, $value);
 }
 
+sub parse_target_options {
+  my $options = parse_options(0);
+  foreach my $key (keys %{$options}) {
+    if ($key eq "bundle-id") {
+      set_env_option_value($options, $key);
+    }
+    else {
+      fail "Unrecognized option '$key'";
+    }
+  }
+}
+
 my $symbol_name = "adapter_$function_name";
 if ($function_name eq "send") {
+  parse_target_options();
   my $id = shift @ARGV;
   fail "Missing ID for '$function_name' command" unless defined $id;
   set_env_param($symbol_name, 0, "command", "$id");
@@ -246,24 +265,28 @@ elsif ($function_name eq "get") {
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "seek") {
+  parse_target_options();
   my $position = shift @ARGV;
   fail "Missing position for '$function_name' command" unless defined $position;
   set_env_param($symbol_name, 0, "position", "$position");
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "shuffle") {
+  parse_target_options();
   my $mode = shift @ARGV;
   fail "Missing mode for '$function_name' command" unless defined $mode;
   set_env_param($symbol_name, 0, "mode", "$mode");
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "repeat") {
+  parse_target_options();
   my $mode = shift @ARGV;
   fail "Missing mode for '$function_name' command" unless defined $mode;
   set_env_param($symbol_name, 0, "mode", "$mode");
   $symbol_name = env_func($symbol_name);
 }
 elsif ($function_name eq "speed") {
+  parse_target_options();
   my $speed = shift @ARGV;
   fail "Missing speed for '$function_name' command" unless defined $speed;
   set_env_param($symbol_name, 0, "speed", "$speed");

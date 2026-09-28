@@ -10,6 +10,7 @@
 #import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/now_playing.h"
+#import "adapter/target.h"
 #import "utility/helpers.h"
 
 void adapter_seek(long position) {
@@ -27,4 +28,8 @@ static inline long seek_0_position() {
     return getEnvFuncParamLongSafe(@"adapter_seek", 0, @"position");
 }
 
-void adapter_seek_env() { adapter_seek(seek_0_position()); }
+void adapter_seek_env() {
+    beginTargetApplication();
+    adapter_seek(seek_0_position());
+    endTargetApplication();
+}
