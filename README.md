@@ -202,6 +202,17 @@ to ensure you get the artwork data *eventually*.
 
 **Options**
 
+`--bundle-id=ID`&ensp;Reads the application with the given bundle identifier
+instead of the one the system elected as the now playing application.
+MediaRemote elects a single now playing application at a time,
+but every application that registered with it keeps its own now playing state,
+and this option reads that state even while another application is elected.
+Prints `null` if no application with that bundle identifier is registered.
+The `playing` key is derived from the application's playback rate.
+Commands (`send`, `seek`, ...) cannot be directed at a specific application:
+MediaRemote delivers them to the elected now playing application regardless
+of the player they name.
+
 `--now`&ensp;Adds an `elapsedTimeNow` key with an estimation of the current
 elapsed playback time. This estimation may be off by up to a second.
 To determine a more accurate time without polling `get` continuously,

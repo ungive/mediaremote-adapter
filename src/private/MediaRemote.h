@@ -128,6 +128,28 @@ typedef void (*MRMediaRemoteGetNowPlayingClient_t)(dispatch_queue_t queue, MRMed
 typedef void (*MRMediaRemoteGetNowPlayingInfo_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoCompletion_t completion);
 typedef void (*MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationIsPlayingCompletion_t completion);
 
+// Per-client access. Every application that registered with MediaRemote is a
+// "now playing client", not only the one the system elected as the now playing
+// application. Its state can be read through a player path built from the
+// local origin and the client. The player may be nil, which selects the
+// client's default player.
+extern CFStringRef MRMediaRemoteGetNowPlayingClients;
+extern CFStringRef MRNowPlayingClientGetBundleIdentifier;
+extern CFStringRef MRNowPlayingClientGetProcessIdentifier;
+extern CFStringRef MRMediaRemoteGetLocalOrigin;
+extern CFStringRef MRNowPlayingPlayerPathCreate;
+extern CFStringRef MRMediaRemoteGetNowPlayingInfoForPlayer;
+
+typedef void (^MRMediaRemoteGetNowPlayingClientsCompletion_t)(NSArray *clients);
+typedef void (^MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t)(NSDictionary *information, NSError *error);
+
+typedef void (*MRMediaRemoteGetNowPlayingClients_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingClientsCompletion_t completion);
+typedef CFStringRef (*MRNowPlayingClientGetBundleIdentifier_t)(id client);
+typedef int (*MRNowPlayingClientGetProcessIdentifier_t)(id client);
+typedef id (*MRMediaRemoteGetLocalOrigin_t)(void);
+typedef CFTypeRef (*MRNowPlayingPlayerPathCreate_t)(id origin, id client, id player);
+typedef void (*MRMediaRemoteGetNowPlayingInfoForPlayer_t)(id playerPath, void *unknown, dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t completion);
+
 #pragma mark Miscellaneous
 
 extern NSString *kMRNowPlayingClientUserInfoKey;
@@ -156,6 +178,13 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteGetNowPlayingClient_t getNowPlayingClient;
 @property(readonly) MRMediaRemoteGetNowPlayingInfo_t getNowPlayingInfo;
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationIsPlaying_t getNowPlayingApplicationIsPlaying;
+// Per-client metadata (may be NULL on systems that lack these symbols)
+@property(readonly) MRMediaRemoteGetNowPlayingClients_t getNowPlayingClients;
+@property(readonly) MRNowPlayingClientGetBundleIdentifier_t nowPlayingClientGetBundleIdentifier;
+@property(readonly) MRNowPlayingClientGetProcessIdentifier_t nowPlayingClientGetProcessIdentifier;
+@property(readonly) MRMediaRemoteGetLocalOrigin_t getLocalOrigin;
+@property(readonly) MRNowPlayingPlayerPathCreate_t nowPlayingPlayerPathCreate;
+@property(readonly) MRMediaRemoteGetNowPlayingInfoForPlayer_t getNowPlayingInfoForPlayer;
 // Constructor
 -(id)init;
 @end
