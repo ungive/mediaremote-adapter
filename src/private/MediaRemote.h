@@ -133,6 +133,10 @@ typedef void (*MRMediaRemoteGetNowPlayingApplicationIsPlaying_t)(dispatch_queue_
 // application. Its state can be read through a player path built from the
 // local origin and the client. The player may be nil, which selects the
 // client's default player.
+extern CFStringRef MRMediaRemoteGetPlaybackStateForPlayer;
+typedef void (^MRMediaRemoteGetPlaybackStateForPlayerCompletion_t)(unsigned int state);
+typedef void (*MRMediaRemoteGetPlaybackStateForPlayer_t)(id playerPath, dispatch_queue_t queue, MRMediaRemoteGetPlaybackStateForPlayerCompletion_t completion);
+
 extern CFStringRef MRMediaRemoteGetNowPlayingClients;
 extern CFStringRef MRNowPlayingClientGetBundleIdentifier;
 extern CFStringRef MRNowPlayingClientGetProcessIdentifier;
@@ -179,6 +183,7 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteGetNowPlayingInfo_t getNowPlayingInfo;
 @property(readonly) MRMediaRemoteGetNowPlayingApplicationIsPlaying_t getNowPlayingApplicationIsPlaying;
 // Per-client metadata (may be NULL on systems that lack these symbols)
+@property(readonly) MRMediaRemoteGetPlaybackStateForPlayer_t getPlaybackStateForPlayer;
 @property(readonly) MRMediaRemoteGetNowPlayingClients_t getNowPlayingClients;
 @property(readonly) MRNowPlayingClientGetBundleIdentifier_t nowPlayingClientGetBundleIdentifier;
 @property(readonly) MRNowPlayingClientGetProcessIdentifier_t nowPlayingClientGetProcessIdentifier;

@@ -15,30 +15,32 @@
 #define GET_TIMEOUT_MILLIS 2000
 #define JSON_NULL @"null"
 
-// Reads the now playing state of one specific application.
-//
-// MediaRemote elects a single now playing application, and the regular "get"
-// path only ever reports that one. Every other application that registered
-// with MediaRemote is still a now playing client though, and its state can be
-// read through a player path built from the local origin and that client.
-// Returns nil if no client with the given bundle identifier is registered.
-static NSDictionary *internal_get_for_bundle(NSString *bundleIdentifier,
-                                             bool convert_micros,
-                                             bool calculate_now,
-                                             bool no_artwork,
-                                             BOOL isTestMode,
-                                             BOOL *timedOut) {
-    *timedOut = NO;
+// Both paths validate and format payloads identically.
+static NSDictionary *preparePayload(NSDictionary *data) {
+    if (!data) return nil;
+    NSMutableDictionary *result = [data mutableCopy];
+    if (getEnvOption(@"human-readable") != nil) {
+        makePayloadHumanReadable(result);
+    }
+    if (!allMandatoryPayloadKeysSet(result,
+                                   getEnvOption(@"allow-missing-title") != nil)) {
+        return nil;
+    }
+    return result;
+}
+
+// Return every matching client. Helper bundle identifiers can be shared by
+// unrelated applications, so selecting only the first match loses sessions.
+static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
     MediaRemote *mr = g_mediaRemote;
     if (!mr.getNowPlayingClients || !mr.nowPlayingClientGetBundleIdentifier ||
-        !mr.getLocalOrigin || !mr.nowPlayingPlayerPathCreate ||
-        !mr.getNowPlayingInfoForPlayer) {
+        !mr.nowPlayingClientGetProcessIdentifier || !mr.getLocalOrigin ||
+        !mr.nowPlayingPlayerPathCreate || !mr.getNowPlayingInfoForPlayer ||
+        !mr.getPlaybackStateForPlayer) {
         fail(@"Reading a specific application is not supported on this system");
     }
-
     dispatch_time_t timeout =
         dispatch_time(DISPATCH_TIME_NOW, GET_TIMEOUT_MILLIS * NSEC_PER_MSEC);
-
     __block NSArray *clients = nil;
     dispatch_semaphore_t clientsDone = dispatch_semaphore_create(0);
     mr.getNowPlayingClients(g_serialdispatchQueue, ^(NSArray *result) {
@@ -46,110 +48,73 @@ static NSDictionary *internal_get_for_bundle(NSString *bundleIdentifier,
       dispatch_semaphore_signal(clientsDone);
     });
     if (dispatch_semaphore_wait(clientsDone, timeout) != 0) {
-        *timedOut = YES;
-        return nil;
+        fail(@"Reading now playing clients timed out");
     }
 
-    // Match the client itself first, then the application that hosts it:
-    // browsers can register through a helper process whose own bundle
-    // identifier differs from the browser's.
-    id client = nil;
-    for (id candidate in clients) {
-        NSString *candidateID = (__bridge NSString *)
-            mr.nowPlayingClientGetBundleIdentifier(candidate);
-        if ([candidateID isEqualToString:bundleIdentifier]) {
-            client = candidate;
-            break;
+    NSMutableArray *results = [NSMutableArray array];
+    for (id client in clients) {
+        NSString *clientID = (__bridge NSString *)
+            mr.nowPlayingClientGetBundleIdentifier(client);
+        NSString *parent = nil;
+        if ([client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
+            parent = [client performSelector:@selector(parentApplicationBundleIdentifier)];
         }
-    }
-    if (!client) {
-        for (id candidate in clients) {
-            if ([candidate respondsToSelector:@selector
-                           (parentApplicationBundleIdentifier)] &&
-                [[candidate
-                    performSelector:@selector(parentApplicationBundleIdentifier)]
-                    isEqualToString:bundleIdentifier]) {
-                client = candidate;
-                break;
-            }
-        }
-    }
-    if (!client) {
-        return nil;
-    }
+        if (![clientID isEqualToString:bundleIdentifier] &&
+            ![parent isEqualToString:bundleIdentifier]) continue;
+        if ([clientID isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"] ||
+            [parent isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"]) continue;
 
-    NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-    liveData[kMRABundleIdentifier] = bundleIdentifier;
-    if (mr.nowPlayingClientGetProcessIdentifier) {
+        id path = (__bridge_transfer id)mr.nowPlayingPlayerPathCreate(
+            mr.getLocalOrigin(), client, nil);
+        if (!path) continue;
+        __block NSDictionary *information = nil;
+        __block NSError *readError = nil;
+        __block unsigned int state = 0;
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+        mr.getNowPlayingInfoForPlayer(path, NULL, g_serialdispatchQueue,
+            ^(NSDictionary *info, NSError *error) {
+                information = [info copy];
+                readError = error;
+                dispatch_group_leave(group);
+            });
+        dispatch_group_enter(group);
+        mr.getPlaybackStateForPlayer(path, g_serialdispatchQueue,
+            ^(unsigned int playbackState) {
+                state = playbackState;
+                dispatch_group_leave(group);
+            });
+        if (dispatch_group_wait(group, timeout) != 0) {
+            fail(@"Reading now playing information timed out");
+        }
+        if (readError) {
+            failf(@"Reading now playing application failed: %@", readError);
+        }
+        if ([information[kMRMediaRemoteNowPlayingInfoServiceIdentifier]
+                isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"]) continue;
+        NSMutableDictionary *data = [NSMutableDictionary dictionary];
+        // Report the actual client identity, not the requested parent ID.
+        if (clientID) data[kMRABundleIdentifier] = clientID;
+        if (parent) data[kMRAParentApplicationBundleIdentifier] = parent;
         int pid = mr.nowPlayingClientGetProcessIdentifier(client);
-        if (pid > 0) {
-            liveData[kMRAProcessIdentifier] = @(pid);
+        if (pid > 0) data[kMRAProcessIdentifier] = @(pid);
+        if (information) {
+            [data addEntriesFromDictionary:convertNowPlayingInformation(
+                information, getEnvOption(@"micros") != nil,
+                getEnvOption(@"now") != nil, getEnvOption(@"no-artwork") != nil)];
         }
+        // MRPlaybackStatePlaying = 1. Metadata playbackRate may be absent
+        // even while playing (Spotify), so it is not a playback-state query.
+        data[kMRAPlaying] = state == 1 ? @YES : @NO;
+        NSDictionary *prepared = preparePayload(data);
+        if (prepared) [results addObject:prepared];
     }
-    if ([client respondsToSelector:@selector(parentApplicationBundleIdentifier)]) {
-        NSString *parent =
-            [client performSelector:@selector(parentApplicationBundleIdentifier)];
-        if (parent) {
-            liveData[kMRAParentApplicationBundleIdentifier] = parent;
-        }
-    }
-
-    id path = (__bridge_transfer id)mr.nowPlayingPlayerPathCreate(
-        mr.getLocalOrigin(), client, nil);
-    if (!path) {
-        return nil;
-    }
-
-    __block NSDictionary *information = nil;
-    __block BOOL isFromTestClient = NO;
-    dispatch_group_t group = dispatch_group_create();
-
-    dispatch_group_enter(group);
-    mr.getNowPlayingInfoForPlayer(
-        path, NULL, g_serialdispatchQueue, ^(NSDictionary *info, NSError *error) {
-          NSString *serviceIdentifier =
-              info[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
-          if (!isTestMode &&
-              [serviceIdentifier
-                  isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
-              isFromTestClient = YES;
-          } else {
-              information = [info copy];
-          }
-          dispatch_group_leave(group);
-        });
-
-    if (dispatch_group_wait(group, timeout) != 0) {
-        *timedOut = YES;
-        return nil;
-    }
-    if (isFromTestClient) {
-        return nil;
-    }
-
-    if (information) {
-        [liveData addEntriesFromDictionary:convertNowPlayingInformation(
-                                               information, convert_micros,
-                                               calculate_now, no_artwork)];
-    }
-
-    // A player that is not the elected now playing application has no
-    // "is playing" flag of its own to query, but its playback rate says the
-    // same: non-zero while playing, zero while paused.
-    NSNumber *rate = information[kMRMediaRemoteNowPlayingInfoPlaybackRate];
-    const bool playing =
-        [rate isKindOfClass:[NSNumber class]] && rate.doubleValue > 0;
-    liveData[kMRAPlaying] = playing ? @YES : @NO;
-
-    return liveData;
+    return results;
 }
 
 NSDictionary *internal_get(BOOL isTestMode) {
     NSString *micros_option = getEnvOption(@"micros");
     __block const bool convert_micros = micros_option != nil;
-
-    NSString *human_readable_option = getEnvOption(@"human-readable");
-    __block const bool human_readable = human_readable_option != nil;
 
     NSString *now_option = getEnvOption(@"now");
     __block const bool calculate_now = now_option != nil;
@@ -157,34 +122,8 @@ NSDictionary *internal_get(BOOL isTestMode) {
     NSString *no_artwork_option = getEnvOption(@"no-artwork");
     const bool no_artwork = no_artwork_option != nil;
 
-    NSString *allow_missing_title_option = getEnvOption(@"allow-missing-title");
-    const bool allow_missing_title = allow_missing_title_option != nil;
-
-    NSString *bundle_id_option = getEnvOption(@"bundle-id");
-    if (bundle_id_option != nil) {
-        if (bundle_id_option.length == 0) {
-            fail(@"Missing value for option 'bundle-id'");
-        }
-        BOOL timedOut = NO;
-        NSMutableDictionary *data = [internal_get_for_bundle(
-            bundle_id_option, convert_micros, calculate_now, no_artwork,
-            isTestMode, &timedOut) mutableCopy];
-        if (timedOut) {
-            printErrf(@"Reading now playing information timed out after %d "
-                      @"milliseconds",
-                      GET_TIMEOUT_MILLIS);
-            return nil;
-        }
-        if (!data) {
-            return nil;
-        }
-        if (human_readable) {
-            makePayloadHumanReadable(data);
-        }
-        if (!allMandatoryPayloadKeysSet(data, allow_missing_title)) {
-            return nil;
-        }
-        return data;
+    if (getEnvOption(@"bundle-id") != nil) {
+        fail(@"Bundle targeting is not supported in internal test mode");
     }
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
@@ -269,36 +208,24 @@ NSDictionary *internal_get(BOOL isTestMode) {
         return nil;
     }
 
-    if (human_readable) {
-        makePayloadHumanReadable(liveData);
-    }
-
-    if (!allMandatoryPayloadKeysSet(liveData, allow_missing_title)) {
-        return nil;
-    }
-
-    return liveData;
+    return preparePayload(liveData);
 }
 
 void adapter_get() {
-    NSDictionary *liveData = internal_get(NO);
-
-    NSString *micros_option = getEnvOption(@"micros");
-    const bool convert_micros = micros_option != nil;
-
-    NSString *human_readable_option = getEnvOption(@"human-readable");
-    const bool human_readable = human_readable_option != nil;
-
-    NSString *resultStr = nil;
-    if (!liveData) {
-        resultStr = JSON_NULL;
-    } else {
-        resultStr = serializeJsonDictionarySafe(liveData, human_readable);
-        if (!resultStr) {
-            fail(@"Failed to serialize now playing information");
+    NSString *bundleIdentifier = getEnvOption(@"bundle-id");
+    id result;
+    if (bundleIdentifier != nil) {
+        if (bundleIdentifier.length == 0) {
+            fail(@"Missing value for option 'bundle-id'");
         }
+        result = internal_get_for_bundle(bundleIdentifier);
+    } else {
+        result = internal_get(NO);
     }
-
+    NSString *resultStr = result
+        ? serializeJsonDictionarySafe(result, getEnvOption(@"human-readable") != nil)
+        : JSON_NULL;
+    if (!resultStr) fail(@"Failed to serialize now playing information");
     printOut(resultStr);
 }
 

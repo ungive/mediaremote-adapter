@@ -51,7 +51,7 @@ OPTIONS:
       instead of the one the system elected as the now playing application.
       Any application that registered with MediaRemote can be read, even when
       another application is currently the now playing application.
-      Prints null if no such application is registered.
+      Returns an array of all matching clients, or [] if none match.
     --now: Adds an "elapsedTimeNow" key with an estimation of the current
       elapsed playback time. This estimation may be off by up to a second.
       To determine a more accurate time without polling "get" continuously,
