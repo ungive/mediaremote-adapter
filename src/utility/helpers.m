@@ -135,11 +135,11 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
     }
 }
 
-static NSDictionary *sanitizeDictionaryForJsonEncoding(NSDictionary *data) {
+static NSDictionary *sanitizeDictionaryForJsonEncoding(id data) {
     return sanitizeValueForJsonEncoding(data, nil);
 }
 
-NSString *serializeJsonDictionarySafe(NSDictionary *any, bool prettyPrint) {
+NSString *serializeJsonDictionarySafe(id any, bool prettyPrint) {
     if (any == nil) {
         NSCAssert(false, @"Cannot serialize nil as JSON");
         return JSON_NULL;
