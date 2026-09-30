@@ -26,6 +26,7 @@ set(ADAPTER_SOURCES
     src/adapter/shuffle.m
     src/adapter/speed.m
     src/adapter/stream.m
+    src/adapter/target.m
     src/adapter/test.m
     src/private/MediaRemote.m
     src/utility/Debounce.m

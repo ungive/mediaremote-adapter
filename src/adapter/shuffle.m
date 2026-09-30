@@ -10,6 +10,7 @@
 #import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/now_playing.h"
+#import "adapter/target.h"
 #import "utility/helpers.h"
 
 static NSArray<NSNumber *> *acceptedModes;
@@ -42,5 +43,6 @@ static inline int shuffle_0_mode() {
 }
 
 void adapter_shuffle_env() {
+    beginTargetApplication();
     adapter_shuffle((MRAShuffleMode)shuffle_0_mode());
 }

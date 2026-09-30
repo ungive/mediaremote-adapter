@@ -10,6 +10,7 @@
 #import "adapter/env.h"
 #import "adapter/globals.h"
 #import "adapter/now_playing.h"
+#import "adapter/target.h"
 #import "utility/helpers.h"
 
 void adapter_speed(int speed) {
@@ -27,4 +28,7 @@ static inline int speed_0_speed() {
     return getEnvFuncParamIntSafe(@"adapter_speed", 0, @"speed");
 }
 
-void adapter_speed_env() { adapter_speed(speed_0_speed()); }
+void adapter_speed_env() {
+    beginTargetApplication();
+    adapter_speed(speed_0_speed());
+}

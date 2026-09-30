@@ -326,6 +326,14 @@ The value for `COMMAND` must be a valid ID from the table below.
 | 12 | kMRGoBackFifteenSeconds | Go back 15 seconds            |
 | 13 | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
 
+**Options**
+
+`--bundle-id=ID` is rejected for `send`, `seek`, `shuffle`, `repeat` and
+`speed`, before any command is sent. Targeting through the system-wide
+now playing override can redirect commands from unrelated processes and
+leave media keys broken if the process is killed. There is currently no
+validated safe targeted-command implementation in this adapter.
+
 ---
 
 ### seek POSITION
