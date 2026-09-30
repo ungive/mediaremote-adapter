@@ -70,5 +70,4 @@ static inline int send_0_command() {
 void adapter_send_env() {
     beginTargetApplication();
     adapter_send((MRACommand)send_0_command());
-    endTargetApplication();
 }

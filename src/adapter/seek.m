@@ -31,5 +31,4 @@ static inline long seek_0_position() {
 void adapter_seek_env() {
     beginTargetApplication();
     adapter_seek(seek_0_position());
-    endTargetApplication();
 }

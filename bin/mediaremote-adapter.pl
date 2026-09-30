@@ -47,11 +47,8 @@ PARAMS:
 
 OPTIONS:
   send, seek, shuffle, repeat, speed
-    --bundle-id=ID: Directs the command at the application with the given
-      bundle identifier instead of the one the system elected as the now
-      playing application. The election is overridden for the duration of
-      the command and restored afterwards. Fails without sending anything if
-      no such application is registered.
+    --bundle-id=ID: Unsupported for commands; fails without sending anything.
+      Commands must not change the system-wide now playing election.
   get
     --now: Adds an "elapsedTimeNow" key with an estimation of the current
       elapsed playback time. This estimation may be off by up to a second.

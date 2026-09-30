@@ -45,5 +45,4 @@ static inline int shuffle_0_mode() {
 void adapter_shuffle_env() {
     beginTargetApplication();
     adapter_shuffle((MRAShuffleMode)shuffle_0_mode());
-    endTargetApplication();
 }

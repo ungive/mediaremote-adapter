@@ -31,5 +31,4 @@ static inline int speed_0_speed() {
 void adapter_speed_env() {
     beginTargetApplication();
     adapter_speed(speed_0_speed());
-    endTargetApplication();
 }

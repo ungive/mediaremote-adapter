@@ -45,5 +45,4 @@ static inline int repeat_0_mode() {
 void adapter_repeat_env() {
     beginTargetApplication();
     adapter_repeat((MRARepeatMode)repeat_0_mode());
-    endTargetApplication();
 }

@@ -4,16 +4,8 @@
 #ifndef MEDIAREMOTEADAPTER_ADAPTER_TARGET_H
 #define MEDIAREMOTEADAPTER_ADAPTER_TARGET_H
 
-// Directs the commands that follow at the application named by the
-// --bundle-id option, if one was given. MediaRemote delivers commands to the
-// application it elected as the now playing application, so this overrides
-// that election until endTargetApplication() is called (or the process
-// exits). Fails if the application does not become the elected one, in which
-// case nothing should be sent.
+// Reject --bundle-id before sending anything. A targeted command must never
+// fall back to the elected application or change the system-wide election.
 void beginTargetApplication(void);
 
-// Waits for the commands sent since beginTargetApplication() to be handled,
-// then restores the system's own election. No-op without --bundle-id.
-void endTargetApplication(void);
-
-#endif // MEDIAREMOTEADAPTER_ADAPTER_TARGET_H
+#endif

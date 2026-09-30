@@ -65,8 +65,6 @@ CFStringRef MRMediaRemoteSetElapsedTime = CFSTR("MRMediaRemoteSetElapsedTime");
 CFStringRef MRMediaRemoteSetShuffleMode = CFSTR("MRMediaRemoteSetShuffleMode");
 CFStringRef MRMediaRemoteSetRepeatMode = CFSTR("MRMediaRemoteSetRepeatMode");
 
-CFStringRef MRMediaRemoteSetNowPlayingApplicationOverrideEnabled = CFSTR("MRMediaRemoteSetNowPlayingApplicationOverrideEnabled");
-CFStringRef MRMediaRemoteSetOverriddenNowPlayingApplication = CFSTR("MRMediaRemoteSetOverriddenNowPlayingApplication");
 
 CFStringRef MRMediaRemoteRegisterForNowPlayingNotifications = CFSTR("MRMediaRemoteRegisterForNowPlayingNotifications");
 CFStringRef MRMediaRemoteUnregisterForNowPlayingNotifications = CFSTR("MRMediaRemoteUnregisterForNowPlayingNotifications");
@@ -85,8 +83,6 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 @synthesize setElapsedTime;
 @synthesize setShuffleMode;
 @synthesize setRepeatMode;
-@synthesize setNowPlayingApplicationOverrideEnabled;
-@synthesize setOverriddenNowPlayingApplication;
 @synthesize registerForNowPlayingNotifications;
 @synthesize unregisterForNowPlayingNotifications;
 @synthesize getNowPlayingApplicationPID;
@@ -108,8 +104,6 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     setElapsedTime = (MRMediaRemoteSetElapsedTime_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetElapsedTime);
     setShuffleMode = (MRMediaRemoteSetShuffleMode_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetShuffleMode);
     setRepeatMode = (MRMediaRemoteSetRepeatMode_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetRepeatMode);
-    setNowPlayingApplicationOverrideEnabled = (MRMediaRemoteSetNowPlayingApplicationOverrideEnabled_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetNowPlayingApplicationOverrideEnabled);
-    setOverriddenNowPlayingApplication = (MRMediaRemoteSetOverriddenNowPlayingApplication_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetOverriddenNowPlayingApplication);
     registerForNowPlayingNotifications = (MRMediaRemoteRegisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteRegisterForNowPlayingNotifications);
     unregisterForNowPlayingNotifications = (MRMediaRemoteUnregisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteUnregisterForNowPlayingNotifications);
     getNowPlayingApplicationPID = (MRMediaRemoteGetNowPlayingApplicationPID_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationPID);
