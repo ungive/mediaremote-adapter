@@ -495,7 +495,7 @@ to read now playing information and control media playback on the device
 - *And many more... (see the developers who starred this project)*
 
 Do you use this library in your project?
-Please [let me know](https://github.com/ungive/mediaremote-adapter/issues/new) and I'll add it to the list!*
+Please [let me know](https://github.com/ungive/mediaremote-adapter/issues/new) and I'll add it to the list!
 
 ## Useful links
 
