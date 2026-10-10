@@ -491,9 +491,10 @@ to read now playing information and control media playback on the device
   for showing what you are listening to in your Discord status.
   It uses this library since version [2.3.1](https://github.com/ungive/discord-music-presence/releases/tag/v2.3.1)
   to detect media from all media players again. Website: https://musicpresence.app
+- *And many more... (see the developers who starred this project)*
 
-*If you use this library in your project, please
-[let me know](https://github.com/ungive/mediaremote-adapter/issues) and I'll add it to the list!*
+Do you use this library in your project?
+Please [let me know](https://github.com/ungive/mediaremote-adapter/issues/new) and I'll add it to the list!*
 
 ## Useful links
 
