@@ -483,9 +483,9 @@ to read now playing information and control media playback on the device
 
 ## Projects that use this library
 
-- [Now Playing Display](https://www.gxlabs.co/now-playing/): A macOS "now playing" hardware display for the Seeed XIAO ESP32-C6 paired with the Seeed Round Display for XIAO. Shows album art, track info, progress, and playback controls on a 240x240 circular TFT — connected over USB. Source code: https://github.com/gxlabs/now-playing-device
-- [Lyrimuse](https://yudaotor.github.io/lyrimuse/) is a macOS desktop lyrics app that shows word-synced lyrics for whatever is playing: as a floating overlay, in the menu bar, in a notch capsule, on the Touch Bar or in a full lyrics window. It uses media-control to follow players that have no AppleScript interface. Source code: https://github.com/Yudaotor/lyrimuse
 - [Aerial Screensaver](https://aerialscreensaver.github.io/): Aerial plays Apple's high-fidelity aerial videos — cities, deserts, oceans, the ISS — as your screensaver and live desktop wallpaper. Source: https://github.com/AerialScreensaver/Aerial
+- [Lyrimuse](https://yudaotor.github.io/lyrimuse/) is a macOS desktop lyrics app that shows word-synced lyrics for whatever is playing: as a floating overlay, in the menu bar, in a notch capsule, on the Touch Bar or in a full lyrics window. It uses media-control to follow players that have no AppleScript interface. Source code: https://github.com/Yudaotor/lyrimuse
+- [Now Playing Display](https://www.gxlabs.co/now-playing/): A macOS "now playing" hardware display for the Seeed XIAO ESP32-C6 paired with the Seeed Round Display for XIAO. Shows album art, track info, progress, and playback controls on a 240x240 circular TFT — connected over USB. Source code: https://github.com/gxlabs/now-playing-device
 - [media-control](https://github.com/ungive/media-control)
   is a CLI tool to control and observe media playback on any macOS version.
   You can install it directly via brew: `$ brew tap ungive/media-control && brew install media-control`. Source code: https://github.com/ungive/media-control
