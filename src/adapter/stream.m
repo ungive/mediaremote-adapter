@@ -368,10 +368,6 @@ extern void adapter_stream() {
       requestAll();
     };
 
-    // FIXME Is this foolproof? This continues and registers observers
-    // which might intervene with the initial requests.
-    requestAll();
-
     NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
     NSNotificationCenter *shared_workscape_notification_center =
         [[NSWorkspace sharedWorkspace] notificationCenter];
@@ -490,6 +486,12 @@ extern void adapter_stream() {
                 }];
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
+
+    // Issue the initial fetch from the serial queue so its replies are ordered
+    // against any notification handlers that fire during startup.
+    dispatch_async(g_serialdispatchQueue, ^{
+      requestAll();
+    });
 
     CFRunLoopRun();
 
