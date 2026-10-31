@@ -16,6 +16,7 @@ set(MEDIAREMOTEADAPTER_TEST_CLIENT_NAME "MediaRemoteAdapterTestClient"
 
 set(ADAPTER_SOURCES
     src/adapter/env.m
+    src/adapter/feedback.m
     src/adapter/get.m
     src/adapter/globals.m
     src/adapter/keys.m
@@ -90,3 +91,12 @@ set_source_files_properties(src/test/NowPlayingTest.m PROPERTIES COMPILE_FLAGS
 set_target_properties(
     MediaRemoteAdapterTestClient
     PROPERTIES OUTPUT_NAME "${MEDIAREMOTEADAPTER_TEST_CLIENT_NAME}")
+
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(FeedbackStateTests tests/feedback_state.m)
+    target_compile_options(FeedbackStateTests PRIVATE -fobjc-arc)
+    target_include_directories(FeedbackStateTests PRIVATE src)
+    target_link_libraries(FeedbackStateTests PRIVATE MediaRemoteAdapter "-framework Foundation")
+    add_test(NAME FeedbackState COMMAND FeedbackStateTests)
+endif()

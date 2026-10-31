@@ -5,6 +5,7 @@
 #include "MediaRemote.h"
 
 NSString *kMRMediaRemoteNowPlayingInfoDidChangeNotification = @"kMRMediaRemoteNowPlayingInfoDidChangeNotification";
+NSString *kMRMediaRemoteSupportedCommandsDidChangeNotification = @"kMRMediaRemoteSupportedCommandsDidChangeNotification";
 NSString *kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification = @"kMRMediaRemoteNowPlayingPlaybackQueueDidChangeNotification";
 NSString *kMRMediaRemotePickableRoutesDidChangeNotification = @"kMRMediaRemotePickableRoutesDidChangeNotification";
 NSString *kMRMediaRemoteNowPlayingApplicationDidChangeNotification = @"kMRMediaRemoteNowPlayingApplicationDidChangeNotification";
@@ -92,6 +93,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 @synthesize setRepeatMode;
 @synthesize registerForNowPlayingNotifications;
 @synthesize unregisterForNowPlayingNotifications;
+@synthesize setWantsSupportedCommandsChangedNotifications;
 @synthesize getNowPlayingApplicationPID;
 @synthesize getNowPlayingClient;
 @synthesize getNowPlayingInfo;
@@ -103,6 +105,10 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 @synthesize getLocalOrigin;
 @synthesize nowPlayingPlayerPathCreate;
 @synthesize getNowPlayingInfoForPlayer;
+@synthesize copySupportedCommands;
+@synthesize commandInfoGetCommand;
+@synthesize commandInfoGetEnabled;
+@synthesize commandInfoCopyValueForKey;
 -(id)init
 {
     if (!(self = [super init])) {
@@ -120,6 +126,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     setRepeatMode = (MRMediaRemoteSetRepeatMode_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteSetRepeatMode);
     registerForNowPlayingNotifications = (MRMediaRemoteRegisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteRegisterForNowPlayingNotifications);
     unregisterForNowPlayingNotifications = (MRMediaRemoteUnregisterForNowPlayingNotifications_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteUnregisterForNowPlayingNotifications);
+    setWantsSupportedCommandsChangedNotifications = (MRMediaRemoteSetWantsSupportedCommandsChangedNotifications_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetWantsSupportedCommandsChangedNotifications"));
     getNowPlayingApplicationPID = (MRMediaRemoteGetNowPlayingApplicationPID_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingApplicationPID);
     getNowPlayingClient = (MRMediaRemoteGetNowPlayingClient_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingClient);
     getNowPlayingInfo = (MRMediaRemoteGetNowPlayingInfo_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfo);
@@ -131,6 +138,10 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     nowPlayingPlayerPathCreate = (MRNowPlayingPlayerPathCreate_t)CFBundleGetFunctionPointerForName(bundle, MRNowPlayingPlayerPathCreate);
     getNowPlayingInfoForPlayer = (MRMediaRemoteGetNowPlayingInfoForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfoForPlayer);
     getPlaybackStateForPlayer = (MRMediaRemoteGetPlaybackStateForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetPlaybackStateForPlayer);
+    copySupportedCommands = (MRMediaRemoteCopySupportedCommands_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCopySupportedCommands"));
+    commandInfoGetCommand = (MRMediaRemoteCommandInfoGetCommand_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoGetCommand"));
+    commandInfoGetEnabled = (MRMediaRemoteCommandInfoGetEnabled_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoGetEnabled"));
+    commandInfoCopyValueForKey = (MRMediaRemoteCommandInfoCopyValueForKey_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoCopyValueForKey"));
     return self;
 }
 @end

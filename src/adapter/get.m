@@ -6,6 +6,7 @@
 
 #import "MediaRemoteAdapter.h"
 #import "adapter/env.h"
+#import "adapter/feedback.h"
 #import "adapter/get.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
@@ -160,6 +161,14 @@ NSDictionary *internal_get(BOOL isTestMode) {
     __block BOOL isFromTestClient = NO;
 
     dispatch_group_t group = dispatch_group_create();
+    __block NSDictionary *feedback = nil;
+    __block int feedbackPID = 0;
+    dispatch_group_enter(group);
+    requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state, int pid) {
+      feedback = state;
+      feedbackPID = pid;
+      dispatch_group_leave(group);
+    });
 
     // PID and Bundle Identifier
     dispatch_group_enter(group);
