@@ -202,6 +202,21 @@ to ensure you get the artwork data *eventually*.
 
 **Options**
 
+`--bundle-id=ID`&ensp;Reads the now playing information
+of the application with the given bundle identifier,
+even when another application is the now playing application.
+An application matches when either its `bundleIdentifier`
+or its `parentApplicationBundleIdentifier` equals the given identifier.
+The output is then a list of dictionaries instead of a single dictionary,
+with one dictionary for each matching application,
+or an empty list (`[]`) when no application matches.
+More than one application can match, since applications may play media
+through a shared helper process.
+For example, Safari and Orion both play through `com.apple.WebKit.GPU`.
+Every dictionary reports the application's own identifiers,
+which can differ from the given identifier.
+All other options apply to each dictionary as usual.
+
 `--now`&ensp;Adds an `elapsedTimeNow` key with an estimation of the current
 elapsed playback time. This estimation may be off by up to a second.
 To determine a more accurate time without polling `get` continuously,
