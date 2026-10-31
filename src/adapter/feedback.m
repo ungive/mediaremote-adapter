@@ -19,15 +19,15 @@ NSDictionary *feedbackStateForCommands(
         id active = CFBridgingRelease(copyValue(
             command, CFSTR("kMRMediaRemoteCommandInfoIsActiveKey")));
         return @{
-            kMRASupportsIsLiked : supported ? @YES : @NO,
-            kMRAIsLiked : (supported && [active isKindOfClass:NSNumber.class] && [active boolValue]) ? @YES : @NO
+            kMRALikeCommandEnabled : supported ? @YES : @NO,
+            kMRALikeCommandActive : (supported && [active isKindOfClass:NSNumber.class] && [active boolValue]) ? @YES : @NO
         };
     }
-    return @{kMRASupportsIsLiked : @NO, kMRAIsLiked : @NO};
+    return @{kMRALikeCommandEnabled : @NO, kMRALikeCommandActive : @NO};
 }
 
 void addMissingFeedbackState(NSMutableDictionary *metadata, NSDictionary *feedback) {
-    for (NSString *key in @[kMRASupportsIsLiked, kMRAIsLiked]) {
+    for (NSString *key in @[kMRALikeCommandEnabled, kMRALikeCommandActive]) {
         if (!metadata[key] && feedback[key]) metadata[key] = feedback[key];
     }
 }

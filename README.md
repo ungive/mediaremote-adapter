@@ -177,13 +177,14 @@ or a dictionary with any of the following keys:
 `radioStationHash`
 `mediaType`
 
-For players using `MPRemoteCommandCenter.likeCommand`, `get` and `stream`
-also resolve `supportsIsLiked` and `isLiked` from the advertised command's
-enabled and active state. This works even when those values are absent from
-the raw Now Playing metadata. Existing metadata values take precedence. Where those values are absent, a
-missing or disabled like command reports false. Stream updates include feedback changes without requiring a new track
-or elapsed-time update. Optional unavailable MediaRemote symbols leave the
-existing metadata path unchanged.
+`get` and `stream` also expose `likeCommandEnabled` and `likeCommandActive`
+from `MPRemoteCommandCenter.likeCommand`'s advertised enabled and active state.
+A missing or disabled command reports false for both. These native-command
+fields are separate from the legacy raw-metadata `supportsIsLiked` and
+`isLiked` fields, which remain unchanged: legacy support does not establish
+that the native like command can be sent. Stream updates include feedback
+changes without requiring a new track or elapsed-time update. Optional
+unavailable MediaRemote symbols leave the existing metadata path unchanged.
 
 The following mandatory keys never have a null value:
 `bundleIdentifier`
