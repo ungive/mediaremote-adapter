@@ -47,11 +47,11 @@ PARAMS:
 
 OPTIONS:
   get
-    --bundle-id=ID: Reads the application with the given bundle identifier
-      instead of the one the system elected as the now playing application.
-      Any application that registered with MediaRemote can be read, even when
-      another application is currently the now playing application.
-      Returns an array of all matching clients, or [] if none match.
+    --bundle-id=ID: Reads the now playing information of the application
+      with the given bundle identifier or parent application bundle
+      identifier, even when another application is the now playing
+      application. Prints a list with one dictionary for each matching
+      application, which is empty when no application matches.
     --now: Adds an "elapsedTimeNow" key with an estimation of the current
       elapsed playback time. This estimation may be off by up to a second.
       To determine a more accurate time without polling "get" continuously,

@@ -135,7 +135,7 @@ static id sanitizeValueForJsonEncoding(id value, NSString *parentKey) {
     }
 }
 
-static NSDictionary *sanitizeDictionaryForJsonEncoding(id data) {
+static id sanitizeDictionaryForJsonEncoding(id data) {
     return sanitizeValueForJsonEncoding(data, nil);
 }
 

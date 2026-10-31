@@ -145,14 +145,20 @@ extern CFStringRef MRNowPlayingPlayerPathCreate;
 extern CFStringRef MRMediaRemoteGetNowPlayingInfoForPlayer;
 
 typedef void (^MRMediaRemoteGetNowPlayingClientsCompletion_t)(NSArray *clients);
-typedef void (^MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t)(NSDictionary *information, NSError *error);
+// The second argument is not an error. It is the artwork image
+// (MRNowPlayingArtworkImage) when artwork was requested and is available,
+// otherwise nil. A failed request yields nil information.
+typedef void (^MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t)(NSDictionary *information, id artwork);
 
 typedef void (*MRMediaRemoteGetNowPlayingClients_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingClientsCompletion_t completion);
 typedef CFStringRef (*MRNowPlayingClientGetBundleIdentifier_t)(id client);
 typedef int (*MRNowPlayingClientGetProcessIdentifier_t)(id client);
 typedef id (*MRMediaRemoteGetLocalOrigin_t)(void);
 typedef CFTypeRef (*MRNowPlayingPlayerPathCreate_t)(id origin, id client, id player);
-typedef void (*MRMediaRemoteGetNowPlayingInfoForPlayer_t)(id playerPath, void *unknown, dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t completion);
+// includeArtwork makes the request ask for artwork, like
+// MRMediaRemoteGetNowPlayingInfo does. Without it, the information contains
+// the artwork MIME type, but no artwork data.
+typedef void (*MRMediaRemoteGetNowPlayingInfoForPlayer_t)(id playerPath, bool includeArtwork, dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t completion);
 
 #pragma mark Miscellaneous
 
