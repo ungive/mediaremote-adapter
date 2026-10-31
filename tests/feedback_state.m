@@ -51,28 +51,26 @@ int main(void) {
         NSDictionary *(^read)(NSArray *) = ^(NSArray *commands) {
           return feedbackStateForCommands(commands, commandID, enabled, active);
         };
-        NSCAssert(([read(@[]) isEqual:@{@"supportsIsLiked":@NO, @"isLiked":@NO}]), @"missing command must disable support");
-        NSCAssert(([read(@[other]) isEqual:@{@"supportsIsLiked":@NO, @"isLiked":@NO}]), @"dislike must not be mistaken for like");
-        NSCAssert(([read(@[other, like]) isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@YES}]), @"active like not found");
+        NSCAssert(([read(@[]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"missing command must disable support");
+        NSCAssert(([read(@[other]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"dislike must not be mistaken for like");
+        NSCAssert(([read(@[other, like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@YES}]), @"active like not found");
         like.active = @NO;
-        NSCAssert(([read(@[like]) isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@NO}]), @"unliked state lost");
+        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"unliked state lost");
         like.enabled = NO; like.active = @YES;
-        NSCAssert(([read(@[like]) isEqual:@{@"supportsIsLiked":@NO, @"isLiked":@NO}]), @"disabled command retained active state");
+        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"disabled command retained active state");
         like.enabled = YES; like.active = nil;
-        NSCAssert(([read(@[like]) isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@NO}]), @"missing active state must not be true");
+        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"missing active state must not be true");
         like.active = @"invalid";
-        NSCAssert(([read(@[like]) isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@NO}]), @"malformed active state must not be true");
+        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"malformed active state must not be true");
         like.active = @YES;
         NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[NSJSONSerialization dataWithJSONObject:read(@[like]) options:0 error:nil] options:0 error:nil];
-        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"supportsIsLiked"]) == CFBooleanGetTypeID(), @"capability must serialize as a JSON boolean");
-        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"isLiked"]) == CFBooleanGetTypeID(), @"active state must serialize as a JSON boolean");
+        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandEnabled"]) == CFBooleanGetTypeID(), @"capability must serialize as a JSON boolean");
+        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandActive"]) == CFBooleanGetTypeID(), @"active state must serialize as a JSON boolean");
 
         NSMutableDictionary *metadata = [@{@"supportsIsLiked":@YES, @"isLiked":@YES} mutableCopy];
-        addMissingFeedbackState(metadata, @{@"supportsIsLiked":@NO, @"isLiked":@NO});
-        NSCAssert(([metadata isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@YES}]), @"existing player metadata must take precedence");
-        [metadata removeObjectForKey:@"isLiked"];
-        addMissingFeedbackState(metadata, @{@"supportsIsLiked":@NO, @"isLiked":@NO});
-        NSCAssert(([metadata isEqual:@{@"supportsIsLiked":@YES, @"isLiked":@NO}]), @"missing fields must be filled individually");
+        addMissingFeedbackState(metadata, read(@[]));
+        NSCAssert([metadata[@"supportsIsLiked"] boolValue] && [metadata[@"isLiked"] boolValue], @"legacy metadata must be preserved");
+        NSCAssert(![metadata[@"likeCommandEnabled"] boolValue] && ![metadata[@"likeCommandActive"] boolValue], @"legacy like support must not imply the native command is available");
 
         MediaRemote *original = g_mediaRemote;
         g_mediaRemote = [TestMediaRemote new];
@@ -83,7 +81,7 @@ int main(void) {
             requestFeedbackState(dispatch_get_main_queue(), ^(NSDictionary *state, int pid) {
                 called = YES;
                 NSCAssert(pid == afterPID, @"wrong owner PID");
-                NSCAssert(changed.boolValue ? state == nil : [state[@"isLiked"] boolValue], @"state from a changed owner must be discarded");
+                NSCAssert(changed.boolValue ? state == nil : [state[@"likeCommandActive"] boolValue], @"state from a changed owner must be discarded");
             });
             NSCAssert(called, @"completion missing");
         }
