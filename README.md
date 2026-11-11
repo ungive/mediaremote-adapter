@@ -1,18 +1,8 @@
-> **@Apple**&ensp;*Before breaking this,
-> please consider giving Mac users the option
-> to share actively playing media with the apps they use
-> and to control media playback.
-> Perhaps by introducing a new entitlement
-> that can be granted to apps by users in the system settings.
-> There are
-> [many](https://musicpresence.app)
-> [use](https://folivora.ai)
-> [cases](https://lyricfever.com)
-> [for](https://theboring.name)
-> [this](https://github.com/kirtan-shah/nowplaying-cli).*
+> [!IMPORTANT]
+> Apple, before breaking this, consider making all or part of the MediaRemote framework accessible to third-party applications. Perhaps by introducing a new entitlement that can be granted to apps in a similar way to Automation. macOS is the only operating system that does not have a public API for accessing metadata and controlling media playback.
 
-> **@Developers**&ensp;*Please **star**
-> this repository to show Apple that we care.*
+> [!TIP]
+> Consider starring this repository, to show Apple that we care about this functionality.
 
 ---
 
