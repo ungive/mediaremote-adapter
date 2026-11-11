@@ -7,7 +7,7 @@
 ---
 
 <!-- BADGES BEGIN -->
-![](https://img.shields.io/github/stars/ungive/mediaremote-adapter?style=flat&label=stars&logo=github&labelColor=444&color=DAAA3F&cacheSeconds=3600)
+![](https://img.shields.io/github/stars/ungive/mediaremote-adapter?style=flat&label=stars&logo=github&labelColor=444&color=ae8935&cacheSeconds=3600)
 ![](https://img.shields.io/static/v1?label=macOS&message=macOS%2027.0%20%2826A5425a%29&labelColor=444&color=blue)
 ![](https://img.shields.io/static/v1?label=last%20tested&message=Fri%20Sep%204%2010%3A04%3A50%20CEST%202026&labelColor=444&color)
 <!-- BADGES END -->
