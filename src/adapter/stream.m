@@ -7,6 +7,7 @@
 
 #import "MediaRemoteAdapter.h"
 #import "adapter/env.h"
+#import "adapter/feedback.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
@@ -189,6 +190,7 @@ extern void adapter_stream() {
     }
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
+    __block NSUInteger feedbackGeneration = 0;
     __block MetadataStats liveDataStats = createMetadataStats();
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
@@ -348,7 +350,15 @@ extern void adapter_stream() {
 
         liveDataStats = compareIdentifyingTrackKeys(liveData, converted);
         [liveData setDictionary:converted];
-        handleWithUpdatedStats();
+        NSUInteger generation = ++feedbackGeneration;
+        NSDictionary *context = [converted copy];
+        requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state, int pid) {
+          if (generation != feedbackGeneration || !isSameItemIdentity(context, liveData)) return;
+          if (state && pid > 0 && pid == [liveData[kMRAProcessIdentifier] intValue]) {
+              addMissingFeedbackState(liveData, state);
+          }
+          handleWithUpdatedStats();
+        });
       });
     };
 
@@ -470,6 +480,16 @@ extern void adapter_stream() {
                   }];
                 }];
 
+    // MPFeedbackCommand.active can change without new track metadata.
+    id feedback_change_observer = [default_center
+        addObserverForName:kMRMediaRemoteSupportedCommandsDidChangeNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                  (void)notification;
+                  dispatch_async(g_serialdispatchQueue, requestNowPlayingInfo);
+                }];
+
     // Register notifications for when applications are closed.
     id app_termination_observer = [shared_workscape_notification_center
         addObserverForName:NSWorkspaceDidTerminateApplicationNotification
@@ -490,13 +510,20 @@ extern void adapter_stream() {
                 }];
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
+    if (g_mediaRemote.setWantsSupportedCommandsChangedNotifications) {
+        g_mediaRemote.setWantsSupportedCommandsChangedNotifications(true);
+    }
 
     CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
+    if (g_mediaRemote.setWantsSupportedCommandsChangedNotifications) {
+        g_mediaRemote.setWantsSupportedCommandsChangedNotifications(false);
+    }
 
     [default_center removeObserver:is_playing_change_observer];
     [default_center removeObserver:info_change_observer];
+    [default_center removeObserver:feedback_change_observer];
     [shared_workscape_notification_center
         removeObserver:app_termination_observer];
 }

@@ -39,6 +39,8 @@ extern NSString *kMRAIsAdvertisement;
 extern NSString *kMRAIsBanned;
 extern NSString *kMRAIsInWishList;
 extern NSString *kMRAIsLiked;
+extern NSString *kMRALikeCommandEnabled;
+extern NSString *kMRALikeCommandActive;
 extern NSString *kMRAIsMusicApp;
 extern NSString *kMRAPlaybackRate;
 extern NSString *kMRAProhibitsSkip;
