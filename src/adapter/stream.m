@@ -11,6 +11,7 @@
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
 #import "private/MediaRemote.h"
+#import "test/NowPlayingTest.h"
 #import "utility/Debounce.h"
 #import "utility/helpers.h"
 
@@ -334,9 +335,7 @@ extern void adapter_stream() {
         NSString *serviceIdentifier =
             information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
         if (!isTestMode &&
-            [serviceIdentifier
-                isEqualToString:
-                    @"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
+            [serviceIdentifier isEqualToString:@(TEST_CLIENT_BUNDLE_ID)]) {
             leave();
             return;
         }

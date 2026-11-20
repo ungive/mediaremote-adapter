@@ -39,8 +39,7 @@ static const float kPausedRate = 0.0f;
         MPNowPlayingInfoPropertyCurrentPlaybackDate : [NSDate date],
         MPNowPlayingInfoPropertyPlaybackRate : @(kPlayingRate),
         MPNowPlayingInfoPropertyMediaType : @(MPNowPlayingInfoMediaTypeAudio),
-        MPNowPlayingInfoPropertyServiceIdentifier :
-            @"com.vandenbe.MediaRemoteAdapter.TestClient",
+        MPNowPlayingInfoPropertyServiceIdentifier : @(TEST_CLIENT_BUNDLE_ID),
     } mutableCopy];
 
 #if defined(__MAC_15_0) && __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_15_0

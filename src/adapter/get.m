@@ -10,6 +10,7 @@
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
+#import "test/NowPlayingTest.h"
 #import "utility/helpers.h"
 
 #define GET_TIMEOUT_MILLIS 2000
@@ -24,8 +25,6 @@ static bool preparePayload(NSMutableDictionary *data) {
     return allMandatoryPayloadKeysSet(
         data, getEnvOption(@"allow-missing-title") != nil);
 }
-
-#define TEST_CLIENT_BUNDLE_ID @"com.vandenbe.MediaRemoteAdapter.TestClient"
 
 // Returns a list with every client that matches the bundle identifier, either
 // by its own bundle identifier or by its parent application's. A single
@@ -75,8 +74,8 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
             continue;
         }
         // The test client is not an actual now playing application.
-        if ([clientBundleID isEqualToString:TEST_CLIENT_BUNDLE_ID] ||
-            [parentBundleID isEqualToString:TEST_CLIENT_BUNDLE_ID]) {
+        if ([clientBundleID isEqualToString:@(TEST_CLIENT_BUNDLE_ID)] ||
+            [parentBundleID isEqualToString:@(TEST_CLIENT_BUNDLE_ID)]) {
             continue;
         }
 
@@ -108,7 +107,7 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
 
         NSString *serviceIdentifier =
             information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
-        if ([serviceIdentifier isEqualToString:TEST_CLIENT_BUNDLE_ID]) {
+        if ([serviceIdentifier isEqualToString:@(TEST_CLIENT_BUNDLE_ID)]) {
             continue;
         }
 
@@ -206,22 +205,21 @@ NSDictionary *internal_get(BOOL isTestMode) {
         });
 
     dispatch_group_enter(group);
-    g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
-                                        NSDictionary *information) {
-      NSString *serviceIdentifier =
-          information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
-      if (!isTestMode &&
-          [serviceIdentifier
-              isEqualToString:@"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
-          isFromTestClient = YES;
+    g_mediaRemote.getNowPlayingInfo(
+        g_serialdispatchQueue, ^(NSDictionary *information) {
+          NSString *serviceIdentifier =
+              information[kMRMediaRemoteNowPlayingInfoServiceIdentifier];
+          if (!isTestMode &&
+              [serviceIdentifier isEqualToString:@(TEST_CLIENT_BUNDLE_ID)]) {
+              isFromTestClient = YES;
+              dispatch_group_leave(group);
+              return;
+          }
+          NSDictionary *converted = convertNowPlayingInformation(
+              information, convert_micros, calculate_now, no_artwork);
+          [liveData addEntriesFromDictionary:converted];
           dispatch_group_leave(group);
-          return;
-      }
-      NSDictionary *converted = convertNowPlayingInformation(
-          information, convert_micros, calculate_now, no_artwork);
-      [liveData addEntriesFromDictionary:converted];
-      dispatch_group_leave(group);
-    });
+        });
 
     // Wait for all async callbacks or timeout
     dispatch_time_t timeout =

@@ -4,6 +4,8 @@
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 
+#define TEST_CLIENT_BUNDLE_ID "com.vandenbe.MediaRemoteAdapter.TestClient"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol RemoteCommandCenterDelegateListener <NSObject>
