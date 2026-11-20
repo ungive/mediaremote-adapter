@@ -164,8 +164,7 @@ extern void adapter_stream() {
     NSString *no_artwork_option = getEnvOption(@"no-artwork");
     NSString *micros_option = getEnvOption(@"micros");
     NSString *human_readable_option = getEnvOption(@"human-readable");
-    NSString *allow_missing_title_option =
-        getEnvOption(@"allow-missing-title");
+    NSString *allow_missing_title_option = getEnvOption(@"allow-missing-title");
 
     // This option is needed for media players which, when changing tracks,
     // update the artist and/or other fields later than e.g. the title, the
@@ -202,7 +201,8 @@ extern void adapter_stream() {
     // client with a PID and a playback state. Without this option such a
     // session is indistinguishable from "nothing is playing", even though
     // Control Center shows it, using the application name as the label.
-    __block const bool allow_missing_title = (allow_missing_title_option != nil);
+    __block const bool allow_missing_title =
+        (allow_missing_title_option != nil);
 
     // The following functions must only be called from the global serial
     // dispatch queue, so that they are synchronized to prevent data races.
@@ -226,7 +226,11 @@ extern void adapter_stream() {
       }
     };
 
-    void (^internalHandle)(bool) = ^(bool updatedStats) {
+    __block bool hasUpdatedStats = NO;
+
+    void (^handle)() = ^() {
+      bool updatedStats = hasUpdatedStats;
+      hasUpdatedStats = NO;
       if (peculiar_debounce == nil ||
           ![peculiar_bundle_id isEqual:liveData[kMRABundleIdentifier]]) {
           directHandle();
@@ -250,20 +254,35 @@ extern void adapter_stream() {
       }
     };
 
-    void (^handle)() = ^() {
-      internalHandle(false);
+    __block NSInteger pendingCallbacks = 0;
+
+    void (^enter)() = ^{
+      pendingCallbacks += 1;
     };
 
-    void (^handleWithUpdatedStats)() = ^() {
-      internalHandle(true);
+    void (^leave)() = ^{
+      pendingCallbacks -= 1;
+      assert(pendingCallbacks >= 0);
+      if (pendingCallbacks == 0) {
+          handle();
+      }
+    };
+
+    void (^dispatchAndHandle)(void (^)(void)) = ^(void (^block)(void)) {
+      enter();
+      dispatch_async(g_serialdispatchQueue, ^{
+        block();
+        leave();
+      });
     };
 
     void (^requestNowPlayingApplicationPID)() = ^{
+      enter();
       g_mediaRemote.getNowPlayingApplicationPID(
           g_serialdispatchQueue, ^(int pid) {
             if (pid == 0) {
                 liveData[kMRAProcessIdentifier] = nil;
-                handle();
+                leave();
                 return;
             }
             liveData[kMRAProcessIdentifier] = @(pid);
@@ -271,19 +290,19 @@ extern void adapter_stream() {
               if (process.bundleIdentifier != nil) {
                   liveData[kMRABundleIdentifier] = process.bundleIdentifier;
               }
-              handle();
             });
-            if (!ok) {
-                handle();
-            }
+            leave();
           });
     };
 
     void (^requestNowPlayingParentApplicationBundleIdentifier)() = ^{
+      enter();
       g_mediaRemote.getNowPlayingClient(g_serialdispatchQueue, ^(id client) {
         NSString *parentAppBundleID = nil;
-        if (client && [client respondsToSelector:@selector
-                              (parentApplicationBundleIdentifier)]) {
+        if (client &&
+            [client
+                respondsToSelector:@selector(
+                                       parentApplicationBundleIdentifier)]) {
             id result = [client
                 performSelector:@selector(parentApplicationBundleIdentifier)];
             if ([result isKindOfClass:[NSString class]]) {
@@ -295,19 +314,21 @@ extern void adapter_stream() {
         } else {
             [liveData removeObjectForKey:kMRAParentApplicationBundleIdentifier];
         }
-        handle();
+        leave();
       });
     };
 
     void (^requestNowPlayingApplicationIsPlaying)() = ^{
+      enter();
       g_mediaRemote.getNowPlayingApplicationIsPlaying(
           g_serialdispatchQueue, ^(bool isPlaying) {
             liveData[kMRAPlaying] = @(isPlaying);
-            handle();
+            leave();
           });
     };
 
     void (^requestNowPlayingInfo)() = ^{
+      enter();
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
                                           NSDictionary *information) {
         NSString *serviceIdentifier =
@@ -316,6 +337,7 @@ extern void adapter_stream() {
             [serviceIdentifier
                 isEqualToString:
                     @"com.vandenbe.MediaRemoteAdapter.TestClient"]) {
+            leave();
             return;
         }
         NSMutableDictionary *converted = convertNowPlayingInformation(
@@ -351,7 +373,8 @@ extern void adapter_stream() {
 
         liveDataStats = compareIdentifyingTrackKeys(liveData, converted);
         [liveData setDictionary:converted];
-        handleWithUpdatedStats();
+        hasUpdatedStats = true;
+        leave();
       });
     };
 
@@ -363,6 +386,9 @@ extern void adapter_stream() {
     };
 
     void (^resetAll)() = ^{
+      // Make sure there is a pending callback, otherwise this change won't be
+      // reflected in the command output. This should always be the case.
+      assert(pendingCallbacks > 0);
       [liveData removeAllObjects];
     };
 
@@ -371,10 +397,8 @@ extern void adapter_stream() {
       requestAll();
     };
 
-    // Issue the initial fetch from the serial queue, just to be safe, so that
-    // state variables can be changed in the requestAll function and any other
-    // functions that it might call now or in code that is added in the future.
-    dispatch_async(g_serialdispatchQueue, ^{
+    // Initial fetch.
+    dispatchAndHandle(^{
       requestAll();
     });
 
@@ -390,15 +414,14 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_serialdispatchQueue, ^() {
+                  dispatchAndHandle(^() {
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
                       if (process == nil) {
                           // The process for this notification could not be
                           // determined. Assume that there is no now playing
-                          // application anymore.
+                          // application anymore, so reset and return.
                           resetAll();
-                          handle();
                           return;
                       }
                       id isPlayingValue =
@@ -425,8 +448,6 @@ extern void adapter_stream() {
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
                       if (liveData[kMRATitle] == nil) {
                           requestNowPlayingInfo();
-                      } else {
-                          handle();
                       }
                     });
                   });
@@ -440,13 +461,12 @@ extern void adapter_stream() {
                   [debounce call:^{
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
-                      dispatch_async(g_serialdispatchQueue, ^() {
+                      dispatchAndHandle(^() {
                         if (process == nil) {
                             // The process for this notification could not be
                             // determined. Assume that there is no now playing
-                            // application anymore.
+                            // application anymore, so reset and return.
                             resetAll();
-                            handle();
                             return;
                         }
                         if (liveData[kMRABundleIdentifier] != nil &&
@@ -484,7 +504,7 @@ extern void adapter_stream() {
                     object:nil
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
-                  dispatch_async(g_serialdispatchQueue, ^() {
+                  dispatchAndHandle(^() {
                     NSDictionary *userInfo = [notification userInfo];
                     id bundleIdentifier =
                         userInfo[@"NSApplicationBundleIdentifier"];
