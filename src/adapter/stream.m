@@ -204,6 +204,9 @@ extern void adapter_stream() {
     // Control Center shows it, using the application name as the label.
     __block const bool allow_missing_title = (allow_missing_title_option != nil);
 
+    // The following functions must only be called from the global serial
+    // dispatch queue, so that they are synchronized to prevent data races.
+
     void (^localPrintData)(NSDictionary *) = ^(NSDictionary *data) {
       printData(data, !no_diff, human_readable);
     };
