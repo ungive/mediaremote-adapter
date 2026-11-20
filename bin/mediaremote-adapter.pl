@@ -47,6 +47,11 @@ PARAMS:
 
 OPTIONS:
   get
+    --bundle-id=ID: Reads the now playing information of the application
+      with the given bundle identifier or parent application bundle
+      identifier, even when another application is the now playing
+      application. Prints a list with one dictionary for each matching
+      application, which is empty when no application matches.
     --now: Adds an "elapsedTimeNow" key with an estimation of the current
       elapsed playback time. This estimation may be off by up to a second.
       To determine a more accurate time without polling "get" continuously,
@@ -238,6 +243,9 @@ elsif ($function_name eq "get") {
     }
     elsif ($key eq "now") {
       set_env_option($options, $key);
+    }
+    elsif ($key eq "bundle-id") {
+      set_env_option_value($options, $key);
     }
     else {
       fail "Unrecognized option '$key'";
