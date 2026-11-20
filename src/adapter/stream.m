@@ -368,6 +368,13 @@ extern void adapter_stream() {
       requestAll();
     };
 
+    // Issue the initial fetch from the serial queue, just to be safe, so that
+    // state variables can be changed in the requestAll function and any other
+    // functions that it might call now or in code that is added in the future.
+    dispatch_async(g_serialdispatchQueue, ^{
+      requestAll();
+    });
+
     NSNotificationCenter *default_center = [NSNotificationCenter defaultCenter];
     NSNotificationCenter *shared_workscape_notification_center =
         [[NSWorkspace sharedWorkspace] notificationCenter];
@@ -486,12 +493,6 @@ extern void adapter_stream() {
                 }];
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
-
-    // Issue the initial fetch from the serial queue so its replies are ordered
-    // against any notification handlers that fire during startup.
-    dispatch_async(g_serialdispatchQueue, ^{
-      requestAll();
-    });
 
     CFRunLoopRun();
 
