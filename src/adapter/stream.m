@@ -440,38 +440,40 @@ extern void adapter_stream() {
                   [debounce call:^{
                     appForNotification(notification, ^(
                                            NSRunningApplication *process) {
-                      if (process == nil) {
-                          // The process for this notification could not be
-                          // determined. Assume that there is no now playing
-                          // application anymore.
-                          resetAll();
-                          handle();
-                          return;
-                      }
-                      if (liveData[kMRABundleIdentifier] != nil &&
-                          process.bundleIdentifier != nil &&
-                          ![liveData[kMRABundleIdentifier]
-                              isEqual:process.bundleIdentifier]) {
-                          // This is a different process, reset all data.
-                          resetAll();
-                      }
-                      if (liveData[kMRAProcessIdentifier] != nil &&
-                          ![liveData[kMRAProcessIdentifier]
-                              isEqual:@(process.processIdentifier)]) {
-                          // This is a different process, reset all data.
-                          resetAll();
-                      }
-                      if (liveData[kMRAProcessIdentifier] == nil) {
-                          requestNowPlayingApplicationPID();
-                      }
-                      if (liveData[kMRAParentApplicationBundleIdentifier] ==
-                          nil) {
-                          requestNowPlayingParentApplicationBundleIdentifier();
-                      }
-                      if (liveData[kMRAPlaying] == nil) {
-                          requestNowPlayingApplicationIsPlaying();
-                      }
-                      requestNowPlayingInfo();
+                      dispatch_async(g_serialdispatchQueue, ^() {
+                        if (process == nil) {
+                            // The process for this notification could not be
+                            // determined. Assume that there is no now playing
+                            // application anymore.
+                            resetAll();
+                            handle();
+                            return;
+                        }
+                        if (liveData[kMRABundleIdentifier] != nil &&
+                            process.bundleIdentifier != nil &&
+                            ![liveData[kMRABundleIdentifier]
+                                isEqual:process.bundleIdentifier]) {
+                            // This is a different process, reset all data.
+                            resetAll();
+                        }
+                        if (liveData[kMRAProcessIdentifier] != nil &&
+                            ![liveData[kMRAProcessIdentifier]
+                                isEqual:@(process.processIdentifier)]) {
+                            // This is a different process, reset all data.
+                            resetAll();
+                        }
+                        if (liveData[kMRAProcessIdentifier] == nil) {
+                            requestNowPlayingApplicationPID();
+                        }
+                        if (liveData[kMRAParentApplicationBundleIdentifier] ==
+                            nil) {
+                            requestNowPlayingParentApplicationBundleIdentifier();
+                        }
+                        if (liveData[kMRAPlaying] == nil) {
+                            requestNowPlayingApplicationIsPlaying();
+                        }
+                        requestNowPlayingInfo();
+                      });
                     });
                   }];
                 }];
