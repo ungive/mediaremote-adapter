@@ -15,19 +15,20 @@ feedbackStateForCommands(NSArray *commands,
     for (id command in commands) {
         if (commandID(command) != likeCommand)
             continue;
-        BOOL supported = enabled(command);
+        if (!enabled(command))
+            return @{};
+
         id active = CFBridgingRelease(
             copyValue(command, CFSTR("kMRMediaRemoteCommandInfoIsActiveKey")));
-        return @{
-            kMRALikeCommandEnabled : supported ? @YES : @NO,
-            kMRALikeCommandActive :
-                    (supported && [active isKindOfClass:NSNumber.class] &&
-                     [active boolValue])
-                ? @YES
-                : @NO
-        };
+        if ([active isKindOfClass:NSNumber.class]) {
+            return @{
+                kMRALikeCommandEnabled : @YES,
+                kMRALikeCommandActive : [active boolValue] ? @YES : @NO
+            };
+        }
+        return @{kMRALikeCommandEnabled : @YES};
     }
-    return @{kMRALikeCommandEnabled : @NO, kMRALikeCommandActive : @NO};
+    return @{};
 }
 
 void requestFeedbackState(dispatch_queue_t queue,

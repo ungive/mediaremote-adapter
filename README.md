@@ -146,6 +146,8 @@ or a dictionary with any of the following keys:
 `isInWishList`
 `isLiked`
 `isMusicApp`
+`likeCommandEnabled`
+`likeCommandActive`
 `playbackRate`
 `prohibitsSkip`
 `queueIndex`
@@ -167,16 +169,6 @@ or a dictionary with any of the following keys:
 `radioStationHash`
 `mediaType`
 
-`get` (without `--bundle-id`) and `stream` also expose `likeCommandEnabled`
-and `likeCommandActive` from `MPRemoteCommandCenter.likeCommand`'s advertised
-enabled and active state for the system Now Playing player.
-A missing or disabled command reports false for both. These native-command
-fields are separate from the legacy raw-metadata `supportsIsLiked` and
-`isLiked` fields, which remain unchanged: legacy support does not establish
-that the native like command can be sent. Stream updates include feedback
-changes without requiring a new track or elapsed-time update. Optional
-unavailable MediaRemote symbols leave the existing metadata path unchanged.
-
 The following mandatory keys never have a null value:
 `bundleIdentifier`
 `playing`
@@ -190,6 +182,10 @@ The `mediaType` may contain one of the following values:
 - `MRMediaRemoteMediaTypeMusic`
 - `kMRMediaRemoteNowPlayingInfoTypeAudio`
 - Possibly others, this key is not very well documented
+
+`likeCommandEnabled` is `true` when the player enables the like command.
+`likeCommandActive` is `true` or `false` when the command is enabled and
+the player reports its state. Both keys are omitted with `get --bundle-id`.
 
 **Caveats**
 

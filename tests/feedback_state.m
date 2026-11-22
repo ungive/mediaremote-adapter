@@ -59,15 +59,8 @@ int main(void) {
         NSDictionary * (^read)(NSArray *) = ^(NSArray *commands) {
           return feedbackStateForCommands(commands, commandID, enabled, active);
         };
-        NSCAssert(([read(@[]) isEqual:@{
-                      @"likeCommandEnabled" : @NO,
-                      @"likeCommandActive" : @NO
-                  }]),
-                  @"missing command must disable support");
-        NSCAssert(([read(@[ other ]) isEqual:@{
-                      @"likeCommandEnabled" : @NO,
-                      @"likeCommandActive" : @NO
-                  }]),
+        NSCAssert(read(@[]).count == 0, @"missing command must omit both keys");
+        NSCAssert(read(@[ other ]).count == 0,
                   @"dislike must not be mistaken for like");
         NSCAssert(([read(@[ other, like ]) isEqual:@{
                       @"likeCommandEnabled" : @YES,
@@ -82,24 +75,19 @@ int main(void) {
                   @"unliked state lost");
         like.enabled = NO;
         like.active = @YES;
-        NSCAssert(([read(@[ like ]) isEqual:@{
-                      @"likeCommandEnabled" : @NO,
-                      @"likeCommandActive" : @NO
-                  }]),
-                  @"disabled command retained active state");
+        NSCAssert(read(@[ like ]).count == 0,
+                  @"disabled command must omit both keys");
         like.enabled = YES;
         like.active = nil;
         NSCAssert(([read(@[ like ]) isEqual:@{
-                      @"likeCommandEnabled" : @YES,
-                      @"likeCommandActive" : @NO
+                      @"likeCommandEnabled" : @YES
                   }]),
-                  @"missing active state must not be true");
+                  @"missing active state must be omitted");
         like.active = @"invalid";
         NSCAssert(([read(@[ like ]) isEqual:@{
-                      @"likeCommandEnabled" : @YES,
-                      @"likeCommandActive" : @NO
+                      @"likeCommandEnabled" : @YES
                   }]),
-                  @"malformed active state must not be true");
+                  @"malformed active state must be omitted");
         like.active = @YES;
         NSDictionary *json = [NSJSONSerialization
             JSONObjectWithData:[NSJSONSerialization

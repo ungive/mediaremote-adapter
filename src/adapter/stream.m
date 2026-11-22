@@ -332,8 +332,10 @@ extern void adapter_stream() {
     void (^requestFeedback)() = ^{
       enter();
       requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state) {
-        liveData[kMRALikeCommandEnabled] = state[kMRALikeCommandEnabled];
-        liveData[kMRALikeCommandActive] = state[kMRALikeCommandActive];
+        if (state != nil) {
+            liveData[kMRALikeCommandEnabled] = state[kMRALikeCommandEnabled];
+            liveData[kMRALikeCommandActive] = state[kMRALikeCommandActive];
+        }
         leave();
       });
     };
@@ -365,8 +367,12 @@ extern void adapter_stream() {
         if (liveData[kMRAPlaying] != nil) {
             converted[kMRAPlaying] = liveData[kMRAPlaying];
         }
-        converted[kMRALikeCommandEnabled] = liveData[kMRALikeCommandEnabled];
-        converted[kMRALikeCommandActive] = liveData[kMRALikeCommandActive];
+        if (liveData[kMRALikeCommandEnabled] != nil) {
+            converted[kMRALikeCommandEnabled] = liveData[kMRALikeCommandEnabled];
+        }
+        if (liveData[kMRALikeCommandActive] != nil) {
+            converted[kMRALikeCommandActive] = liveData[kMRALikeCommandActive];
+        }
         // Use the old artwork data, since often the MediaRemote framework
         // unloads the artwork and then loads it again shortly after.
         // Only do this when the items have the same identity.
@@ -506,7 +512,10 @@ extern void adapter_stream() {
                             requestNowPlayingApplicationIsPlaying();
                         }
                         requestNowPlayingInfo();
-                        requestFeedback();
+                        if (liveData[kMRALikeCommandEnabled] == nil ||
+                            liveData[kMRALikeCommandActive] == nil) {
+                            requestFeedback();
+                        }
                       });
                     });
                   }];
@@ -519,7 +528,7 @@ extern void adapter_stream() {
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
                   (void)notification;
-                  dispatch_async(g_serialdispatchQueue, requestFeedback);
+                  dispatchAndHandle(requestFeedback);
                 }];
 
     // Register notifications for when applications are closed.
