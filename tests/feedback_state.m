@@ -1,9 +1,9 @@
 // Copyright (c) 2026 barissglc
 // This file is licensed under the BSD 3-Clause License.
 
-#import <Foundation/Foundation.h>
 #import "adapter/feedback.h"
 #import "adapter/globals.h"
+#import <Foundation/Foundation.h>
 
 @interface TestCommand : NSObject
 @property int identifier;
@@ -16,18 +16,15 @@
 static int commandID(id command) { return ((TestCommand *)command).identifier; }
 static Boolean enabled(id command) { return ((TestCommand *)command).enabled; }
 static CFTypeRef active(id command, CFStringRef key) {
-    NSCAssert(CFEqual(key, CFSTR("kMRMediaRemoteCommandInfoIsActiveKey")), @"wrong state key");
+    NSCAssert(CFEqual(key, CFSTR("kMRMediaRemoteCommandInfoIsActiveKey")),
+              @"wrong state key");
     return CFBridgingRetain(((TestCommand *)command).active);
 }
 
-static int beforePID, afterPID, pidReads;
 static BOOL missingAPI;
 static NSArray *testCommands;
-static void readPID(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingApplicationPIDCompletion_t completion) {
-    (void)queue;
-    completion(pidReads++ == 0 ? beforePID : afterPID);
-}
-static void readCommands(dispatch_queue_t queue, void (^completion)(NSArray *)) {
+static void readCommands(dispatch_queue_t queue,
+                         void (^completion)(NSArray *)) {
     (void)queue;
     completion(testCommands);
 }
@@ -35,68 +32,109 @@ static void readCommands(dispatch_queue_t queue, void (^completion)(NSArray *)) 
 @interface TestMediaRemote : MediaRemote
 @end
 @implementation TestMediaRemote
-- (MRMediaRemoteGetNowPlayingApplicationPID_t)getNowPlayingApplicationPID { return readPID; }
-- (MRMediaRemoteCopySupportedCommands_t)copySupportedCommands { return missingAPI ? NULL : readCommands; }
-- (MRMediaRemoteCommandInfoGetCommand_t)commandInfoGetCommand { return commandID; }
-- (MRMediaRemoteCommandInfoGetEnabled_t)commandInfoGetEnabled { return enabled; }
-- (MRMediaRemoteCommandInfoCopyValueForKey_t)commandInfoCopyValueForKey { return active; }
+- (MRMediaRemoteCopySupportedCommands_t)copySupportedCommands {
+    return missingAPI ? NULL : readCommands;
+}
+- (MRMediaRemoteCommandInfoGetCommand_t)commandInfoGetCommand {
+    return commandID;
+}
+- (MRMediaRemoteCommandInfoGetEnabled_t)commandInfoGetEnabled {
+    return enabled;
+}
+- (MRMediaRemoteCommandInfoCopyValueForKey_t)commandInfoCopyValueForKey {
+    return active;
+}
 @end
 
 int main(void) {
     @autoreleasepool {
         TestCommand *other = [TestCommand new];
-        other.identifier = 22; other.enabled = YES; other.active = @YES;
+        other.identifier = 22;
+        other.enabled = YES;
+        other.active = @YES;
         TestCommand *like = [TestCommand new];
-        like.identifier = 21; like.enabled = YES; like.active = @YES;
-        NSDictionary *(^read)(NSArray *) = ^(NSArray *commands) {
+        like.identifier = 21;
+        like.enabled = YES;
+        like.active = @YES;
+        NSDictionary * (^read)(NSArray *) = ^(NSArray *commands) {
           return feedbackStateForCommands(commands, commandID, enabled, active);
         };
-        NSCAssert(([read(@[]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"missing command must disable support");
-        NSCAssert(([read(@[other]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"dislike must not be mistaken for like");
-        NSCAssert(([read(@[other, like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@YES}]), @"active like not found");
+        NSCAssert(([read(@[]) isEqual:@{
+                      @"likeCommandEnabled" : @NO,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"missing command must disable support");
+        NSCAssert(([read(@[ other ]) isEqual:@{
+                      @"likeCommandEnabled" : @NO,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"dislike must not be mistaken for like");
+        NSCAssert(([read(@[ other, like ]) isEqual:@{
+                      @"likeCommandEnabled" : @YES,
+                      @"likeCommandActive" : @YES
+                  }]),
+                  @"active like not found");
         like.active = @NO;
-        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"unliked state lost");
-        like.enabled = NO; like.active = @YES;
-        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@NO, @"likeCommandActive":@NO}]), @"disabled command retained active state");
-        like.enabled = YES; like.active = nil;
-        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"missing active state must not be true");
-        like.active = @"invalid";
-        NSCAssert(([read(@[like]) isEqual:@{@"likeCommandEnabled":@YES, @"likeCommandActive":@NO}]), @"malformed active state must not be true");
+        NSCAssert(([read(@[ like ]) isEqual:@{
+                      @"likeCommandEnabled" : @YES,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"unliked state lost");
+        like.enabled = NO;
         like.active = @YES;
-        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[NSJSONSerialization dataWithJSONObject:read(@[like]) options:0 error:nil] options:0 error:nil];
-        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandEnabled"]) == CFBooleanGetTypeID(), @"capability must serialize as a JSON boolean");
-        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandActive"]) == CFBooleanGetTypeID(), @"active state must serialize as a JSON boolean");
-
-        NSMutableDictionary *metadata = [@{@"supportsIsLiked":@YES, @"isLiked":@YES} mutableCopy];
-        addMissingFeedbackState(metadata, read(@[]));
-        NSCAssert([metadata[@"supportsIsLiked"] boolValue] && [metadata[@"isLiked"] boolValue], @"legacy metadata must be preserved");
-        NSCAssert(![metadata[@"likeCommandEnabled"] boolValue] && ![metadata[@"likeCommandActive"] boolValue], @"legacy like support must not imply the native command is available");
+        NSCAssert(([read(@[ like ]) isEqual:@{
+                      @"likeCommandEnabled" : @NO,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"disabled command retained active state");
+        like.enabled = YES;
+        like.active = nil;
+        NSCAssert(([read(@[ like ]) isEqual:@{
+                      @"likeCommandEnabled" : @YES,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"missing active state must not be true");
+        like.active = @"invalid";
+        NSCAssert(([read(@[ like ]) isEqual:@{
+                      @"likeCommandEnabled" : @YES,
+                      @"likeCommandActive" : @NO
+                  }]),
+                  @"malformed active state must not be true");
+        like.active = @YES;
+        NSDictionary *json = [NSJSONSerialization
+            JSONObjectWithData:[NSJSONSerialization
+                                   dataWithJSONObject:read(@[ like ])
+                                              options:0
+                                                error:nil]
+                       options:0
+                         error:nil];
+        NSCAssert(
+            CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandEnabled"]) ==
+                CFBooleanGetTypeID(),
+            @"capability must serialize as a JSON boolean");
+        NSCAssert(CFGetTypeID((__bridge CFTypeRef)json[@"likeCommandActive"]) ==
+                      CFBooleanGetTypeID(),
+                  @"active state must serialize as a JSON boolean");
 
         MediaRemote *original = g_mediaRemote;
         g_mediaRemote = [TestMediaRemote new];
-        testCommands = @[like];
-        for (NSNumber *changed in @[@NO, @YES]) {
-            beforePID = 123; afterPID = changed.boolValue ? 456 : 123; pidReads = 0;
-            __block BOOL called = NO;
-            requestFeedbackState(dispatch_get_main_queue(), ^(NSDictionary *state, int pid) {
-                called = YES;
-                NSCAssert(pid == afterPID, @"wrong owner PID");
-                NSCAssert(changed.boolValue ? state == nil : [state[@"likeCommandActive"] boolValue], @"state from a changed owner must be discarded");
-            });
-            NSCAssert(called, @"completion missing");
-        }
-        for (NSNumber *unavailable in @[@NO, @YES]) {
+        testCommands = @[ like ];
+        for (NSNumber *unavailable in @[ @NO, @YES ]) {
             missingAPI = unavailable.boolValue;
-            beforePID = 0; pidReads = 0;
             __block BOOL called = NO;
-            requestFeedbackState(dispatch_get_main_queue(), ^(NSDictionary *state, int pid) {
-                called = YES;
-                NSCAssert(state == nil && pid == 0, @"unavailable feedback must preserve the existing metadata path");
+            requestFeedbackState(dispatch_get_main_queue(), ^(
+                                     NSDictionary *state) {
+              called = YES;
+              NSCAssert(missingAPI ? state == nil
+                                   : [state[@"likeCommandActive"] boolValue],
+                        @"unexpected feedback state");
             });
-            NSCAssert(called, @"unavailable feedback completion missing");
+            NSCAssert(called, @"feedback completion missing");
         }
         g_mediaRemote = original;
-        puts("PASS: missing, unrelated, liked, unliked, disabled, missing-value, malformed-value, JSON booleans, stable/changed/no owner, unavailable API");
+        puts("PASS: missing, unrelated, liked, unliked, disabled, "
+             "missing-value, malformed-value, JSON booleans, "
+             "available/unavailable API");
     }
     return 0;
 }

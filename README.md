@@ -167,8 +167,9 @@ or a dictionary with any of the following keys:
 `radioStationHash`
 `mediaType`
 
-`get` and `stream` also expose `likeCommandEnabled` and `likeCommandActive`
-from `MPRemoteCommandCenter.likeCommand`'s advertised enabled and active state.
+`get` (without `--bundle-id`) and `stream` also expose `likeCommandEnabled`
+and `likeCommandActive` from `MPRemoteCommandCenter.likeCommand`'s advertised
+enabled and active state for the system Now Playing player.
 A missing or disabled command reports false for both. These native-command
 fields are separate from the legacy raw-metadata `supportsIsLiked` and
 `isLiked` fields, which remain unchanged: legacy support does not establish

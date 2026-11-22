@@ -190,7 +190,6 @@ extern void adapter_stream() {
     }
 
     __block NSMutableDictionary *liveData = [NSMutableDictionary dictionary];
-    __block NSUInteger feedbackGeneration = 0;
     __block MetadataStats liveDataStats = createMetadataStats();
     __block const Debounce *const debounce =
         [[Debounce alloc] initWithDelay:(debounce_delay_millis / 1000.0)
@@ -330,6 +329,15 @@ extern void adapter_stream() {
           });
     };
 
+    void (^requestFeedback)() = ^{
+      enter();
+      requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state) {
+        liveData[kMRALikeCommandEnabled] = state[kMRALikeCommandEnabled];
+        liveData[kMRALikeCommandActive] = state[kMRALikeCommandActive];
+        leave();
+      });
+    };
+
     void (^requestNowPlayingInfo)() = ^{
       enter();
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
@@ -357,6 +365,8 @@ extern void adapter_stream() {
         if (liveData[kMRAPlaying] != nil) {
             converted[kMRAPlaying] = liveData[kMRAPlaying];
         }
+        converted[kMRALikeCommandEnabled] = liveData[kMRALikeCommandEnabled];
+        converted[kMRALikeCommandActive] = liveData[kMRALikeCommandActive];
         // Use the old artwork data, since often the MediaRemote framework
         // unloads the artwork and then loads it again shortly after.
         // Only do this when the items have the same identity.
@@ -384,6 +394,7 @@ extern void adapter_stream() {
       requestNowPlayingParentApplicationBundleIdentifier();
       requestNowPlayingApplicationIsPlaying();
       requestNowPlayingInfo();
+      requestFeedback();
     };
 
     void (^resetAll)() = ^{
@@ -447,6 +458,7 @@ extern void adapter_stream() {
                       liveData[kMRABundleIdentifier] = process.bundleIdentifier;
                       requestNowPlayingParentApplicationBundleIdentifier();
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
+                      requestFeedback();
                       if (liveData[kMRATitle] == nil) {
                           requestNowPlayingInfo();
                       }
@@ -494,6 +506,7 @@ extern void adapter_stream() {
                             requestNowPlayingApplicationIsPlaying();
                         }
                         requestNowPlayingInfo();
+                        requestFeedback();
                       });
                     });
                   }];
@@ -506,7 +519,7 @@ extern void adapter_stream() {
                      queue:nil
                 usingBlock:^(NSNotification *notification) {
                   (void)notification;
-                  dispatch_async(g_serialdispatchQueue, requestNowPlayingInfo);
+                  dispatch_async(g_serialdispatchQueue, requestFeedback);
                 }];
 
     // Register notifications for when applications are closed.

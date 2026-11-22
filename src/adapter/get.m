@@ -161,12 +161,11 @@ NSDictionary *internal_get(BOOL isTestMode) {
     __block BOOL isFromTestClient = NO;
 
     dispatch_group_t group = dispatch_group_create();
-    __block NSDictionary *feedback = nil;
-    __block int feedbackPID = 0;
     dispatch_group_enter(group);
-    requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state, int pid) {
-      feedback = state;
-      feedbackPID = pid;
+    requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state) {
+      if (state) {
+          [liveData addEntriesFromDictionary:state];
+      }
       dispatch_group_leave(group);
     });
 
