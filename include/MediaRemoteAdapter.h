@@ -78,25 +78,8 @@ extern void adapter_get_env();
 extern void adapter_stream();
 extern void adapter_stream_env();
 
-typedef enum {
-    kMRAPlay = 0,
-    kMRAPause = 1,
-    kMRATogglePlayPause = 2,
-    kMRAStop = 3,
-    kMRANextTrack = 4,
-    kMRAPreviousTrack = 5,
-    kMRAToggleShuffle = 6,
-    kMRAToggleRepeat = 7,
-    kMRAStartForwardSeek = 8,
-    kMRAEndForwardSeek = 9,
-    kMRAStartBackwardSeek = 10,
-    kMRAEndBackwardSeek = 11,
-    kMRAGoBackFifteenSeconds = 12,
-    kMRASkipFifteenSeconds = 13,
-} MRACommand;
-
 // Sends the given MediaRemote command to the current now playing application.
-extern void adapter_send(MRACommand command);
+extern void adapter_send(int command);
 extern void adapter_send_env();
 
 // Seeks the timeline of the nowplaying application to the given position.
