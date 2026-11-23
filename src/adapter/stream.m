@@ -462,7 +462,7 @@ extern void adapter_stream() {
                           resetAll();
                       }
                       liveData[kMRAProcessIdentifier] =
-                          process.processIdentifier;
+                          @(process.processIdentifier);
                       liveData[kMRABundleIdentifier] = process.bundleIdentifier;
                       requestNowPlayingParentApplicationBundleIdentifier();
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
