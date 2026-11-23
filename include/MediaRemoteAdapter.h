@@ -39,8 +39,6 @@ extern NSString *kMRAIsAdvertisement;
 extern NSString *kMRAIsBanned;
 extern NSString *kMRAIsInWishList;
 extern NSString *kMRAIsLiked;
-extern NSString *kMRALikeCommandEnabled;
-extern NSString *kMRALikeCommandActive;
 extern NSString *kMRAIsMusicApp;
 extern NSString *kMRAPlaybackRate;
 extern NSString *kMRAProhibitsSkip;
@@ -62,6 +60,12 @@ extern NSString *kMRAUniqueIdentifier;
 extern NSString *kMRAContentItemIdentifier;
 extern NSString *kMRARadioStationHash;
 extern NSString *kMRAMediaType;
+extern NSString *kMRASupportedCommands;
+
+extern NSString *kMRACommand_Identifier;
+extern NSString *kMRACommand_Name;
+extern NSString *kMRACommand_Enabled;
+extern NSString *kMRACommand_Options;
 
 // Prints the current MediaRemote now playing information to stdout.
 // Data is encoded as a JSON dictionary or "null" when there is no information.

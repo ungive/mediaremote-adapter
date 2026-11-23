@@ -34,8 +34,6 @@ NSString *kMRAIsAdvertisement = @"isAdvertisement";
 NSString *kMRAIsBanned = @"isBanned";
 NSString *kMRAIsInWishList = @"isInWishList";
 NSString *kMRAIsLiked = @"isLiked";
-NSString *kMRALikeCommandEnabled = @"likeCommandEnabled";
-NSString *kMRALikeCommandActive = @"likeCommandActive";
 NSString *kMRAIsMusicApp = @"isMusicApp";
 NSString *kMRAPlaybackRate = @"playbackRate";
 NSString *kMRAProhibitsSkip = @"prohibitsSkip";
@@ -57,6 +55,12 @@ NSString *kMRAUniqueIdentifier = @"uniqueIdentifier";
 NSString *kMRAContentItemIdentifier = @"contentItemIdentifier";
 NSString *kMRARadioStationHash = @"radioStationHash";
 NSString *kMRAMediaType = @"mediaType";
+NSString *kMRASupportedCommands = @"supportedCommands";
+
+NSString *kMRACommand_Identifier = @"id";
+NSString *kMRACommand_Name = @"name";
+NSString *kMRACommand_Enabled = @"enabled";
+NSString *kMRACommand_Options = @"options";
 
 NSArray<NSString *> *mandatoryPayloadKeys(bool excludeTitle) {
     NSMutableArray<NSString *> *keys =

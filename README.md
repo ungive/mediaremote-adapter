@@ -146,8 +146,6 @@ or a dictionary with any of the following keys:
 `isInWishList`
 `isLiked`
 `isMusicApp`
-`likeCommandEnabled`
-`likeCommandActive`
 `playbackRate`
 `prohibitsSkip`
 `queueIndex`
@@ -168,6 +166,7 @@ or a dictionary with any of the following keys:
 `contentItemIdentifier`
 `radioStationHash`
 `mediaType`
+`supportedCommands`
 
 The following mandatory keys never have a null value:
 `bundleIdentifier`
@@ -178,14 +177,23 @@ the command prints `null`.
 Media without a title is considered invalid.
 Note that the `--allow-missing-title` option marks an exception to this rule for the `title` key.
 
+The `supportedCommands` key is only present  contains an array of dictionaries
+each of which may have the following keys: `id`, `name`, `enabled` and `options`.
+The `id` key is an integer and contains the identifier of the command
+that can be used with the `send` adapter command.
+The `name` key is a string and contains the name of the command.
+The `enabled` key is a boolean and contains the enabled state of this command.
+Only enabled commands can be used with the `send` adapter command.
+The `options` key is a dictionary with arbitrary values,
+but contains a mapping of string option keys to booleans most of the time
+(though this is not validated by the adapter).
+Note that any of the keys except the `id` key may be missing,
+so their existence should be validated before use.
+
 The `mediaType` may contain one of the following values:
 - `MRMediaRemoteMediaTypeMusic`
 - `kMRMediaRemoteNowPlayingInfoTypeAudio`
 - Possibly others, this key is not very well documented
-
-`likeCommandEnabled` is `true` when the player enables the like command.
-`likeCommandActive` is `true` or `false` when the command is enabled and
-the player reports its state. Both keys are omitted with `get --bundle-id`.
 
 **Caveats**
 
