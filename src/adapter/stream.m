@@ -506,7 +506,8 @@ extern void adapter_stream() {
                             // This is a different process, reset all data.
                             resetAll();
                         }
-                        if (liveData[kMRAProcessIdentifier] == nil) {
+                        if (liveData[kMRAProcessIdentifier] == nil ||
+                            liveData[kMRABundleIdentifier] == nil) {
                             requestNowPlayingApplicationProcessAndBundleIdentifier();
                         }
                         if (liveData[kMRAParentApplicationBundleIdentifier] ==
