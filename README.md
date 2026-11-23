@@ -326,24 +326,19 @@ A value of `1000` for `N` is recommended for TIDAL specifically.
 
 Sends a MediaRemote command to the now playing application.
 
-The value for `COMMAND` must be a valid ID from the table below.
+The value for `COMMAND` must be a positive integer
+and it must represent a command that is supported by the current now playing application.
+The command must also be enabled with the application.
+Check the `supportedCommands` key of the `get` or `stream` output,
+to see which commands are supported and enabled.
+Sending is aborted, if validation fails.
+Validation is skipped, when it's not possible to enumerate supported commands
+or when enumerating the supported commands times out.
 
-| ID | MediaRemote key         | Description                   |
-|:--:|-------------------------|-------------------------------|
-| 0  | kMRPlay                 | Start playback                |
-| 1  | kMRPause                | Pause playback                |
-| 2  | kMRTogglePlayPause      | Toggle between play and pause |
-| 3  | kMRStop                 | Stop playback                 |
-| 4  | kMRNextTrack            | Skip to the next track        |
-| 5  | kMRPreviousTrack        | Return to the previous track  |
-| 6  | kMRToggleShuffle        | Toggle shuffle mode           |
-| 7  | kMRToggleRepeat         | Toggle repeat mode            |
-| 8  | kMRStartForwardSeek     | Start seeking forward         |
-| 9  | kMREndForwardSeek       | Stop seeking forward          |
-| 10 | kMRStartBackwardSeek    | Start seeking backward        |
-| 11 | kMREndBackwardSeek      | Stop seeking backward         |
-| 12 | kMRGoBackFifteenSeconds | Go back 15 seconds            |
-| 13 | kMRSkipFifteenSeconds   | Skip ahead 15 seconds         |
+**Options**
+
+`--force`/`-f`&ensp;Skips validation and always trys to send the command,
+regardless of whether it is supported or enabled
 
 ---
 
