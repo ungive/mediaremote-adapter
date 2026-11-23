@@ -246,6 +246,10 @@ from the payload. Useful for consumers that do not render artwork,
 since this avoids emitting several hundred kilobytes of base64-encoded
 image data per update.
 
+`--human-readable`/`-h`&ensp;Makes values human-readable. Use only for debugging.
+The JSON output is pretty-printed and the following keys are adapted:
+- `artworkData`: Binary data is truncated to a shorter representation
+
 ---
 
 ### stream
@@ -304,6 +308,9 @@ The default is 0.
 `--no-artwork`&ensp;Identical to the `--no-artwork` option of the `get`
 command. Particularly useful with `stream` with the `--no-diff` parameter,
 since it otherwise re-emits the full artwork payload on every update.
+
+`--human-readable`/`-h`&ensp;Identical to the `--human-readable` option
+of the `get` command. 
 
 **Experimental options**
 
