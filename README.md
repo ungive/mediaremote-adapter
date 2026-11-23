@@ -127,46 +127,46 @@ Prints now playing information once with all available metadata.
 Output is encoded as JSON and characterized by either `null`
 or a dictionary with any of the following keys:
 
-> `bundleIdentifier`
-`parentApplicationBundleIdentifier`
-`playing`
-`title`
-`artist`
 `album`
-`duration`
-`elapsedTime`
-`timestamp`
-`artworkMimeType`
+`artist`
 `artworkData`
+`artworkMimeType`
+`bundleIdentifier`
 `chapterNumber`
 `composer`
+`contentItemIdentifier`
+`duration`
+`elapsedTime`
 `genre`
 `isAdvertisement`
 `isBanned`
 `isInWishList`
 `isLiked`
 `isMusicApp`
+`mediaType`
+`parentApplicationBundleIdentifier`
 `playbackRate`
+`playing`
 `prohibitsSkip`
 `queueIndex`
+`radioStationHash`
 `radioStationIdentifier`
 `repeatMode`
 `shuffleMode`
 `startTime`
+`supportedCommands`
 `supportsFastForward15Seconds`
 `supportsIsBanned`
 `supportsIsLiked`
 `supportsRewind15Seconds`
+`timestamp`
+`title`
 `totalChapterCount`
 `totalDiscCount`
 `totalQueueCount`
 `totalTrackCount`
 `trackNumber`
 `uniqueIdentifier`
-`contentItemIdentifier`
-`radioStationHash`
-`mediaType`
-`supportedCommands`
 
 The following mandatory keys never have a null value:
 `bundleIdentifier`
