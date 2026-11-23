@@ -82,6 +82,11 @@ CFStringRef MRNowPlayingPlayerPathCreate = CFSTR("MRNowPlayingPlayerPathCreate")
 CFStringRef MRMediaRemoteGetNowPlayingInfoForPlayer = CFSTR("MRMediaRemoteGetNowPlayingInfoForPlayer");
 CFStringRef MRMediaRemoteGetSupportedCommandsForPlayer = CFSTR("MRMediaRemoteGetSupportedCommandsForPlayer");
 
+CFStringRef MRMediaRemoteCopySupportedCommands = CFSTR("MRMediaRemoteCopySupportedCommands");
+CFStringRef MRMediaRemoteCommandInfoGetCommand = CFSTR("MRMediaRemoteCommandInfoGetCommand");
+CFStringRef MRMediaRemoteCommandInfoGetEnabled = CFSTR("MRMediaRemoteCommandInfoGetEnabled");
+CFStringRef MRMediaRemoteCommandInfoCopyValueForKey = CFSTR("MRMediaRemoteCommandInfoCopyValueForKey");
+
 NSString *kMRNowPlayingClientUserInfoKey = @"kMRNowPlayingClientUserInfoKey";
 
 static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFrameworks/MediaRemote.framework";
@@ -141,10 +146,10 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     getNowPlayingInfoForPlayer = (MRMediaRemoteGetNowPlayingInfoForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfoForPlayer);
     getSupportedCommandsForPlayer = (MRMediaRemoteGetSupportedCommandsForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetSupportedCommandsForPlayer);
     getPlaybackStateForPlayer = (MRMediaRemoteGetPlaybackStateForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetPlaybackStateForPlayer);
-    copySupportedCommands = (MRMediaRemoteCopySupportedCommands_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCopySupportedCommands"));
-    commandInfoGetCommand = (MRMediaRemoteCommandInfoGetCommand_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoGetCommand"));
-    commandInfoGetEnabled = (MRMediaRemoteCommandInfoGetEnabled_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoGetEnabled"));
-    commandInfoCopyValueForKey = (MRMediaRemoteCommandInfoCopyValueForKey_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoCopyValueForKey"));
+    copySupportedCommands = (MRMediaRemoteCopySupportedCommands_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteCopySupportedCommands);
+    commandInfoGetCommand = (MRMediaRemoteCommandInfoGetCommand_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteCommandInfoGetCommand);
+    commandInfoGetEnabled = (MRMediaRemoteCommandInfoGetEnabled_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteCommandInfoGetEnabled);
+    commandInfoCopyValueForKey = (MRMediaRemoteCommandInfoCopyValueForKey_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteCommandInfoCopyValueForKey);
     return self;
 }
 @end
