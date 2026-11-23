@@ -461,6 +461,8 @@ extern void adapter_stream() {
                           // This is a different process, reset all data.
                           resetAll();
                       }
+                      liveData[kMRAProcessIdentifier] =
+                          process.processIdentifier;
                       liveData[kMRABundleIdentifier] = process.bundleIdentifier;
                       requestNowPlayingParentApplicationBundleIdentifier();
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
