@@ -7,6 +7,7 @@
 
 #import "MediaRemoteAdapter.h"
 #import "adapter/env.h"
+#import "adapter/feedback.h"
 #import "adapter/globals.h"
 #import "adapter/keys.h"
 #import "adapter/now_playing.h"
@@ -328,6 +329,17 @@ extern void adapter_stream() {
           });
     };
 
+    void (^requestFeedback)() = ^{
+      enter();
+      requestFeedbackState(g_serialdispatchQueue, ^(NSDictionary *state) {
+        if (state != nil) {
+            liveData[kMRALikeCommandEnabled] = state[kMRALikeCommandEnabled];
+            liveData[kMRALikeCommandActive] = state[kMRALikeCommandActive];
+        }
+        leave();
+      });
+    };
+
     void (^requestNowPlayingInfo)() = ^{
       enter();
       g_mediaRemote.getNowPlayingInfo(g_serialdispatchQueue, ^(
@@ -354,6 +366,12 @@ extern void adapter_stream() {
         }
         if (liveData[kMRAPlaying] != nil) {
             converted[kMRAPlaying] = liveData[kMRAPlaying];
+        }
+        if (liveData[kMRALikeCommandEnabled] != nil) {
+            converted[kMRALikeCommandEnabled] = liveData[kMRALikeCommandEnabled];
+        }
+        if (liveData[kMRALikeCommandActive] != nil) {
+            converted[kMRALikeCommandActive] = liveData[kMRALikeCommandActive];
         }
         // Use the old artwork data, since often the MediaRemote framework
         // unloads the artwork and then loads it again shortly after.
@@ -382,6 +400,7 @@ extern void adapter_stream() {
       requestNowPlayingParentApplicationBundleIdentifier();
       requestNowPlayingApplicationIsPlaying();
       requestNowPlayingInfo();
+      requestFeedback();
     };
 
     void (^resetAll)() = ^{
@@ -445,6 +464,7 @@ extern void adapter_stream() {
                       liveData[kMRABundleIdentifier] = process.bundleIdentifier;
                       requestNowPlayingParentApplicationBundleIdentifier();
                       liveData[kMRAPlaying] = @([isPlayingValue boolValue]);
+                      requestFeedback();
                       if (liveData[kMRATitle] == nil) {
                           requestNowPlayingInfo();
                       }
@@ -492,9 +512,23 @@ extern void adapter_stream() {
                             requestNowPlayingApplicationIsPlaying();
                         }
                         requestNowPlayingInfo();
+                        if (liveData[kMRALikeCommandEnabled] == nil ||
+                            liveData[kMRALikeCommandActive] == nil) {
+                            requestFeedback();
+                        }
                       });
                     });
                   }];
+                }];
+
+    // MPFeedbackCommand.active can change without new track metadata.
+    id feedback_change_observer = [default_center
+        addObserverForName:kMRMediaRemoteSupportedCommandsDidChangeNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *notification) {
+                  (void)notification;
+                  dispatchAndHandle(requestFeedback);
                 }];
 
     // Register notifications for when applications are closed.
@@ -517,13 +551,20 @@ extern void adapter_stream() {
                 }];
 
     g_mediaRemote.registerForNowPlayingNotifications(g_serialdispatchQueue);
+    if (g_mediaRemote.setWantsSupportedCommandsChangedNotifications) {
+        g_mediaRemote.setWantsSupportedCommandsChangedNotifications(true);
+    }
 
     CFRunLoopRun();
 
     g_mediaRemote.unregisterForNowPlayingNotifications();
+    if (g_mediaRemote.setWantsSupportedCommandsChangedNotifications) {
+        g_mediaRemote.setWantsSupportedCommandsChangedNotifications(false);
+    }
 
     [default_center removeObserver:is_playing_change_observer];
     [default_center removeObserver:info_change_observer];
+    [default_center removeObserver:feedback_change_observer];
     [shared_workscape_notification_center
         removeObserver:app_termination_observer];
 }

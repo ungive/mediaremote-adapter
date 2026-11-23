@@ -146,6 +146,8 @@ or a dictionary with any of the following keys:
 `isInWishList`
 `isLiked`
 `isMusicApp`
+`likeCommandEnabled`
+`likeCommandActive`
 `playbackRate`
 `prohibitsSkip`
 `queueIndex`
@@ -180,6 +182,10 @@ The `mediaType` may contain one of the following values:
 - `MRMediaRemoteMediaTypeMusic`
 - `kMRMediaRemoteNowPlayingInfoTypeAudio`
 - Possibly others, this key is not very well documented
+
+`likeCommandEnabled` is `true` when the player enables the like command.
+`likeCommandActive` is `true` or `false` when the command is enabled and
+the player reports its state. Both keys are omitted with `get --bundle-id`.
 
 **Caveats**
 
