@@ -278,7 +278,7 @@ extern void adapter_stream() {
       });
     };
 
-    void (^requestNowPlayingApplicationPID)() = ^{
+    void (^requestNowPlayingApplicationProcessAndBundleIdentifier)() = ^{
       enter();
       g_mediaRemote.getNowPlayingApplicationPID(
           g_serialdispatchQueue, ^(int pid) {
@@ -395,7 +395,7 @@ extern void adapter_stream() {
     };
 
     void (^requestAll)() = ^{
-      requestNowPlayingApplicationPID();
+      requestNowPlayingApplicationProcessAndBundleIdentifier();
       requestNowPlayingParentApplicationBundleIdentifier();
       requestNowPlayingApplicationIsPlaying();
       requestSupportedCommands();
@@ -507,7 +507,7 @@ extern void adapter_stream() {
                             resetAll();
                         }
                         if (liveData[kMRAProcessIdentifier] == nil) {
-                            requestNowPlayingApplicationPID();
+                            requestNowPlayingApplicationProcessAndBundleIdentifier();
                         }
                         if (liveData[kMRAParentApplicationBundleIdentifier] ==
                             nil) {
