@@ -80,6 +80,7 @@ CFStringRef MRNowPlayingClientGetProcessIdentifier = CFSTR("MRNowPlayingClientGe
 CFStringRef MRMediaRemoteGetLocalOrigin = CFSTR("MRMediaRemoteGetLocalOrigin");
 CFStringRef MRNowPlayingPlayerPathCreate = CFSTR("MRNowPlayingPlayerPathCreate");
 CFStringRef MRMediaRemoteGetNowPlayingInfoForPlayer = CFSTR("MRMediaRemoteGetNowPlayingInfoForPlayer");
+CFStringRef MRMediaRemoteGetSupportedCommandsForPlayer = CFSTR("MRMediaRemoteGetSupportedCommandsForPlayer");
 
 NSString *kMRNowPlayingClientUserInfoKey = @"kMRNowPlayingClientUserInfoKey";
 
@@ -105,6 +106,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
 @synthesize getLocalOrigin;
 @synthesize nowPlayingPlayerPathCreate;
 @synthesize getNowPlayingInfoForPlayer;
+@synthesize getSupportedCommandsForPlayer;
 @synthesize copySupportedCommands;
 @synthesize commandInfoGetCommand;
 @synthesize commandInfoGetEnabled;
@@ -137,6 +139,7 @@ static NSString *MediaRemoteFrameworkBundleURL = @"/System/Library/PrivateFramew
     getLocalOrigin = (MRMediaRemoteGetLocalOrigin_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetLocalOrigin);
     nowPlayingPlayerPathCreate = (MRNowPlayingPlayerPathCreate_t)CFBundleGetFunctionPointerForName(bundle, MRNowPlayingPlayerPathCreate);
     getNowPlayingInfoForPlayer = (MRMediaRemoteGetNowPlayingInfoForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetNowPlayingInfoForPlayer);
+    getSupportedCommandsForPlayer = (MRMediaRemoteGetSupportedCommandsForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetSupportedCommandsForPlayer);
     getPlaybackStateForPlayer = (MRMediaRemoteGetPlaybackStateForPlayer_t)CFBundleGetFunctionPointerForName(bundle, MRMediaRemoteGetPlaybackStateForPlayer);
     copySupportedCommands = (MRMediaRemoteCopySupportedCommands_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCopySupportedCommands"));
     commandInfoGetCommand = (MRMediaRemoteCommandInfoGetCommand_t)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteCommandInfoGetCommand"));

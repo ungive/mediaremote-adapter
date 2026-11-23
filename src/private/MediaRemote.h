@@ -155,6 +155,7 @@ typedef void (^MRMediaRemoteGetNowPlayingClientsCompletion_t)(NSArray *clients);
 // (MRNowPlayingArtworkImage) when artwork was requested and is available,
 // otherwise nil. A failed request yields nil information.
 typedef void (^MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t)(NSDictionary *information, id artwork);
+typedef void (^MRMediaRemoteGetSupportedCommandsForPlayerCompletion_t)(NSArray *commands);
 
 typedef void (*MRMediaRemoteGetNowPlayingClients_t)(dispatch_queue_t queue, MRMediaRemoteGetNowPlayingClientsCompletion_t completion);
 typedef CFStringRef (*MRNowPlayingClientGetBundleIdentifier_t)(id client);
@@ -165,6 +166,7 @@ typedef CFTypeRef (*MRNowPlayingPlayerPathCreate_t)(id origin, id client, id pla
 // MRMediaRemoteGetNowPlayingInfo does. Without it, the information contains
 // the artwork MIME type, but no artwork data.
 typedef void (*MRMediaRemoteGetNowPlayingInfoForPlayer_t)(id playerPath, bool includeArtwork, dispatch_queue_t queue, MRMediaRemoteGetNowPlayingInfoForPlayerCompletion_t completion);
+typedef void (*MRMediaRemoteGetSupportedCommandsForPlayer_t)(id playerPath, dispatch_queue_t queue, MRMediaRemoteGetSupportedCommandsForPlayerCompletion_t completion);
 
 #pragma mark Miscellaneous
 
@@ -203,6 +205,7 @@ extern NSString *kMRNowPlayingClientUserInfoKey;
 @property(readonly) MRMediaRemoteGetLocalOrigin_t getLocalOrigin;
 @property(readonly) MRNowPlayingPlayerPathCreate_t nowPlayingPlayerPathCreate;
 @property(readonly) MRMediaRemoteGetNowPlayingInfoForPlayer_t getNowPlayingInfoForPlayer;
+@property(readonly) MRMediaRemoteGetSupportedCommandsForPlayer_t getSupportedCommandsForPlayer;
 @property(readonly) MRMediaRemoteCopySupportedCommands_t copySupportedCommands;
 @property(readonly) MRMediaRemoteCommandInfoGetCommand_t commandInfoGetCommand;
 @property(readonly) MRMediaRemoteCommandInfoGetEnabled_t commandInfoGetEnabled;

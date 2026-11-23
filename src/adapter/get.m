@@ -39,7 +39,7 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
     if (!mr.getNowPlayingClients || !mr.nowPlayingClientGetBundleIdentifier ||
         !mr.nowPlayingClientGetProcessIdentifier || !mr.getLocalOrigin ||
         !mr.nowPlayingPlayerPathCreate || !mr.getNowPlayingInfoForPlayer ||
-        !mr.getPlaybackStateForPlayer) {
+        !mr.getSupportedCommandsForPlayer || !mr.getPlaybackStateForPlayer) {
         fail(@"Reading a specific application is not supported on this system");
     }
 
@@ -87,9 +87,8 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
             continue;
         }
 
-        // TODO: Call MRMediaRemoteGetSupportedCommandsForPlayer...
-
         __block NSDictionary *information = nil;
+        __block NSArray *supportedCommands = nil;
         __block unsigned int playbackState = 0;
         dispatch_group_t group = dispatch_group_create();
         dispatch_group_enter(group);
@@ -99,6 +98,12 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
                                         information = [result copy];
                                         dispatch_group_leave(group);
                                       });
+        dispatch_group_enter(group);
+        mr.getSupportedCommandsForPlayer(
+            playerPath, g_serialdispatchQueue, ^(NSArray *commands) {
+              supportedCommands = convertSupportedCommandsList(commands);
+              dispatch_group_leave(group);
+            });
         dispatch_group_enter(group);
         mr.getPlaybackStateForPlayer(playerPath, g_serialdispatchQueue,
                                      ^(unsigned int state) {
@@ -132,6 +137,9 @@ static NSArray *internal_get_for_bundle(NSString *bundleIdentifier) {
             [data addEntriesFromDictionary:convertNowPlayingInformation(
                                                information, convert_micros,
                                                calculate_now, no_artwork)];
+        }
+        if (supportedCommands) {
+            data[kMRASupportedCommands] = supportedCommands;
         }
         // Ask the player for its playback state instead of deriving it from
         // the playback rate in the metadata, which some applications, like
