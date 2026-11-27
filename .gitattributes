@@ -1,1 +1,5 @@
+# This is very important, otherwise media-control cannot be directly invoked on
+# with the error "bad interpreter: /usr/bin/perl^M: no such file or directory".
+bin/*.pl text eol=lf 
+
 scripts/*.sh text eol=lf
