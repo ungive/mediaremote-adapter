@@ -3,3 +3,4 @@
 bin/*.pl text eol=lf 
 
 scripts/*.sh text eol=lf
+scripts/*.py text eol=lf
